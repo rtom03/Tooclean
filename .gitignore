@@ -18,11 +18,9 @@ backend/node_modules/
 # =========================
 # Build outputs
 # =========================
-dist/
 dist-ssr/
 build/
 frontend/dist/
-backend/dist/
 
 # =========================
 # Prisma
