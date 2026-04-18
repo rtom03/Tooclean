@@ -1,13 +1,30 @@
 import { useRef, useState } from "react";
 
 const reviews = [
-  { id: 5, src: "/VideoReview5.mp4" },
-  { id: 4, src: "/VideoReview4.mov" },
-  { id: 2, src: "/VideoReview2.mp4" },
-  { id: 3, src: "/VideoReview3.mp4" },
-  { id: 1, src: "/VideoReview1.mov" },
-  { id: 6, src: "/VideoReview6.MP4" },
-  // { id: 6, src: "/VideoReview1.mov" },
+  {
+    id: 5,
+    src: "https://res.cloudinary.com/dlcfbqjkz/video/upload/v1776530733/VideoReview5_rqbwsw.mp4",
+  },
+  {
+    id: 4,
+    src: "https://res.cloudinary.com/dlcfbqjkz/video/upload/v1776530781/VideoReview4_iejulz.mov",
+  },
+  {
+    id: 2,
+    src: "https://res.cloudinary.com/dlcfbqjkz/video/upload/v1776530798/VideoReview2_jldwd5.mp4",
+  },
+  {
+    id: 3,
+    src: "https://res.cloudinary.com/dlcfbqjkz/video/upload/v1776530813/VideoReview3_eyoozc.mp4",
+  },
+  {
+    id: 1,
+    src: "https://res.cloudinary.com/dlcfbqjkz/video/upload/v1776530830/VideoReview1_fekqhl.mov",
+  },
+  {
+    id: 6,
+    src: "https://res.cloudinary.com/dlcfbqjkz/video/upload/v1776530708/VideoReview6_cltdmm.mp4",
+  },
 ];
 
 const PRODUCT = { name: "Hairline Spray", price: "$24.99" };
