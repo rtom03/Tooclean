@@ -2,21 +2,6 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getProducts } from "../services/apiServices";
 
-const products = [
-  {
-    src: "/tcblack.jpg",
-    name: "Too Clean Hairline Spray",
-    shade: "Black",
-    price: "₦24.99",
-  },
-  {
-    src: "/tcbrown.jpg",
-    name: "Too Clean Hairline Spray",
-    shade: "Brown",
-    price: "₦24.99",
-  },
-];
-
 type Product = {
   id: string;
   name: string;

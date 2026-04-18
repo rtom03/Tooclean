@@ -40,10 +40,9 @@ app.use("/api", routes);
 // SPA fallback (IMPORTANT)
 app.use(express.static(path.join(__dirname, "backend", "dist")));
 
-// app.get("*", (req, res) => {
-//   res.sendFile(path.join(__dirname, "backend", "dist", "index.html"));
-// });
-
+app.use((req, res) => {
+  res.sendFile(path.join(__dirname, "backend", "dist", "index.html"));
+});
 // app.use(routeNotFound);
 // app.use(errorHandler);
 

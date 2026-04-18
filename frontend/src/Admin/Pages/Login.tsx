@@ -1,14 +1,20 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 
 const AdminLogin = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setEmail("");
+    setPassword("");
+    setError("");
+    setLoading(false);
+  });
 
   const inputClass =
     "w-full border-[1.5px] border-[#e0e0e0] rounded-lg px-3.5 py-2.5 text-[14px] text-[#1a1a1a] placeholder:text-[#ccc] outline-none focus:border-[#1a1a1a] transition-colors";
