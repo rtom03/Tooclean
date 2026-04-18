@@ -1,0 +1,181 @@
+import { useState, useRef, useEffect } from "react";
+import { ShoppingBag, ChevronDown, Menu, X } from "lucide-react";
+import { Link } from "react-router-dom";
+
+const shopLinks = ["Black Hairline Spray", "Brown Hairline Spray"];
+
+const Header = () => {
+  const [shopOpen, setShopOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node)
+      ) {
+        setShopOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  // lock body scroll when mobile menu open
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileOpen]);
+
+  return (
+    <>
+      <header className="sticky top-0 z-50 bg-[#1a1a1a] border-b border-white/8 h-16 flex items-center justify-between px-5 md:px-7">
+        {/* ── MOBILE LEFT — Hamburger ── */}
+        <button
+          className="md:hidden text-white p-1"
+          onClick={() => setMobileOpen(!mobileOpen)}
+        >
+          {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+        </button>
+
+        {/* ── DESKTOP LEFT — Logo + Nav ── */}
+        <div className="hidden md:flex items-center">
+          <div className="w-12 h-12 bg-white flex items-center justify-center rounded-sm mr-4 shrink-0">
+            <Link to={"/"}>
+              <img src="/Tooclean.jpg" alt="logo" />
+            </Link>
+          </div>
+          <nav className="flex items-center">
+            <div ref={dropdownRef} className="relative">
+              <button
+                onClick={() => setShopOpen(!shopOpen)}
+                className="flex items-center gap-1.5 text-white text-[11px] font-bold tracking-[0.1em] uppercase h-16 px-5 border-x border-white/20 hover:opacity-70 transition-opacity"
+              >
+                SHOP
+                <ChevronDown
+                  size={12}
+                  className={`transition-transform duration-200 ${shopOpen ? "rotate-180" : ""}`}
+                />
+              </button>
+              {shopOpen && (
+                <div className="absolute top-16 left-0 bg-[#1a1a1a] border border-t-0 border-white/10 min-w-[180px] py-2 z-50">
+                  {shopLinks.map((item) => (
+                    <Link
+                      key={item}
+                      to="#"
+                      className="block px-5 py-2.5 text-[11px] font-semibold tracking-[0.08em] uppercase text-[#aaa] hover:text-white hover:bg-white/5 transition-all"
+                    >
+                      {item}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+            <Link
+              to="/founder"
+              className="text-white text-[11px] font-bold tracking-[0.1em] uppercase px-5 h-16 flex items-center hover:opacity-70 transition-opacity"
+            >
+              Too Clean Culture
+            </Link>
+            <Link
+              to="/track-order"
+              className="text-white text-[11px] font-bold tracking-[0.1em] uppercase px-5 h-16 flex items-center hover:opacity-70 transition-opacity"
+            >
+              Track Your Order
+            </Link>
+          </nav>
+        </div>
+
+        {/* ── MOBILE CENTER — Logo ── */}
+        <Link to="/" className="md:hidden absolute left-1/2 -translate-x-1/2">
+          <div className="w-10 h-10 bg-white flex items-center justify-center rounded-sm">
+            {/* <Link to={"/"}> */}
+            <img src="/Tooclean.jpg" alt="logo" />
+            {/* </Link> */}
+          </div>
+        </Link>
+
+        {/* ── RIGHT — Region + Cart (shared) ── */}
+        <div className="flex items-center gap-2">
+          <button className="hidden md:flex items-center gap-1.5 text-[#d1d5db] text-[13px] hover:text-white transition-colors">
+            Nigeria | NGN
+            <ChevronDown size={12} />
+          </button>
+          <span className="hidden md:block text-white/20 text-sm mx-1">|</span>
+          <button className="text-white hover:opacity-70 transition-opacity md:ml-2">
+            <ShoppingBag size={22} strokeWidth={1.8} />
+          </button>
+        </div>
+      </header>
+
+      {/* ── MOBILE DRAWER ── */}
+      {mobileOpen && (
+        <div className="md:hidden fixed inset-0 z-40 flex">
+          {/* Overlay */}
+          <div
+            className="absolute inset-0 bg-black/60"
+            onClick={() => setMobileOpen(false)}
+          />
+          {/* Panel */}
+          <div className="relative w-72 max-w-[80vw] bg-[#1a1a1a] h-full flex flex-col z-50 overflow-y-auto">
+            <div className="px-6 py-8 flex flex-col gap-1">
+              {/* Shop with sub-links */}
+              <div>
+                <button
+                  onClick={() => setShopOpen(!shopOpen)}
+                  className="w-full flex items-center justify-between text-white text-[12px] font-bold tracking-[0.1em] uppercase py-4 border-b border-white/10"
+                >
+                  SHOP
+                  <ChevronDown
+                    size={14}
+                    className={`transition-transform duration-200 ${shopOpen ? "rotate-180" : ""}`}
+                  />
+                </button>
+                {shopOpen && (
+                  <div className="flex flex-col pl-4 py-2 gap-1">
+                    {shopLinks.map((item) => (
+                      <Link
+                        key={item}
+                        to="#"
+                        onClick={() => setMobileOpen(false)}
+                        className="text-[#aaa] text-[11px] font-semibold tracking-[0.08em] uppercase py-2.5 hover:text-white transition-colors"
+                      >
+                        {item}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <Link
+                to="/founder"
+                onClick={() => setMobileOpen(false)}
+                className="text-white text-[12px] font-bold tracking-[0.1em] uppercase py-4 border-b border-white/10 hover:opacity-70 transition-opacity"
+              >
+                Too Clean Culture
+              </Link>
+              <Link
+                to="/track-order"
+                onClick={() => setMobileOpen(false)}
+                className="text-white text-[12px] font-bold tracking-[0.1em] uppercase py-4 border-b border-white/10 hover:opacity-70 transition-opacity"
+              >
+                Track Your Order
+              </Link>
+
+              {/* Region */}
+              <button className="flex items-center gap-2 text-[#d1d5db] text-[12px] uppercase tracking-wide py-4 mt-4 hover:text-white transition-colors">
+                United States | USD $
+                <ChevronDown size={12} />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
+
+export default Header;
