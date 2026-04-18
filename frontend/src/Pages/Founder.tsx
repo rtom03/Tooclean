@@ -22,7 +22,7 @@ const Founder = () => {
       <div className="w-full relative rounded-2xl overflow-hidden bg-[#111] aspect-video cursor-pointer group">
         <video
           ref={videoRef}
-          src="/founders-story.mp4"
+          src="https://res.cloudinary.com/dlcfbqjkz/video/upload/v1776534102/founders-story_o70l8v.mp4"
           preload="metadata"
           playsInline
           onEnded={() => setPlaying(false)}
