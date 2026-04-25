@@ -27,6 +27,8 @@ frontend/dist/
 # =========================
 backend/generated/
 backend/generated/prisma/
+backend/dist
+frontend/dist
 prisma/*.db
 *.db
 *.db-journal
