@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import ProductImageGallery from "../components/ProductImageGallery";
 import { useNavigate, useParams } from "react-router-dom";
 import { createOrderData, getProduct } from "../services/apiServices";
+import { Loader2 } from "lucide-react";
 
 type Product = {
   id: string;
@@ -17,25 +18,19 @@ const generateBundles = (basePrice: number) => [
     qty: 1,
     label: "1 Bottle",
     price: basePrice,
-    // oldPrice: null,
-    discount: null,
     badge: "Free Shipping",
   },
   {
     qty: 3,
     label: "3 Bottles",
     price: basePrice * 3 - 1500,
-    // oldPrice: basePrice * 3,
-    discount: "20% OFF",
-    badge: "Free Shipping",
+    badge: "Save ₦1500 + Free Shipping",
   },
   {
     qty: 5,
     label: "5 Bottles",
-    price: basePrice * 5, // 27% off
-    oldPrice: basePrice * 5 - 5000,
-    discount: "27% OFF",
-    badge: "Save ₦1500 + Free Shipping",
+    price: basePrice * 5 - 5000, // 27% off
+    badge: "Save ₦5000 + Free Shipping",
   },
 ];
 
@@ -43,10 +38,11 @@ const ProductDetail = () => {
   const [detail, setDetail] = useState<Product | null>(null);
   const [selected, setSelected] = useState<number>(1); // default select 1 bottle
   const { id } = useParams<{ id: string }>();
-
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleBuyNow = async () => {
+    setLoading(!loading);
     if (!detail) return;
 
     const selectedBundle = bundles.find((b) => b.qty === selected);
@@ -57,7 +53,7 @@ const ProductDetail = () => {
         productId: detail.id,
         qty: selectedBundle.qty,
       });
-
+      setLoading(loading);
       navigate(`/check-out/${res.orderId}`);
     } catch (err) {
       console.error(err);
@@ -131,15 +127,15 @@ const ProductDetail = () => {
 
               {/* Thumbnails — duplicate images based on qty */}
               <div className="relative shrink-0 flex items-center">
-                {Array.from({ length: b.qty }).map((_, i) => (
-                  <img
-                    key={i}
-                    src={detail?.images?.[0] ?? "/placeholder.jpg"}
-                    alt={detail?.name}
-                    className="w-10 h-10 object-contain"
-                    style={{ marginLeft: i > 0 ? -16 : 0 }} // overlap effect
-                  />
-                ))}
+                {/* {Array.from({ length: b.qty }).map((_, i) => ( */}
+                <img
+                  // key={i}
+                  src={detail?.images?.[0] ?? "/placeholder.jpg"}
+                  alt={detail?.name}
+                  className="w-10 h-10 object-contain"
+                  // style={{ marginLeft: i > 0 ? -16 : 0 }} // overlap effect
+                />
+                {/* ))} */}
                 {/* qty badge */}
                 <div className="absolute -bottom-1 -left-1 bg-[#1a1a1a] text-white text-[9px] font-extrabold w-[18px] h-[18px] rounded flex items-center justify-center">
                   x{b.qty}
@@ -152,11 +148,6 @@ const ProductDetail = () => {
                   {b.label}
                 </p>
                 <div className="flex gap-2 mt-1">
-                  {b.discount && (
-                    <span className="text-[11px] font-semibold text-[#555]">
-                      {b.discount}
-                    </span>
-                  )}
                   <span className="text-[11px] font-semibold text-[#1a7a3c]">
                     Free Shipping
                   </span>
@@ -168,29 +159,18 @@ const ProductDetail = () => {
                 <p className="text-[17px] font-extrabold text-[#1a7a3c]">
                   ₦{b.price.toLocaleString("en-NG")}
                 </p>
-                {b.oldPrice && (
-                  <p className="text-[12px] text-[#aaa] line-through">
-                    ₦{b.oldPrice.toLocaleString("en-NG")}
-                  </p>
-                )}
               </div>
             </div>
           ))}
         </div>
 
         {/* CTA */}
-        {/* <Link
-          to="/check-out"
-          state={{
-            product: detail,
-            bundle: bundles.find((b) => b.qty === selected),
-          }}
-        > */}
+
         <button
           onClick={handleBuyNow}
-          className="w-full bg-[#453224] text-white text-[14px] font-extrabold tracking-[0.05em] uppercase py-4 rounded-lg hover:opacity-85 transition-opacity active:scale-[0.98]"
+          className="w-full bg-[#453224] text-white text-[14px] font-extrabold tracking-[0.05em] uppercase py-4 rounded-lg hover:opacity-85 transition-opacity active:scale-[0.98] flex items-center justify-center"
         >
-          Buy Now
+          {loading ? <Loader2 className="animate-spin w-5 h-5" /> : "Buy Now"}
         </button>
         {/* </Link> */}
       </div>

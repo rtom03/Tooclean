@@ -48,7 +48,9 @@ const TopSellers = () => {
                 {p.name}
               </p>
               <p className="text-[12px]  mt-0.5">{p.color}</p>
-              <p className="text-[15px] font-semibold  mt-2">{p.price}</p>
+              <p className="text-[15px] font-semibold  mt-2">
+                ₦{p.price.toLocaleString("en-NG")}
+              </p>
             </div>
           </Link>
         ))}
