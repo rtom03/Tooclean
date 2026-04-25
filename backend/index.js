@@ -38,10 +38,10 @@ app.use(morgan("dev"));
 app.use("/api", routes);
 
 // SPA fallback (IMPORTANT)
-app.use(express.static(path.join(__dirname, "..", "frontend", "dist")));
+app.use(express.static(path.join(__dirname, "backend", "dist")));
 
 app.use((req, res) => {
-  res.sendFile(path.join(__dirname, "..", "frontend", "dist", "index.html"));
+  res.sendFile(path.join(__dirname, "backend", "dist", "index.html"));
 });
 // app.use(routeNotFound);
 // app.use(errorHandler);
