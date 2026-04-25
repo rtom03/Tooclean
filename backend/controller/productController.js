@@ -27,6 +27,7 @@ export const createProduct = async (req, res) => {
       data: {
         ...parsed.data,
         images: imageUrls,
+        qty: 1,
       },
     });
 

@@ -1,20 +1,18 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-const images = [
-  "/tcblack.jpg",
-  // "/review0.jpg",
-  // "/review1.jpg",
-  // "/Culture_Lifestyle2.jpg",
-  // "/review2.jpg",
-  // "/review3.jpg",
-];
-
-const ProductImageGallery = () => {
+export type Props = {
+  images: string[];
+};
+const ProductImageGallery = ({ images }: Props) => {
   const [current, setCurrent] = useState(0);
 
   const prev = () => setCurrent((i) => (i === 0 ? images.length - 1 : i - 1));
   const next = () => setCurrent((i) => (i === images.length - 1 ? 0 : i + 1));
+
+  useEffect(() => {
+    console.log(images[current]);
+  }, []);
 
   return (
     <div className="relative bg-[#F5EFE6] rounded-xl overflow-hidden aspect-square flex items-center justify-center group">

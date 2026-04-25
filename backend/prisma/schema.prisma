@@ -37,7 +37,38 @@ model Product {
   price       Float
   color      String
   description String
+  qty         Int
   images      String[] // array of image URLs
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model Order {
+  id                   String   @id @default(uuid())
+  orderNumber          String   @unique
+  customerName         String
+  email                String
+  phone                String
+  address              String
+  items                Json
+  subtotal             Float?
+  total                Float
+  status               String   @default("pending")  // pending | paid | processing | shipped | delivered | failed
+  paymentStatus        String   @default("unpaid")   // unpaid | paid
+  paystackCustomerCode String?
+  dedicatedAccountNo   String?
+  dedicatedBankName    String?
+  dedicatedAccountName String?
+  paystackReference    String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
+
+model Create_Order {
+  id        String   @id @default(uuid())
+  productId String
+  qty       Int
+  price     Int
+  total     Int
+  createdAt DateTime @default(now())
 }

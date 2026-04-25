@@ -1,44 +1,88 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ProductImageGallery from "../components/ProductImageGallery";
-import { Link } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { createOrderData, getProduct } from "../services/apiServices";
 
-const bundles = [
+type Product = {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  images: string[];
+};
+
+// generate bundles dynamically from product price
+const generateBundles = (basePrice: number) => [
   {
-    id: 1,
+    qty: 1,
     label: "1 Bottle",
-    price: "$24.99",
-    oldPrice: null,
+    price: basePrice,
+    // oldPrice: null,
     discount: null,
     badge: "Free Shipping",
-    qty: 1,
   },
   {
-    id: 2,
-    label: "2 Bottles",
-    price: "$40.00",
-    oldPrice: "$50.00",
+    qty: 3,
+    label: "3 Bottles",
+    price: basePrice * 3 - 1500,
+    // oldPrice: basePrice * 3,
     discount: "20% OFF",
     badge: "Free Shipping",
-    qty: 2,
   },
   {
-    id: 3,
-    label: "3 Bottles",
-    price: "$55.00",
-    oldPrice: "$75.00",
+    qty: 5,
+    label: "5 Bottles",
+    price: basePrice * 5, // 27% off
+    oldPrice: basePrice * 5 - 5000,
     discount: "27% OFF",
-    badge: "Save the Most + Free Shipping",
-    qty: 3,
+    badge: "Save ₦1500 + Free Shipping",
   },
 ];
 
 const ProductDetail = () => {
-  const [selected, setSelected] = useState(1);
+  const [detail, setDetail] = useState<Product | null>(null);
+  const [selected, setSelected] = useState<number>(1); // default select 1 bottle
+  const { id } = useParams<{ id: string }>();
+
+  const navigate = useNavigate();
+
+  const handleBuyNow = async () => {
+    if (!detail) return;
+
+    const selectedBundle = bundles.find((b) => b.qty === selected);
+    if (!selectedBundle) return;
+
+    try {
+      const res = await createOrderData({
+        productId: detail.id,
+        qty: selectedBundle.qty,
+      });
+
+      navigate(`/check-out/${res.orderId}`);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  const fetchProduct = async (productId: string) => {
+    try {
+      const response = await getProduct(productId);
+      setDetail(response.product);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    if (!id) return;
+    fetchProduct(id);
+  }, [id]);
+
+  const bundles = detail ? generateBundles(detail.price) : [];
 
   return (
     <div className="max-w-5xl bg-[#F0E9DF] mx-auto px-7 py-12 grid grid-cols-1 md:grid-cols-2 gap-14">
       {/* LEFT — Image */}
-      <ProductImageGallery />
+      <ProductImageGallery images={detail?.images ?? []} />
 
       {/* RIGHT — Info */}
       <div className="flex flex-col pt-2">
@@ -46,7 +90,7 @@ const ProductDetail = () => {
           Too Clean — Hair Products
         </p>
         <h1 className="text-4xl font-black text-[#1a1a1a] tracking-tight mb-7">
-          Hairline Spray
+          {detail?.name ?? "Hairline Spray"}
         </h1>
 
         {/* Bundle header */}
@@ -62,37 +106,42 @@ const ProductDetail = () => {
         </p>
 
         {/* Bundle cards */}
-        <div className="flex flex-col gap-3 mb-6">
+        <div className="flex flex-col gap-4 mb-6">
           {bundles.map((b) => (
             <div
-              key={b.id}
-              onClick={() => setSelected(b.id)}
+              key={b.qty}
+              onClick={() => setSelected(b.qty)}
               className={`relative border-2 rounded-xl px-4 py-3.5 cursor-pointer flex items-center gap-4 transition-all
-                ${selected === b.id ? "border-[#1a1a1a]" : "border-[#e0e0e0]"}`}
+                ${selected === b.qty ? "border-[#1a1a1a]" : "border-[#e0e0e0]"}`}
             >
               {/* Badge */}
-              <div className="absolute -top-3 right-3 bg-[#1a1a1a] text-white text-[9px] font-extrabold tracking-[0.1em] uppercase px-2.5 py-1 rounded">
+              <div className="absolute -top-3 right-3 bg-[#1a1a1a] text-white text-[9px] font-extrabold tracking-[0.08em] uppercase px-2.5 py-1 rounded whitespace-nowrap">
                 {b.badge}
               </div>
 
               {/* Radio */}
               <div
-                className={`w-4.5 h-5.4 rounded-full border-2 shrink-0 flex items-center justify-center transition-colors
-                ${selected === b.id ? "border-[#1a1a1a]" : "border-[#ccc]"}`}
+                className={`w-[18px] h-[18px] rounded-full border-2 shrink-0 flex items-center justify-center transition-colors
+                  ${selected === b.qty ? "border-[#1a1a1a]" : "border-[#ccc]"}`}
               >
-                {selected === b.id && (
+                {selected === b.qty && (
                   <div className="w-2.5 h-2.5 rounded-full bg-[#1a1a1a]" />
                 )}
               </div>
 
-              {/* Thumbnail */}
-              <div className="relative shrink-0">
-                <img
-                  src="/tcblack.jpg"
-                  alt={b.label}
-                  className="w-12 h-12 object-contain"
-                />
-                <div className="absolute -bottom-1 -left-1 bg-[#1a1a1a] text-white text-[9px] font-extrabold w-4.5 h-4.5 rounded flex items-center justify-center">
+              {/* Thumbnails — duplicate images based on qty */}
+              <div className="relative shrink-0 flex items-center">
+                {Array.from({ length: b.qty }).map((_, i) => (
+                  <img
+                    key={i}
+                    src={detail?.images?.[0] ?? "/placeholder.jpg"}
+                    alt={detail?.name}
+                    className="w-10 h-10 object-contain"
+                    style={{ marginLeft: i > 0 ? -16 : 0 }} // overlap effect
+                  />
+                ))}
+                {/* qty badge */}
+                <div className="absolute -bottom-1 -left-1 bg-[#1a1a1a] text-white text-[9px] font-extrabold w-[18px] h-[18px] rounded flex items-center justify-center">
                   x{b.qty}
                 </div>
               </div>
@@ -113,14 +162,15 @@ const ProductDetail = () => {
                   </span>
                 </div>
               </div>
+
               {/* Price */}
               <div className="text-right">
                 <p className="text-[17px] font-extrabold text-[#1a7a3c]">
-                  {b.price}
+                  ₦{b.price.toLocaleString("en-NG")}
                 </p>
                 {b.oldPrice && (
                   <p className="text-[12px] text-[#aaa] line-through">
-                    {b.oldPrice}
+                    ₦{b.oldPrice.toLocaleString("en-NG")}
                   </p>
                 )}
               </div>
@@ -129,11 +179,20 @@ const ProductDetail = () => {
         </div>
 
         {/* CTA */}
-        <Link to={"/check-out"}>
-          <button className="w-full bg-[#453224] text-white text-[14px] font-extrabold tracking-[0.05em] uppercase py-4 rounded-lg hover:opacity-85 transition-opacity">
-            Buy Now
-          </button>
-        </Link>
+        {/* <Link
+          to="/check-out"
+          state={{
+            product: detail,
+            bundle: bundles.find((b) => b.qty === selected),
+          }}
+        > */}
+        <button
+          onClick={handleBuyNow}
+          className="w-full bg-[#453224] text-white text-[14px] font-extrabold tracking-[0.05em] uppercase py-4 rounded-lg hover:opacity-85 transition-opacity active:scale-[0.98]"
+        >
+          Buy Now
+        </button>
+        {/* </Link> */}
       </div>
     </div>
   );

@@ -35,7 +35,7 @@ const TopSellers = () => {
       </h1>
       <div className="grid grid-cols-2 gap-4 w-full max-w-2xl text-[#FBF6F0]">
         {products.map((p) => (
-          <Link to={"/product"} key={p.id}>
+          <Link to={`/product/${p.id}`} key={p.id}>
             <div className="bg-[#453224] rounded-2xl overflow-hidden aspect-3/4">
               <img
                 src={p.images[0]}
