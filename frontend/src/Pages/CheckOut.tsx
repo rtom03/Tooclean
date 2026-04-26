@@ -3,6 +3,7 @@ import { Loader2, Lock } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { getOrderData, initializePayment } from "../services/apiServices";
 import {
+  createOrderSchema,
   type InitializePaymentResponse,
   type Order,
   type OrderInfo,
@@ -14,28 +15,51 @@ const inputClass =
 
 const Checkout = () => {
   const { id } = useParams<string>();
-  const [bundle, setBundle] = useState<Order | null>();
+  const [bundle, setBundle] = useState<Order | null>(null);
   const [product, setProduct] = useState<Product | null>(null);
-  const [paymentData, setPaymentData] = useState<InitializePaymentResponse>();
+  const [paymentData, setPaymentData] =
+    useState<InitializePaymentResponse | null>(null);
   const [step, setStep] = useState<"form" | "payment">("form");
   const [loading, setLoading] = useState(false);
+  type FormErrors = Partial<Record<keyof OrderInfo, string>>;
+  const [errors, setErrors] = useState<FormErrors>({});
 
   useEffect(() => {
+    if (!id) return;
+
     const fetchOrder = async () => {
-      if (id) {
-        const res = await getOrderData(id);
-        setProduct(res?.product);
-        setBundle(res);
-        console.log(res);
-      }
+      const res = await getOrderData(id);
+      setProduct(res?.product);
+      setBundle(res);
     };
 
     fetchOrder();
   }, [id]);
 
+  const validate = (): boolean => {
+    const result = createOrderSchema.safeParse(form);
+    if (!result.success) {
+      const fieldErrors: FormErrors = {};
+      result.error.issues.forEach((issue) => {
+        const field = issue.path[0] as keyof OrderInfo;
+        if (!fieldErrors[field]) {
+          fieldErrors[field] = issue.message;
+        }
+      });
+      setErrors(fieldErrors);
+      return false;
+    }
+    setErrors({});
+    return true;
+  };
+
   const handleInitTransfer = async (e: any) => {
     e.preventDefault();
-    setLoading(!loading);
+    if (!validate()) return;
+
+    if (loading) return; // prevent double submit
+
+    setLoading(true);
     try {
       if (!id) return;
       const response = await initializePayment(id, form);
@@ -60,7 +84,15 @@ const Checkout = () => {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    // setForm({ ...form, [e.target.name]: e.target.value });
+    setForm((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+
+    // if (errors[name as keyof OrderInfo]) {
+    //   setErrors((prev) => ({ ...prev, [name]: undefined }));
+    // }
   };
 
   return (
@@ -142,22 +174,36 @@ const Checkout = () => {
               Contact
             </h3>
             <div className="flex flex-row gap-2.5">
-              <input
-                className={inputClass}
-                type="email"
-                name="email"
-                placeholder="Email"
-                value={form.email}
-                onChange={handleChange}
-              />
-              <input
-                className={inputClass}
-                type="tel"
-                name="phone"
-                placeholder="Phone number"
-                value={form.phone}
-                onChange={handleChange}
-              />
+              <div>
+                <input
+                  className={inputClass}
+                  type="email"
+                  name="email"
+                  placeholder="Email"
+                  value={form.email}
+                  onChange={handleChange}
+                />
+                {errors.email && (
+                  <p className="text-red-500 text-[11px] mt-1">
+                    {errors.email}
+                  </p>
+                )}
+              </div>
+              <div>
+                <input
+                  className={inputClass}
+                  type="tel"
+                  name="phone"
+                  placeholder="Phone number"
+                  value={form.phone}
+                  onChange={handleChange}
+                />
+                {errors.phone && (
+                  <p className="text-red-500 text-[11px] mt-1">
+                    {errors.phone}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         )}
@@ -176,6 +222,9 @@ const Checkout = () => {
               <option>Kano</option>
               <option>Oyo</option>
             </select>
+            {errors.state && (
+              <p className="text-red-500 text-[11px] mt-1">{errors.state}</p>
+            )}
             <input
               className={inputClass}
               type="text"
@@ -184,6 +233,11 @@ const Checkout = () => {
               value={form.customerName}
               onChange={handleChange}
             />
+            {errors.customerName && (
+              <p className="text-red-500 text-[11px] mt-1">
+                {errors.customerName}
+              </p>
+            )}
             <input
               className={inputClass}
               type="text"
@@ -192,6 +246,9 @@ const Checkout = () => {
               value={form.address}
               onChange={handleChange}
             />
+            {errors.address && (
+              <p className="text-red-500 text-[11px] mt-1">{errors.address}</p>
+            )}
           </div>
         </div>
 
@@ -214,11 +271,13 @@ const Checkout = () => {
         {/* CTA */}
         <button
           onClick={handleInitTransfer}
-          className="w-full bg-[#1a1a1a] text-white text-[14px] font-bold tracking-wide uppercase py-4 rounded-lg hover:opacity-85 transition-opacity active:scale-[0.98]"
-          disabled={step == "payment"}
+          className="w-full bg-[#1a1a1a] text-white text-[14px] font-bold tracking-wide uppercase py-4 rounded-lg hover:opacity-85 transition-opacity active:scale-[0.98] flex items-center justify-center"
+          disabled={step === "payment"}
         >
           {loading ? (
-            <Loader2 className="animate-spin w-5 h-5" />
+            <span className="flex items-center justify-center">
+              <Loader2 className="animate-spin w-5 h-5" />
+            </span>
           ) : (
             "Place Order"
           )}

@@ -1,3 +1,20 @@
+import { z } from "zod";
+
+export const createOrderSchema = z.object({
+  customerName: z
+    .string()
+    .min(3, "Name must be at least 2 words")
+    .regex(
+      /^[A-Za-z]+(?:\s[A-Za-z]+)+$/,
+      "Enter a valid full name (e.g. John Doe)",
+    ),
+  email: z.string().email("Enter a valid email address"),
+  phone: z.string().min(10, "Phone number must be at least 10 digits"),
+  address: z.string().min(1, "Address is required"),
+  state: z.string().min(2, "Please select a state"),
+});
+
+export type OrderInfo = z.infer<typeof createOrderSchema>;
 export type Product = {
   id: string;
   name: string;
@@ -20,13 +37,13 @@ export type Order = {
   product: Product; // 👈 nested
 };
 
-export type OrderInfo = {
-  customerName: string;
-  email: string;
-  phone: string;
-  address: string;
-  state: string;
-};
+// export type OrderInfo = {
+//   customerName: string;
+//   email: string;
+//   phone: string;
+//   address: string;
+//   state: string;
+// };
 
 export type InitializePaymentResponse = {
   message: string;
