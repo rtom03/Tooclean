@@ -32,11 +32,15 @@ export const createDedicatedAccount = async (
   customerCode,
   preferredBank = "wema-bank", // wema-bank or titan-paystack
 ) => {
-  const { data } = await paystack.post("/dedicated_account", {
-    customer: customerCode,
-    preferred_bank: preferredBank,
-  });
-  return data.data; // returns account number, bank name etc
+  try {
+    const { data } = await paystack.post("/dedicated_account", {
+      customer: customerCode,
+      preferred_bank: preferredBank,
+    });
+    return data.data; // returns account number, bank name etc
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 // ── 3. Fetch existing dedicated account ────────────────────

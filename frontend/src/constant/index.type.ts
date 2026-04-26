@@ -19,3 +19,31 @@ export type Order = {
   createdAt: string;
   product: Product; // 👈 nested
 };
+
+export type OrderInfo = {
+  customerName: string;
+  email: string;
+  phone: string;
+  address: string;
+  state: string;
+};
+
+export type InitializePaymentResponse = {
+  message: string;
+  payment_info: {
+    id: string;
+    name: string;
+    email: string;
+    phone: string;
+    address: string;
+    state: string;
+    orderDetails: JSON;
+    orderNumber: string;
+    total: number;
+    bankName: string;
+    accountNumber: string;
+    accountName: string;
+    amount: number;
+    note: string;
+  };
+};

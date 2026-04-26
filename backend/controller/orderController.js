@@ -7,20 +7,17 @@ import { z } from "zod";
 import { prisma } from "../utils/db.js";
 
 const createOrderSchema = z.object({
-  customerName: z.string().min(1),
+  customerName: z
+    .string()
+    .min(3, "Name must be at least 2 words")
+    .regex(
+      /^[A-Za-z]+(?:\s[A-Za-z]+)+$/,
+      "Enter a valid full name (e.g. John Doe)",
+    ),
   email: z.string().email(),
   phone: z.string().min(10),
   address: z.string().min(1),
-  items: z.array(
-    z.object({
-      productId: z.string(),
-      name: z.string(),
-      qty: z.number(),
-      price: z.number(),
-    }),
-  ),
-  subtotal: z.number().positive(),
-  total: z.number().positive(),
+  state: z.string().min(2),
 });
 
 // ── CREATE ORDER + GENERATE VIRTUAL ACCOUNT ────────────────
@@ -44,7 +41,7 @@ export const orderData = async (req, res) => {
     if (qty === 3) total -= 1500;
     if (qty === 5) total -= 5000;
 
-    const order = await prisma.create_Order.create({
+    const order = await prisma.order.create({
       data: {
         productId,
         qty,
@@ -63,7 +60,7 @@ export const orderData = async (req, res) => {
 export const getOrderDataById = async (req, res) => {
   const { id } = req.params;
 
-  const order = await prisma.create_Order.findUnique({
+  const order = await prisma.order.findUnique({
     where: { id },
   });
 
@@ -82,17 +79,21 @@ export const getOrderDataById = async (req, res) => {
   });
 };
 
-export const createOrder = async (req, res) => {
+export const initializeTransfer = async (req, res) => {
   try {
     const parsed = createOrderSchema.safeParse(req.body);
+    const { orderId } = req.params;
+
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+    });
     if (!parsed.success) {
       return res
         .status(400)
         .json({ errors: parsed.error.flatten().fieldErrors });
     }
 
-    const { customerName, email, phone, address, items, subtotal, total } =
-      parsed.data;
+    const { customerName, email, phone, address, state } = parsed.data;
 
     // 1. Generate order number
     const orderNumber = `TC-${Date.now().toString().slice(-6)}`;
@@ -115,16 +116,16 @@ export const createOrder = async (req, res) => {
     );
 
     // 4. Save order to DB
-    const order = await prisma.order.create({
+    const orderDetails = await prisma.payment_Info.create({
       data: {
         orderNumber,
         customerName,
         email,
         phone,
         address,
-        items,
-        subtotal,
-        total,
+        state,
+        orderDetails: order,
+        total: order.total,
         status: "pending",
         paymentStatus: "unpaid",
         paystackCustomerCode: paystackCustomer.customer_code,
@@ -136,17 +137,21 @@ export const createOrder = async (req, res) => {
 
     res.status(201).json({
       message: "Order created successfully",
-      order: {
-        id: order.id,
-        orderNumber: order.orderNumber,
-        total: order.total,
-        payment: {
-          bankName: order.dedicatedBankName,
-          accountNumber: order.dedicatedAccountNo,
-          accountName: order.dedicatedAccountName,
-          amount: order.total,
-          note: `Transfer exactly ₦${order.total} to complete your order`,
-        },
+      payment_info: {
+        id: orderDetails.id,
+        name: orderDetails.customerName,
+        email: orderDetails.email,
+        phone: orderDetails.phone,
+        address: orderDetails.address,
+        state: orderDetails.state,
+        orderDetails: orderDetails.orderDetails,
+        orderNumber: orderDetails.orderNumber,
+        total: orderDetails.total,
+        bankName: orderDetails.dedicatedBankName,
+        accountNumber: orderDetails.dedicatedAccountNo,
+        accountName: orderDetails.dedicatedAccountName,
+        amount: orderDetails.total,
+        note: `Transfer exactly ₦${orderDetails.total} to complete your order`,
       },
     });
   } catch (error) {
@@ -209,7 +214,7 @@ export const paystackWebhook = async (req, res) => {
       const { customer, amount, reference } = event.data;
 
       // find order by Paystack customer code
-      const order = await prisma.order.findFirst({
+      const order = await prisma.payment_Info.findFirst({
         where: { paystackCustomerCode: customer.customer_code },
       });
 
@@ -221,7 +226,7 @@ export const paystackWebhook = async (req, res) => {
       const paidAmount = amount / 100;
       if (paidAmount < order.total) {
         // underpayment — flag it
-        await prisma.order.update({
+        await prisma.payment_Info.update({
           where: { id: order.id },
           data: { paymentStatus: "underpaid", paystackReference: reference },
         });
@@ -229,7 +234,7 @@ export const paystackWebhook = async (req, res) => {
       }
 
       // mark as paid
-      await prisma.order.update({
+      await prisma.payment_Info.update({
         where: { id: order.id },
         data: {
           paymentStatus: "paid",

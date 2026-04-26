@@ -43,15 +43,15 @@ model Product {
   updatedAt   DateTime @updatedAt
 }
 
-model Order {
+model Payment_Info {
   id                   String   @id @default(uuid())
   orderNumber          String   @unique
   customerName         String
   email                String
   phone                String
   address              String
-  items                Json
-  subtotal             Float?
+  state                String
+  orderDetails         Json
   total                Float
   status               String   @default("pending")  // pending | paid | processing | shipped | delivered | failed
   paymentStatus        String   @default("unpaid")   // unpaid | paid
@@ -64,7 +64,7 @@ model Order {
   updatedAt            DateTime @updatedAt
 }
 
-model Create_Order {
+model Order {
   id        String   @id @default(uuid())
   productId String
   qty       Int

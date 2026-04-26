@@ -1,8 +1,13 @@
 import { useEffect, useState } from "react";
-import { Lock } from "lucide-react";
-import { useParams } from "react-router-dom";
-import { getOrderData } from "../services/apiServices";
-import { type Order, type Product } from "../constant/index.type";
+import { Loader2, Lock } from "lucide-react";
+import { data, useParams } from "react-router-dom";
+import { getOrderData, initializePayment } from "../services/apiServices";
+import {
+  type InitializePaymentResponse,
+  type Order,
+  type OrderInfo,
+  type Product,
+} from "../constant/index.type";
 
 const inputClass =
   "w-full border border-[#ddd] rounded-lg px-3.5 py-2.5 text-[14px] text-[#1a1a1a] placeholder:text-[#bbb] outline-none focus:border-[#1a1a1a] transition-colors bg-white";
@@ -11,30 +16,45 @@ const Checkout = () => {
   const { id } = useParams<string>();
   const [bundle, setBundle] = useState<Order | null>();
   const [product, setProduct] = useState<Product | null>(null);
+  const [paymentData, setPaymentData] = useState<InitializePaymentResponse>();
+  const [step, setStep] = useState<"form" | "payment">("form");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchOrder = async () => {
       if (id) {
         const res = await getOrderData(id);
         setProduct(res?.product);
-        const data = res;
-        setBundle(data);
-        console.log(data);
+        setBundle(res);
+        console.log(res);
       }
     };
 
     fetchOrder();
   }, [id]);
 
-  const [form, setForm] = useState({
-    firstName: "",
-    lastName: "",
+  const handleInitTransfer = async (e: any) => {
+    e.preventDefault();
+    setLoading(!loading);
+    try {
+      if (!id) return;
+      const response = await initializePayment(id, form);
+      console.log(`HERE ${response}`);
+      setPaymentData(response); // contains accountNumber, bankName, etc.
+      setStep("payment");
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const [form, setForm] = useState<OrderInfo>({
+    customerName: "",
     email: "",
     phone: "",
     address: "",
-    city: "",
-    postalCode: "",
-    region: "",
+    state: "",
   });
 
   const handleChange = (
@@ -52,27 +72,95 @@ const Checkout = () => {
         </p>
 
         {/* Contact */}
-        <div className="mb-7">
-          <h3 className="text-[15px] font-bold text-[#1a1a1a] mb-3">Contact</h3>
-          <div className="flex flex-row gap-2.5">
-            <input
-              className={inputClass}
-              type="email"
-              name="email"
-              placeholder="Email"
-              value={form.email}
-              onChange={handleChange}
-            />
-            <input
-              className={inputClass}
-              type="tel"
-              name="phone"
-              placeholder="Phone number"
-              value={form.phone}
-              onChange={handleChange}
-            />
+        {step === "payment" && paymentData ? (
+          // <div>
+          //   <p>Bank: {paymentData.payment_info.bankName}</p>
+          //   <p>Account Number: {paymentData.payment_info.accountNumber}</p>
+          //   <p>Account Name: {paymentData.payment_info.accountName}</p>
+          //   <p>Amount: ₦{paymentData.payment_info.amount}</p>
+          // </div>
+          <div className="bg-[#f7f7f5] border border-[#e8e8e8] rounded-2xl p-6 space-y-4">
+            {/* Header */}
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-2 h-2 rounded-full bg-[#1a7a3c] animate-pulse" />
+              <p className="text-[12px] font-bold uppercase tracking-[0.1em] text-[#1a7a3c]">
+                Transfer Details
+              </p>
+            </div>
+
+            {/* Bank */}
+            <div className="border-b border-[#e8e8e8] pb-4">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#999] mb-1">
+                Bank
+              </p>
+              <p className="text-[22px] font-black text-[#1a1a1a] tracking-tight">
+                {paymentData.payment_info.bankName}
+              </p>
+            </div>
+
+            {/* Account Number */}
+            <div className="border-b border-[#e8e8e8] pb-4">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#999] mb-1">
+                Account Number
+              </p>
+              <p className="text-[28px] font-black text-[#1a1a1a] tracking-[0.06em]">
+                {paymentData.payment_info.accountNumber}
+              </p>
+            </div>
+
+            {/* Account Name */}
+            <div className="border-b border-[#e8e8e8] pb-4">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#999] mb-1">
+                Account Name
+              </p>
+              <p className="text-[20px] font-black text-[#1a1a1a] tracking-tight">
+                {paymentData.payment_info.accountName}
+              </p>
+            </div>
+
+            {/* Amount */}
+            <div className="bg-[#1a1a1a] rounded-xl px-5 py-4 flex items-center justify-between">
+              <p className="text-[12px] font-bold uppercase tracking-[0.08em] text-white/60">
+                Amount to Pay
+              </p>
+              <p className="text-[28px] font-black text-white tracking-tight">
+                ₦
+                {Number(paymentData.payment_info.amount).toLocaleString(
+                  "en-NG",
+                )}
+              </p>
+            </div>
+
+            {/* Note */}
+            <p className="text-[12px] text-[#888] text-center pt-1">
+              Transfer the exact amount to complete your order
+            </p>
           </div>
-        </div>
+        ) : (
+          <div className="mb-7">
+            <h3 className="text-[15px] font-bold text-[#1a1a1a] mb-3">
+              Contact
+            </h3>
+            <div className="flex flex-row gap-2.5">
+              <input
+                className={inputClass}
+                type="email"
+                name="email"
+                placeholder="Email"
+                value={form.email}
+                onChange={handleChange}
+              />
+              <input
+                className={inputClass}
+                type="tel"
+                name="phone"
+                placeholder="Phone number"
+                value={form.phone}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+        )}
 
         {/* Delivery */}
         <div className="mb-7">
@@ -80,11 +168,7 @@ const Checkout = () => {
             Delivery
           </h3>
           <div className="flex flex-col gap-2.5">
-            <select
-              className={inputClass}
-              name="region"
-              onChange={handleChange}
-            >
+            <select className={inputClass} name="state" onChange={handleChange}>
               <option value="">Nigeria</option>
               <option>Lagos</option>
               <option>Abuja</option>
@@ -92,24 +176,14 @@ const Checkout = () => {
               <option>Kano</option>
               <option>Oyo</option>
             </select>
-            <div className="grid grid-cols-2 gap-2.5">
-              <input
-                className={inputClass}
-                type="text"
-                name="firstName"
-                placeholder="First name"
-                value={form.firstName}
-                onChange={handleChange}
-              />
-              <input
-                className={inputClass}
-                type="text"
-                name="lastName"
-                placeholder="Last name"
-                value={form.lastName}
-                onChange={handleChange}
-              />
-            </div>
+            <input
+              className={inputClass}
+              type="text"
+              name="customerName"
+              placeholder="John Doe"
+              value={form.customerName}
+              onChange={handleChange}
+            />
             <input
               className={inputClass}
               type="text"
@@ -138,8 +212,16 @@ const Checkout = () => {
         </div>
 
         {/* CTA */}
-        <button className="w-full bg-[#1a1a1a] text-white text-[14px] font-bold tracking-wide uppercase py-4 rounded-lg hover:opacity-85 transition-opacity active:scale-[0.98]">
-          Place Order
+        <button
+          onClick={handleInitTransfer}
+          className="w-full bg-[#1a1a1a] text-white text-[14px] font-bold tracking-wide uppercase py-4 rounded-lg hover:opacity-85 transition-opacity active:scale-[0.98]"
+          disabled={step == "payment"}
+        >
+          {loading ? (
+            <Loader2 className="animate-spin w-5 h-5" />
+          ) : (
+            "Place Order"
+          )}
         </button>
         <div className="flex items-center justify-center gap-1.5 mt-4 text-[12px] text-[#aaa]">
           <Lock size={12} />

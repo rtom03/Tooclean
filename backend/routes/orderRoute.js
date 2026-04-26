@@ -1,9 +1,16 @@
 import { Router } from "express";
-import { getOrderDataById, orderData } from "../controller/orderController.js";
+import {
+  getOrderDataById,
+  initializeTransfer,
+  orderData,
+  paystackWebhook,
+} from "../controller/orderController.js";
 
 const isOrderRoute = Router();
 
-isOrderRoute.post("/create-order-data", orderData);
+isOrderRoute.post("/create-order", orderData);
 isOrderRoute.get("/order-data/:id", getOrderDataById);
+isOrderRoute.post("/initialize-transfer/:orderId", initializeTransfer);
+isOrderRoute.post("/paystack/webhook", paystackWebhook);
 
 export default isOrderRoute;
