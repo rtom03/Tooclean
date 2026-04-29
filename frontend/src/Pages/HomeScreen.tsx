@@ -1,7 +1,7 @@
 import Hero from "../components/Hero";
 import TopSellers from "../components/TopSellers";
 import BeforeAfter from "../components/BeforeAfter";
-import VideoReviews from "../components/VideoReviews";
+import { VideoReviews } from "../components/VideoReviews";
 
 const HomeScreen = () => {
   return (

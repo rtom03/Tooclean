@@ -27,29 +27,63 @@ const reviews = [
   },
 ];
 
-const PRODUCT = { name: "Hairline Spray", price: "$24.99" };
+const PRODUCT = { name: "Hairline Spray", price: "13000" };
 
-const VideoCard = ({ src }: { src: string }) => {
+const optimizeVideo = (url: string) => {
+  return url.replace("/upload/", "/upload/q_auto:good,f_auto,w_480/");
+};
+
+const VideoCard = ({
+  src,
+  index,
+  activeIndex,
+  setActiveIndex,
+  videoRefs,
+}: any) => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
+  // store ref globally
+  const setRef = (el: HTMLVideoElement | null) => {
+    videoRef.current = el;
+    videoRefs.current[index] = el;
+  };
+
   const handleMouseEnter = () => videoRef.current?.play();
+
   const handleMouseLeave = () => {
-    if (videoRef.current) {
+    if (videoRef.current && activeIndex !== index) {
       videoRef.current.pause();
       videoRef.current.currentTime = 0;
     }
+  };
+
+  const handleClick = () => {
+    setActiveIndex(index);
+
+    videoRefs.current.forEach((video: HTMLVideoElement, i: number) => {
+      if (!video) return;
+
+      if (i === index) {
+        video.muted = false;
+        video.play();
+      } else {
+        video.muted = true;
+      }
+    });
   };
 
   return (
     <div
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      onClick={handleClick}
       className="shrink-0 w-57 aspect-9/16 rounded-2xl overflow-hidden relative bg-[#222] group"
     >
       <video
-        ref={videoRef}
-        src={src}
-        // muted
+        ref={setRef}
+        src={optimizeVideo(src)}
+        muted
+        autoPlay
         loop
         playsInline
         preload="metadata"
@@ -59,7 +93,7 @@ const VideoCard = ({ src }: { src: string }) => {
       {/* gradient */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
 
-      {/* product pill */}
+      {/* product pill (unchanged) */}
       <div className="absolute bottom-3 left-3 right-3 flex items-center gap-2 bg-white/15 backdrop-blur-md rounded-xl px-2.5 py-2">
         <div className="w-7 h-7 rounded-lg bg-white flex-shrink-0 flex items-center justify-center">
           <svg className="w-4 h-4 fill-[#1a1a1a]" viewBox="0 0 24 24">
@@ -79,8 +113,11 @@ const VideoCard = ({ src }: { src: string }) => {
   );
 };
 
-const VideoReviews = () => {
+export const VideoReviews = () => {
   const trackRef = useRef<HTMLDivElement>(null);
+  const videoRefs = useRef<HTMLVideoElement[]>([]);
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+
   const [dragging, setDragging] = useState(false);
   const startX = useRef(0);
   const scrollLeft = useRef(0);
@@ -90,6 +127,7 @@ const VideoReviews = () => {
     startX.current = e.pageX - trackRef.current!.offsetLeft;
     scrollLeft.current = trackRef.current!.scrollLeft;
   };
+
   const onMouseMove = (e: React.MouseEvent) => {
     if (!dragging) return;
     e.preventDefault();
@@ -97,6 +135,7 @@ const VideoReviews = () => {
     trackRef.current!.scrollLeft =
       scrollLeft.current - (x - startX.current) * 1.5;
   };
+
   const stopDrag = () => setDragging(false);
 
   return (
@@ -105,7 +144,6 @@ const VideoReviews = () => {
         INSTANT HAIRLINE IN SECONDS
       </h2>
 
-      {/* Carousel */}
       <div
         ref={trackRef}
         onMouseDown={onMouseDown}
@@ -113,14 +151,19 @@ const VideoReviews = () => {
         onMouseUp={stopDrag}
         onMouseLeave={stopDrag}
         className={`flex gap-3 overflow-x-auto scrollbar-hide select-none px-7 pb-2
-          ${dragging ? "cursor-grabbing" : "cursor-grab"}`}
+        ${dragging ? "cursor-grabbing" : "cursor-grab"}`}
       >
-        {reviews.map((r) => (
-          <VideoCard key={r.id} src={r.src} />
+        {reviews.map((r, i) => (
+          <VideoCard
+            key={r.id}
+            src={r.src}
+            index={i}
+            activeIndex={activeIndex}
+            setActiveIndex={setActiveIndex}
+            videoRefs={videoRefs}
+          />
         ))}
       </div>
     </section>
   );
 };
-
-export default VideoReviews;
