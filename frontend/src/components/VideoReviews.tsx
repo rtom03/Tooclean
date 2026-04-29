@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const reviews = [
   {
@@ -118,6 +118,38 @@ export const VideoReviews = () => {
   const videoRefs = useRef<HTMLVideoElement[]>([]);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+
+        if (!entry.isIntersecting) {
+          // User scrolled past section
+          videoRefs.current.forEach((video) => {
+            if (!video) return;
+            video.muted = true;
+            video.pause(); // 🔥 important for performance
+          });
+        } else {
+          // Section is back in view
+          videoRefs.current.forEach((video) => {
+            if (!video) return;
+            video.play(); // resume autoplay feel
+          });
+        }
+      },
+      {
+        threshold: 0.3, // triggers when ~30% visible
+      },
+    );
+
+    if (sectionRef.current) observer.observe(sectionRef.current);
+
+    return () => observer.disconnect();
+  }, []);
+
   const [dragging, setDragging] = useState(false);
   const startX = useRef(0);
   const scrollLeft = useRef(0);
@@ -139,7 +171,10 @@ export const VideoReviews = () => {
   const stopDrag = () => setDragging(false);
 
   return (
-    <section className="w-full py-5 bg-[#453224] overflow-hidden">
+    <section
+      className="w-full py-5 bg-[#453224] overflow-hidden"
+      ref={sectionRef}
+    >
       <h2 className="flex justify-center text-2xl font-extrabold text-white tracking-tight mb-10">
         INSTANT HAIRLINE IN SECONDS
       </h2>
