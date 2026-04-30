@@ -30,8 +30,8 @@ const TopSellers = () => {
 
   return (
     <section className="w-full px-7 py-5 flex flex-col items-center bg-[#453224]">
-      <h1 className="text-5xl font-bold text-[#FBF6F0] text-center tracking-tight mb-12">
-        SHOP HERE
+      <h1 className="text-3xl font-bold text-[#FBF6F0] text-center tracking-tight mb-12">
+        INSTANT HAIRLINE IN SECONDS{" "}
       </h1>
       <div className="grid grid-cols-2 gap-4 w-full max-w-2xl text-[#FBF6F0]">
         {products.map((p) => (
