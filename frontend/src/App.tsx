@@ -10,6 +10,9 @@ import Dashboard from "./Admin/Dashboard";
 import Products from "./Admin/Pages/Product";
 import Settings from "./Admin/Pages/Settings";
 import AdminLogin from "./Admin/Pages/Login";
+import Orders from "./Admin/Pages/Orders";
+import AdminPublicRoute from "./Admin/AdminPublicRoute";
+import ProtectedAdminRoute from "./Admin/ProtectedAdminRoute";
 
 const App = () => {
   return (
@@ -22,11 +25,18 @@ const App = () => {
         <Route path="/track-order" element={<TrackOrder />} />
       </Route>
       <Route element={<AdminLayout />}>
-        <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin/dashboard" element={<Dashboard />} />
-        <Route path="/admin/products" element={<Products />} />
-        {/* <Route path="orders" element={<Orders />} /> */}
-        <Route path="/admin/settings" element={<Settings />} />
+        {/* Public route */}
+        <Route element={<AdminPublicRoute />}>
+          <Route path="/admin/login" element={<AdminLogin />} />
+        </Route>
+
+        {/* Protected routes */}
+        <Route element={<ProtectedAdminRoute />}>
+          <Route path="/admin/dashboard" element={<Dashboard />} />
+          <Route path="/admin/products" element={<Products />} />
+          <Route path="/admin/orders" element={<Orders />} />
+          <Route path="/admin/settings" element={<Settings />} />
+        </Route>
       </Route>
     </Routes>
   );

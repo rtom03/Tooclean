@@ -1,6 +1,8 @@
 import type {
+  Admin,
   InitializePaymentResponse,
   OrderInfo,
+  Password,
 } from "../constant/index.type";
 
 const BASE_URL =
@@ -70,10 +72,50 @@ const initializePayment = async (
   return await res.json();
 };
 
+// Admin
+
+const adminLogin = async (data: Admin) => {
+  const res = await fetch(`${BASE_URL}/admin/sign-in`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    // credentials: "include",
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+    throw new Error(err?.message || "Login failed");
+  }
+
+  return res.json();
+};
+
+const changePassword = async (data: Password) => {
+  const res = await fetch(`${BASE_URL}/admin/reset-passwd`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+    throw new Error(err?.message || "Login failed");
+  }
+
+  return res.json();
+};
+
 export {
   getProducts,
   getProduct,
   createOrderData,
   getOrderData,
   initializePayment,
+  adminLogin,
+  changePassword,
 };

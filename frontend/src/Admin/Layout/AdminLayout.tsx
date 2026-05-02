@@ -1,10 +1,13 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { useAdminStore } from "../../store/adminStore";
 
 const AdminLayout = () => {
   const navigate = useNavigate();
 
-  const logout = () => {
-    localStorage.removeItem("adminToken");
+  // const logout = useAdminStore((s) => s.logout);
+  const { logout, admin } = useAdminStore();
+  const handleLogout = () => {
+    logout();
     navigate("/admin/login");
   };
 
@@ -41,10 +44,10 @@ const AdminLayout = () => {
             Admin
           </div>
           <button
-            onClick={logout}
+            onClick={handleLogout}
             className="text-[11px] text-white/50 border border-white/20 px-3 py-1.5 rounded-md hover:text-white hover:border-white/50 transition-all"
           >
-            Log out
+            {admin ? "Log-Out" : "Log-In"}
           </button>
         </div>
       </nav>

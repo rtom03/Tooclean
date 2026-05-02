@@ -37,13 +37,16 @@ export type Order = {
   product: Product; // 👈 nested
 };
 
-// export type OrderInfo = {
-//   customerName: string;
-//   email: string;
-//   phone: string;
-//   address: string;
-//   state: string;
-// };
+export type Admin = {
+  email: string;
+  password: string;
+};
+
+export type Password = {
+  current: string;
+  password: string;
+  confirm: string;
+};
 
 export type InitializePaymentResponse = {
   message: string;

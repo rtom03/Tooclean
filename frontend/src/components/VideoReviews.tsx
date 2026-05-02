@@ -87,7 +87,7 @@ const VideoCard = ({
         loop
         playsInline
         preload="metadata"
-        className="w-full h-full object-cover object-top"
+        className="w-full h-full object-contain snap-center object-top"
       />
 
       {/* gradient */}
@@ -179,13 +179,13 @@ export const VideoReviews = () => {
         INSTANT HAIRLINE IN SECONDS
       </h2>
 
-      <div
+      {/* <div
         ref={trackRef}
         onMouseDown={onMouseDown}
         onMouseMove={onMouseMove}
         onMouseUp={stopDrag}
         onMouseLeave={stopDrag}
-        className={`flex gap-3 overflow-x-auto scrollbar-hide select-none px-7 pb-2
+        className={`flex justify-center w-300 gap-3 overflow-x-auto scrollbar-hide select-none px-7 pb-2
         ${dragging ? "cursor-grabbing" : "cursor-grab"}`}
       >
         {reviews.map((r, i) => (
@@ -198,6 +198,30 @@ export const VideoReviews = () => {
             videoRefs={videoRefs}
           />
         ))}
+      </div> */}
+
+      <div className="w-full flex justify-center px-4 md:px-10 lg:px-20 xl:px-32">
+        <div
+          ref={trackRef}
+          onMouseDown={onMouseDown}
+          onMouseMove={onMouseMove}
+          onMouseUp={stopDrag}
+          onMouseLeave={stopDrag}
+          className={`flex gap-3 max-w-fit snap-x snap-mandatory overflow-x-auto scrollbar-hide select-none px-7 pb-2
+    ${dragging ? "cursor-grabbing" : "cursor-grab"}
+    max-w-fit`}
+        >
+          {reviews.map((r, i) => (
+            <VideoCard
+              key={r.id}
+              src={r.src}
+              index={i}
+              activeIndex={activeIndex}
+              setActiveIndex={setActiveIndex}
+              videoRefs={videoRefs}
+            />
+          ))}
+        </div>
       </div>
     </section>
   );

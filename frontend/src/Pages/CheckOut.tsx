@@ -9,6 +9,7 @@ import {
   type OrderInfo,
   type Product,
 } from "../constant/index.type";
+import Loader from "../components/Loader";
 
 const inputClass =
   "w-full border border-[#ddd] rounded-lg px-3.5 py-2.5 text-[14px] text-[#1a1a1a] placeholder:text-[#bbb] outline-none focus:border-[#1a1a1a] transition-colors bg-white";
@@ -274,13 +275,7 @@ const Checkout = () => {
           className="w-full bg-[#1a1a1a] text-white text-[14px] font-bold tracking-wide uppercase py-4 rounded-lg hover:opacity-85 transition-opacity active:scale-[0.98] flex items-center justify-center"
           disabled={step === "payment"}
         >
-          {loading ? (
-            <span className="flex items-center justify-center">
-              <Loader2 className="animate-spin w-5 h-5" />
-            </span>
-          ) : (
-            "Place Order"
-          )}
+          {loading ? <Loader /> : "Place Order"}
         </button>
         <div className="flex items-center justify-center gap-1.5 mt-4 text-[12px] text-[#aaa]">
           <Lock size={12} />
