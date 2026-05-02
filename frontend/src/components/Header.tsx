@@ -105,9 +105,12 @@ const Header = () => {
             <ChevronDown size={12} />
           </button>
           <span className="hidden md:block text-white/20 text-sm mx-1">|</span>
-          <button className="text-white hover:opacity-70 transition-opacity md:ml-2">
+          <Link
+            to={"/product/6871a082-bd02-445d-ab13-5deeb7a31738"}
+            className="text-white hover:opacity-70 transition-opacity md:ml-2"
+          >
             <ShoppingBag size={22} strokeWidth={1.8} />
-          </button>
+          </Link>
         </div>
       </header>
 
