@@ -210,4 +210,5 @@ export {
   changePassword,
   getOrders,
   getOrder,
+  updateOrder,
 };

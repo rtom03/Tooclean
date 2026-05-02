@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { NAIRA } from "../constant/index.type";
 
 const reviews = [
   {

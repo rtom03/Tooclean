@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useProducts } from "../../api/productQuery";
 import { NAIRA } from "../../constant/index.type";
-import type { ModalMode, Product } from "../../components/ProductModal";
+import type { ModalMode } from "../../components/ProductModal";
 import ProductModal from "../../components/ProductModal";
 
 const Products = () => {
