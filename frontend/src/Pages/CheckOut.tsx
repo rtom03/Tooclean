@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Loader2, Lock } from "lucide-react";
+import { Lock } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { getOrderData, initializePayment } from "../services/apiServices";
 import {
