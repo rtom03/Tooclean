@@ -170,7 +170,7 @@ const Header = () => {
 
               {/* Region */}
               <button className="flex items-center gap-2 text-[#d1d5db] text-[12px] uppercase tracking-wide py-4 mt-4 hover:text-white transition-colors">
-                United States | USD $
+                Nigeria | NGN
                 <ChevronDown size={12} />
               </button>
             </div>

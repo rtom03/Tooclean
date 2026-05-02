@@ -1,32 +1,11 @@
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getProducts } from "../services/apiServices";
-
-type Product = {
-  id: string;
-  name: string;
-  description: string;
-  color: string;
-  price: number;
-  images: string;
-}[];
+import { useProducts } from "../api/productQuery";
 
 const TopSellers = () => {
-  const [products, setProducts] = useState<Product>([]);
+  const { data, isPending, isError, error } = useProducts();
+  if (isPending) return <p>Loading orders...</p>;
 
-  const fetchProducts = async () => {
-    try {
-      let data = await getProducts();
-      // console.log(data.products);
-      setProducts(data.products);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    fetchProducts();
-  }, []);
+  if (isError) return <p>{(error as Error).message}</p>;
 
   return (
     <section className="w-full px-7 py-5 flex flex-col items-center bg-[#453224]">
@@ -34,7 +13,7 @@ const TopSellers = () => {
         SHOP HERE
       </h1>
       <div className="grid grid-cols-2 gap-4 w-full max-w-2xl text-[#FBF6F0]">
-        {products.map((p) => (
+        {data.products.map((p) => (
           <Link to={`/product/${p.id}`} key={p.id}>
             <div className="bg-[#453224] rounded-2xl overflow-hidden aspect-3/4">
               <img

@@ -5,7 +5,7 @@ const BeforeAfter = () => {
         Before & After
       </h2>
 
-      <div className="grid grid-cols-2 gap-3 w-full max-w-2xl">
+      <div className="grid grid-cols-2  w-full max-w-2xl">
         {[
           { label: "before", src: "/before.jpg" },
           { label: "after", src: "/after.jpg" },

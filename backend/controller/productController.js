@@ -72,14 +72,7 @@ export const getProduct = async (req, res) => {
 // ── UPDATE PRODUCT ─────────────────────────────────────────
 export const updateProduct = async (req, res) => {
   try {
-    const { id } = req.params;
-
-    const parsed = updateProductSchema.safeParse(req.body);
-    if (!parsed.success) {
-      return res
-        .status(400)
-        .json({ errors: parsed.error.flatten().fieldErrors });
-    }
+    const { id } = req.query;
 
     // check product exists
     const existing = await prisma.product.findUnique({ where: { id } });
@@ -87,31 +80,24 @@ export const updateProduct = async (req, res) => {
       return res.status(404).json({ error: "Product not found" });
     }
 
-    let imageUrls;
+    // upload new images to cloudinary and APPEND to existing
+    let updatedImages = [...existing.images]; // start with existing images
 
-    // if new images uploaded, delete old ones from cloudinary then use new ones
     const files = req.files;
     if (files && files.length > 0) {
-      // delete old images from cloudinary
-      if (existing.images.length > 0) {
-        await Promise.all(
-          existing.images.map((url) => {
-            // extract public_id from url
-            const parts = url.split("/");
-            const filename = parts[parts.length - 1].split(".")[0];
-            const publicId = `tooclean/products/${filename}`;
-            return cloudinary.uploader.destroy(publicId);
-          }),
-        );
-      }
-      imageUrls = files.map((file) => file.path);
+      const newImageUrls = files.map((file) => file.path);
+      updatedImages = [...updatedImages, ...newImageUrls]; // append don't replace
     }
+
+    // only update fields that were actually sent
+    const { name, price } = req.body;
 
     const product = await prisma.product.update({
       where: { id },
       data: {
-        ...parsed.data,
-        ...(imageUrls && { images: imageUrls }),
+        ...(name && { name }),
+        ...(price && { price: parseFloat(price) }),
+        images: updatedImages,
       },
     });
 
@@ -186,45 +172,40 @@ export const addProductImages = async (req, res) => {
 };
 
 // ── REMOVE SINGLE IMAGE FROM PRODUCT ──────────────────────
-export const removeProductImage = async (req) => {
+export const removeProductImage = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { imageUrl } = req.body;
-
-    if (!imageUrl) {
-      return res.status(400).json({ error: "imageUrl is required" });
-    }
+    const { id } = req.query;
 
     const existing = await prisma.product.findUnique({ where: { id } });
     if (!existing) {
       return res.status(404).json({ error: "Product not found" });
     }
 
-    if (!existing.images.includes(imageUrl)) {
-      return res.status(404).json({ error: "Image not found on this product" });
+    if (existing.images.length <= 1) {
+      return res.status(400).json({ error: "No extra images to remove" });
     }
 
-    // must keep at least one image
-    if (existing.images.length === 1) {
-      return res
-        .status(400)
-        .json({ error: "Product must have at least one image" });
-    }
+    // keep only the first image
+    const firstImage = existing.images[0];
+    const imagesToDelete = existing.images.slice(1); // everything except first
 
-    // delete from cloudinary
-    const parts = imageUrl.split("/");
-    const filename = parts[parts.length - 1].split(".")[0];
-    const publicId = `tooclean/products/${filename}`;
-    await cloudinary.uploader.destroy(publicId);
+    // delete all except first from cloudinary
+    await Promise.all(
+      imagesToDelete.map((url) => {
+        const parts = url.split("/");
+        const filename = parts[parts.length - 1].split(".")[0];
+        const publicId = `tooclean/products/${filename}`;
+        return cloudinary.uploader.destroy(publicId);
+      }),
+    );
 
-    // remove from array
-    const updatedImages = existing.images.filter((img) => img !== imageUrl);
+    // update DB — only first image remains
     const product = await prisma.product.update({
       where: { id },
-      data: { images: updatedImages },
+      data: { images: [firstImage] },
     });
 
-    res.status(200).json({ message: "Image removed", product });
+    res.status(200).json({ message: "Extra images removed", product });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });

@@ -7,9 +7,10 @@ const HomeScreen = () => {
   return (
     <>
       <Hero />
+      <BeforeAfter />
       <TopSellers />
       <VideoReviews />
-      <BeforeAfter />
+      {/* <BeforeAfter /> */}
     </>
   );
 };

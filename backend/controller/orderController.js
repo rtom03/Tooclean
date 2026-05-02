@@ -169,7 +169,7 @@ export const getOrderByPhone = async (req, res) => {
       return res.status(400).json({ error: "Provide phone or order number" });
     }
 
-    const order = await prisma.order.findFirst({
+    const order = await prisma.payment_Info.findFirst({
       where: {
         OR: [phone ? { phone } : {}, orderNumber ? { orderNumber } : {}],
       },
@@ -215,7 +215,7 @@ export const paystackWebhook = async (req, res) => {
 
       // find order by Paystack customer code
       const order = await prisma.payment_Info.findFirst({
-        where: { paystackCustomerCode: customer.customer_code },
+        where: { paystackReference: reference },
       });
 
       if (!order) {
@@ -254,10 +254,24 @@ export const paystackWebhook = async (req, res) => {
 // ── GET ALL ORDERS (admin) ─────────────────────────────────
 export const getAllOrders = async (req, res) => {
   try {
-    const orders = await prisma.order.findMany({
+    const orders = await prisma.payment_Info.findMany({
       orderBy: { createdAt: "desc" },
     });
     res.status(200).json({ orders });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const getOrder = async (req, res) => {
+  const { id } = req.query;
+
+  try {
+    const order = await prisma.payment_Info.findUnique({
+      where: { id: String(id) },
+    });
+
+    res.status(200).json({ order });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -280,7 +294,7 @@ export const updateOrderStatus = async (req, res) => {
       return res.status(400).json({ error: "Invalid status" });
     }
 
-    const order = await prisma.order.update({
+    const order = await prisma.payment_Info.update({
       where: { id },
       data: { status },
     });

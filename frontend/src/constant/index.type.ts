@@ -14,6 +14,8 @@ export const createOrderSchema = z.object({
   state: z.string().min(2, "Please select a state"),
 });
 
+export const NAIRA = "₦";
+
 export type OrderInfo = z.infer<typeof createOrderSchema>;
 export type Product = {
   id: string;
@@ -67,3 +69,34 @@ export type InitializePaymentResponse = {
     note: string;
   };
 };
+
+export type OrderStatus =
+  | "pending"
+  | "paid"
+  | "processing"
+  | "shipped"
+  | "delivered"
+  | "failed";
+
+export type PaymentStatus = "unpaid" | "paid";
+
+export interface OrderData {
+  id: string;
+  orderNumber: string;
+  customerName: string;
+  email: string;
+  phone: string;
+  address: string;
+  state: string;
+  orderDetails: any; // 👇 we’ll refine this next
+  total: number;
+  status: OrderStatus;
+  paymentStatus: PaymentStatus;
+  paystackCustomerCode?: string | null;
+  dedicatedAccountNo?: string | null;
+  dedicatedBankName?: string | null;
+  dedicatedAccountName?: string | null;
+  paystackReference?: string | null;
+  createdAt: string; // ISO string from backend
+  updatedAt: string;
+}

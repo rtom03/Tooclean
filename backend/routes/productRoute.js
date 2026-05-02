@@ -21,23 +21,28 @@ isProductRoute.get("/:id", getProduct);
 // protected — admin only
 isProductRoute.post(
   "/create",
-  adminAuth,
+  // adminAuth,
   upload.array("images", 10),
   createProduct,
 );
-isProductRoute.put(
-  "/update/:id",
-  adminAuth,
-  upload.array("images", 10),
-  updateProduct,
-);
-isProductRoute.delete("/delete/:id", adminAuth, deleteProduct);
+
 isProductRoute.post(
   "/:id/images",
   adminAuth,
   upload.array("images", 10),
   addProductImages,
 );
-isProductRoute.delete("/:id/images", adminAuth, removeProductImage);
+isProductRoute.put(
+  "/update",
+  // adminAuth,
+  upload.array("images", 10),
+  updateProduct,
+);
+isProductRoute.delete("/delete/:id", adminAuth, deleteProduct);
+isProductRoute.delete(
+  "/remove-images",
+  // adminAuth,
+  removeProductImage,
+);
 
 export default isProductRoute;

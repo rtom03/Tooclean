@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { NAIRA } from "../constant/index.type";
 
 const reviews = [
   {
@@ -27,13 +28,13 @@ const reviews = [
   },
 ];
 
-const PRODUCT = { name: "Hairline Spray", price: "13000" };
+const PRODUCT = { name: "Hairline Spray", price: "₦13000" };
 
 const optimizeVideo = (url: string) => {
   return url.replace("/upload/", "/upload/q_auto:good,f_auto,w_480/");
 };
 
-const VideoCard = ({
+export const VideoCard = ({
   src,
   index,
   activeIndex,
@@ -178,27 +179,6 @@ export const VideoReviews = () => {
       <h2 className="flex justify-center text-2xl font-extrabold text-white tracking-tight mb-10">
         INSTANT HAIRLINE IN SECONDS
       </h2>
-
-      {/* <div
-        ref={trackRef}
-        onMouseDown={onMouseDown}
-        onMouseMove={onMouseMove}
-        onMouseUp={stopDrag}
-        onMouseLeave={stopDrag}
-        className={`flex justify-center w-300 gap-3 overflow-x-auto scrollbar-hide select-none px-7 pb-2
-        ${dragging ? "cursor-grabbing" : "cursor-grab"}`}
-      >
-        {reviews.map((r, i) => (
-          <VideoCard
-            key={r.id}
-            src={r.src}
-            index={i}
-            activeIndex={activeIndex}
-            setActiveIndex={setActiveIndex}
-            videoRefs={videoRefs}
-          />
-        ))}
-      </div> */}
 
       <div className="w-full flex justify-center px-4 md:px-10 lg:px-20 xl:px-32">
         <div

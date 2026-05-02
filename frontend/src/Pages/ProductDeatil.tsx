@@ -1,16 +1,9 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import ProductImageGallery from "../components/ProductImageGallery";
 import { useNavigate, useParams } from "react-router-dom";
-import { createOrderData, getProduct } from "../services/apiServices";
+import { createOrderData } from "../services/apiServices";
 import { Loader2 } from "lucide-react";
-
-type Product = {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  images: string[];
-};
+import { useProduct } from "../api/productQuery";
 
 // generate bundles dynamically from product price
 const generateBundles = (basePrice: number) => [
@@ -35,7 +28,6 @@ const generateBundles = (basePrice: number) => [
 ];
 
 const ProductDetail = () => {
-  const [detail, setDetail] = useState<Product | null>(null);
   const [selected, setSelected] = useState<number>(1); // default select 1 bottle
   const { id } = useParams<{ id: string }>();
   const [loading, setLoading] = useState(false);
@@ -43,14 +35,14 @@ const ProductDetail = () => {
 
   const handleBuyNow = async () => {
     setLoading(!loading);
-    if (!detail) return;
+    if (!data) return;
 
     const selectedBundle = bundles.find((b) => b.qty === selected);
     if (!selectedBundle) return;
 
     try {
       const res = await createOrderData({
-        productId: detail.id,
+        productId: data.product.id,
         qty: selectedBundle.qty,
       });
       setLoading(loading);
@@ -59,26 +51,19 @@ const ProductDetail = () => {
       console.error(err);
     }
   };
-  const fetchProduct = async (productId: string) => {
-    try {
-      const response = await getProduct(productId);
-      setDetail(response.product);
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
-  useEffect(() => {
-    if (!id) return;
-    fetchProduct(id);
-  }, [id]);
+  const { data, isPending, isError, error } = useProduct(id!);
+  if (isPending) return <p>Loading orders...</p>;
 
-  const bundles = detail ? generateBundles(detail.price) : [];
+  if (isError) return <p>{(error as Error).message}</p>;
+
+  // console.log(data);
+  const bundles = data ? generateBundles(data?.product.price) : [];
 
   return (
     <div className="max-w-5xl bg-[#F0E9DF] mx-auto px-7 py-12 grid grid-cols-1 md:grid-cols-2 gap-14">
       {/* LEFT — Image */}
-      <ProductImageGallery images={detail?.images ?? []} />
+      <ProductImageGallery images={data?.product.images ?? []} />
 
       {/* RIGHT — Info */}
       <div className="flex flex-col pt-2">
@@ -86,7 +71,7 @@ const ProductDetail = () => {
           Too Clean — Hair Products
         </p>
         <h1 className="text-4xl font-black text-[#1a1a1a] tracking-tight mb-7">
-          {detail?.name ?? "Hairline Spray"}
+          {data?.product.name ?? "Hairline Spray"}
         </h1>
 
         {/* Bundle header */}
@@ -130,8 +115,8 @@ const ProductDetail = () => {
                 {/* {Array.from({ length: b.qty }).map((_, i) => ( */}
                 <img
                   // key={i}
-                  src={detail?.images?.[0] ?? "/placeholder.jpg"}
-                  alt={detail?.name}
+                  src={data?.product.images?.[0] ?? "/placeholder.jpg"}
+                  alt={data?.product.name}
                   className="w-10 h-10 object-contain"
                   // style={{ marginLeft: i > 0 ? -16 : 0 }} // overlap effect
                 />
