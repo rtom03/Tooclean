@@ -5,6 +5,7 @@ import {
 } from "../services/paystack.js";
 import { z } from "zod";
 import { prisma } from "../utils/db.js";
+import { triggerFezDelivery } from "../services/fez.js";
 
 const createOrderSchema = z.object({
   customerName: z
@@ -83,6 +84,7 @@ export const initializeTransfer = async (req, res) => {
   try {
     const parsed = createOrderSchema.safeParse(req.body);
     const { orderId } = req.params;
+    const reference = `TC-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
     const order = await prisma.order.findUnique({
       where: { id: orderId },
@@ -236,7 +238,7 @@ export const paystackWebhook = async (req, res) => {
       }
 
       // mark as paid
-      await prisma.payment_Info.update({
+      const updatedOrder = await prisma.payment_Info.update({
         where: { id: order.id },
         data: {
           paymentStatus: "paid",
@@ -244,6 +246,10 @@ export const paystackWebhook = async (req, res) => {
           paystackReference: reference,
         },
       });
+
+      if (updatedOrder.paymentStatus === "paid") {
+        await triggerFezDelivery(updatedOrder);
+      }
     }
 
     console.log("Event type:", event.event);
