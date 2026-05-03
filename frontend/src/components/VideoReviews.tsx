@@ -29,7 +29,7 @@ const reviews = [
 
 const PRODUCT = { name: "Hairline Spray", price: "₦13000" };
 
-const optimizeVideo = (url: string) => {
+export const optimizeVideo = (url: string) => {
   return url.replace("/upload/", "/upload/q_auto:good,f_auto,w_480/");
 };
 

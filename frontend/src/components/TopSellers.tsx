@@ -1,12 +1,13 @@
 import { Link } from "react-router-dom";
 import { useProducts } from "../api/productQuery";
+import ProductSkeleton from "./skeleton/ProductSkeleton";
+import ErrorState from "./IsErrorState";
 
 const TopSellers = () => {
   const { data, isPending, isError, error } = useProducts();
-  if (isPending) return <p>Loading orders...</p>;
+  if (isPending) return <ProductSkeleton />;
 
-  if (isError) return <p>{(error as Error).message}</p>;
-
+  if (isError) return <ErrorState />;
   return (
     <section className="w-full px-7 py-5 flex flex-col items-center bg-[#453224]">
       <h1 className="text-5xl font-bold text-[#FBF6F0] text-center tracking-tight mb-12">

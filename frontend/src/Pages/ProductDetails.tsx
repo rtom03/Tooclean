@@ -4,6 +4,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { createOrderData } from "../services/apiServices";
 import { Loader2 } from "lucide-react";
 import { useProduct } from "../api/productQuery";
+import ProductDetailSkeleton from "../components/skeleton/ProductDetailsSkeleton";
+import ErrorState from "../components/IsErrorState";
 
 // generate bundles dynamically from product price
 const generateBundles = (basePrice: number) => [
@@ -53,10 +55,8 @@ const ProductDetail = () => {
   };
 
   const { data, isPending, isError, error } = useProduct(id!);
-  if (isPending) return <p>Loading orders...</p>;
-
-  if (isError) return <p>{(error as Error).message}</p>;
-
+  if (isPending) return <ProductDetailSkeleton />;
+  if (isError) return <ErrorState />;
   // console.log(data);
   const bundles = data ? generateBundles(data?.product.price) : [];
 

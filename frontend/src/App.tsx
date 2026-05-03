@@ -1,7 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import MainLayout from "./Layouts/MainLayout";
 import HomeScreen from "./Pages/HomeScreen";
-import ProductDetail from "./Pages/ProductDeatil";
 import Founder from "./Pages/Founder";
 import Checkout from "./Pages/CheckOut";
 import TrackOrder from "./Pages/TrackOrder";
@@ -13,6 +12,7 @@ import AdminLogin from "./Admin/Pages/Login";
 import Orders from "./Admin/Pages/Orders";
 import AdminPublicRoute from "./Admin/AdminPublicRoute";
 import ProtectedAdminRoute from "./Admin/ProtectedAdminRoute";
+import ProductDetail from "./Pages/ProductDetails";
 
 const App = () => {
   return (
