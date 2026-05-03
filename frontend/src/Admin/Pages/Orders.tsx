@@ -7,6 +7,7 @@ const Orders = () => {
 
   // console.log(data.orders);
   if (isPending) return <p>Loading orders...</p>;
+  console.log(error);
 
   if (isError) return <ErrorState />;
   return (

@@ -12,10 +12,10 @@ const BeforeAfter = () => {
         ].map(({ label, src }) => (
           <div key={label} className="relative">
             {/* accent shadow block */}
-            <div className="absolute -bottom-2 -right-2 w-3/5 h-3/5 bg-[#d4cfe8] rounded-sm -z-10" />
+            <div className="absolute -bottom-2 -right-2 w-3/5 h-3/5 bg-[#d4cfe8]  -z-10" />
 
             {/* image card */}
-            <div className="relative aspect-3/4 rounded-sm overflow-hidden bg-[#e8e4f0]">
+            <div className="relative aspect-3/4  overflow-hidden bg-[#e8e4f0]">
               <img
                 src={src}
                 alt={label}

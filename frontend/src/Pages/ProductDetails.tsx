@@ -57,6 +57,7 @@ const ProductDetail = () => {
   const { data, isPending, isError, error } = useProduct(id!);
   if (isPending) return <ProductDetailSkeleton />;
   if (isError) return <ErrorState />;
+  console.log(error);
   // console.log(data);
   const bundles = data ? generateBundles(data?.product.price) : [];
 

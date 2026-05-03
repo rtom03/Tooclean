@@ -6,7 +6,7 @@ import ErrorState from "./IsErrorState";
 const TopSellers = () => {
   const { data, isPending, isError, error } = useProducts();
   if (isPending) return <ProductSkeleton />;
-
+  console.log(error);
   if (isError) return <ErrorState />;
   return (
     <section className="w-full px-7 py-5 flex flex-col items-center bg-[#453224]">
