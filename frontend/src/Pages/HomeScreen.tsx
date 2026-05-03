@@ -10,8 +10,9 @@ const HomeScreen = () => {
       <Hero />
       <BeforeAfter />
       <TopSellers />
-      <HowTo />
+      {/* <HowTo /> */}
       <VideoReviews />
+      <HowTo />
       {/* <BeforeAfter /> */}
     </>
   );

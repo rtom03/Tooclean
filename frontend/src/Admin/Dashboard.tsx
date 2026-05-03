@@ -47,7 +47,7 @@ const Dashboard = () => {
           </div>
         ))}
       </div>
-      <OrderTable orders={data} />
+      <OrderTable orders={data.orders} />
       <div className="bg-white border border-[#e8e8e8] rounded-xl overflow-hidden">
         <div className="px-5 py-3.5 border-b border-[#e8e8e8] flex items-center justify-between">
           <p className="text-[13px] font-bold">Recent orders</p>

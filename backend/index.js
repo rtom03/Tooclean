@@ -24,7 +24,7 @@ process.on("SIGINT", () => {
 app.use(
   cors({
     origin: ["http://localhost:5173", "http://localhost:3001,"],
-    methods: ["GET", "POST", "DELETE", "PUT"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
   }),
 );

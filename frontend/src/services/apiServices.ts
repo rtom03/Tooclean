@@ -184,20 +184,19 @@ const getOrder = async (id: string) => {
   return res.json();
 };
 
-const updateOrder = async (id: string, status: string) => {
-  const res = await fetch(`${BASE_URL}/order/update-order/${id}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    // credentials: "include",
-    body: JSON.stringify(status),
+export const updateOrderStatus = async (id: string, status: string) => {
+  const res = await fetch(`${BASE_URL}/order/update-status?id=${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status }),
   });
 
   if (!res.ok) {
-    const err = await res.json().catch(() => null);
-    throw new Error(err?.message || "Login failed");
+    const err = await res.json();
+    throw new Error(err.error || "Failed to update status");
   }
+
+  return res.json();
 };
 
 export {
@@ -210,5 +209,4 @@ export {
   changePassword,
   getOrders,
   getOrder,
-  updateOrder,
 };

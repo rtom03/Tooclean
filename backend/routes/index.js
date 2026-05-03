@@ -6,9 +6,9 @@ import isOrderRoute from "./orderRoute.js";
 
 const routes = express.Router();
 
+routes.use("/order", isOrderRoute);
 routes.get("/health", healthCheck);
 routes.use("/admin", isAdminRoute);
 routes.use("/products", isProductRoute);
-routes.use("/order", isOrderRoute);
 
 export default routes;

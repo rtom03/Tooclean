@@ -1,11 +1,10 @@
 import { useRef, useEffect } from "react";
 
 const ITEMS = [
-  "FREE SHIPPING ON ALL ORDERS",
-  "LIMITED TIME OFFER",
+  "WATER PROOF",
   "LASTS UNTIL SHAMPOOED OUT",
-  "UP TO 50 USES PER BOTTLE",
-  "SULFATE & PARABEN FREE",
+  "SWEAT PROOF",
+  "NATURAL LOOK",
 ];
 
 const Marquee = () => {

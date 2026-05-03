@@ -11,12 +11,12 @@ import {
 
 const isOrderRoute = Router();
 
+isOrderRoute.patch("/update-status/", updateOrderStatus);
+isOrderRoute.post("/paystack/webhook", paystackWebhook);
 isOrderRoute.get("/all-orders", getAllOrders);
 isOrderRoute.get("/order/:id", getOrder);
 isOrderRoute.get("/order-data/:id", getOrderDataById);
 isOrderRoute.post("/create-order", orderData);
 isOrderRoute.post("/initialize-transfer/:orderId", initializeTransfer);
-isOrderRoute.post("/paystack/webhook", paystackWebhook);
-isOrderRoute.put("/update-order/", updateOrderStatus);
 
 export default isOrderRoute;

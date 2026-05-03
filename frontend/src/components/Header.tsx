@@ -78,7 +78,7 @@ const Header = () => {
               to="/founder"
               className="text-white text-[11px] font-bold tracking-[0.1em] uppercase px-5 h-16 flex items-center hover:opacity-70 transition-opacity"
             >
-              Too Clean Culture
+              Too Clean
             </Link>
             <Link
               to="/track-order"
@@ -158,7 +158,7 @@ const Header = () => {
                 onClick={() => setMobileOpen(false)}
                 className="text-white text-[12px] font-bold tracking-[0.1em] uppercase py-4 border-b border-white/10 hover:opacity-70 transition-opacity"
               >
-                Too Clean Culture
+                Too Clean
               </Link>
               <Link
                 to="/track-order"

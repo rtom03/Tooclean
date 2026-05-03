@@ -198,6 +198,8 @@ export const getOrderByPhone = async (req, res) => {
 
 // ── PAYSTACK WEBHOOK ───────────────────────────────────────
 export const paystackWebhook = async (req, res) => {
+  console.log("🔥 Webhook hit!");
+
   try {
     const signature = req.headers["x-paystack-signature"];
 
@@ -215,7 +217,7 @@ export const paystackWebhook = async (req, res) => {
 
       // find order by Paystack customer code
       const order = await prisma.payment_Info.findFirst({
-        where: { paystackReference: reference },
+        where: { paystackCustomerCode: customer.customer_code },
       });
 
       if (!order) {
@@ -243,6 +245,8 @@ export const paystackWebhook = async (req, res) => {
         },
       });
     }
+
+    console.log("Event type:", event.event);
 
     res.sendStatus(200); // always return 200 to Paystack
   } catch (error) {
@@ -280,7 +284,7 @@ export const getOrder = async (req, res) => {
 // ── UPDATE ORDER STATUS (admin) ────────────────────────────
 export const updateOrderStatus = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id } = req.query;
     const { status } = req.body;
 
     const validStatuses = [

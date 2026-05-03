@@ -13,19 +13,19 @@ const generateBundles = (basePrice: number) => [
     qty: 1,
     label: "1 Bottle",
     price: basePrice,
-    badge: "Free Shipping",
+    // badge: "Free Shipping",
   },
   {
     qty: 3,
     label: "3 Bottles",
     price: basePrice * 3 - 1500,
-    badge: "Save ₦1500 + Free Shipping",
+    badge: "Save ₦1500 ",
   },
   {
     qty: 5,
     label: "5 Bottles",
     price: basePrice * 5 - 5000, // 27% off
-    badge: "Save ₦5000 + Free Shipping",
+    badge: "Save ₦5000 ",
   },
 ];
 
@@ -133,11 +133,11 @@ const ProductDetail = () => {
                 <p className="text-[15px] font-bold text-[#1a1a1a]">
                   {b.label}
                 </p>
-                <div className="flex gap-2 mt-1">
+                {/* <div className="flex gap-2 mt-1">
                   <span className="text-[11px] font-semibold text-[#1a7a3c]">
                     Free Shipping
                   </span>
-                </div>
+                </div> */}
               </div>
 
               {/* Price */}

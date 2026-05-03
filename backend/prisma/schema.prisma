@@ -44,7 +44,7 @@ model Product {
 }
 
 model Payment_Info {
-  id                   String   @id @default(uuid())
+  id                   String   @id @default(uuid())  
   orderNumber          String   @unique
   customerName         String
   email                String
