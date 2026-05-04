@@ -248,6 +248,7 @@ export const paystackWebhook = async (req, res) => {
       });
 
       if (updatedOrder.paymentStatus === "paid") {
+        console.log("🚀 About to trigger Fez for order:", updatedOrder.id);
         await triggerFezDelivery(updatedOrder);
       }
     }

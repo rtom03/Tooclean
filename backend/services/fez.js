@@ -4,7 +4,11 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export const triggerFezDelivery = async (order) => {
-  if (order.deliveryStatus === "created") return;
+  if (order.deliveryStatus && order.deliveryStatus !== "not_created") {
+    console.log("⚠️ Delivery already handled, skipping");
+    return;
+  }
+  console.log("📦 triggerFezDelivery called:", order.id);
   try {
     const payload = {
       recipientName: order.customerName,
@@ -40,5 +44,9 @@ export const triggerFezDelivery = async (order) => {
       "❌ Fez delivery failed:",
       error.response?.data || error.message,
     );
+    console.error("❌ Fez delivery failed:");
+    console.error("Status:", error.response?.status);
+    console.error("Data:", error.response?.data);
+    console.error("Message:", error.message);
   }
 };
