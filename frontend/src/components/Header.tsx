@@ -8,7 +8,6 @@ const Header = () => {
   const [shopOpen, setShopOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (
@@ -32,7 +31,10 @@ const Header = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-[#fbf6f0] border-b border-white/8 h-16 flex items-center justify-between px-5 md:px-7">
+      <header
+        // className={`${!mobileOpen ? "bg-[#fbf6f0]" : ""} "sticky top-0 z-50  border-b border-white/8 h-16 flex items-center justify-between px-5 md:px-7"`}
+        className={`${!mobileOpen ? "bg-[#fbf6f0] border-b border-white/8" : ""} sticky top-0 z-50  h-16 flex items-center justify-between px-5 md:px-7`}
+      >
         {/* ── MOBILE LEFT — Hamburger ── */}
         <button
           className="md:hidden text-white p-1"
@@ -47,7 +49,7 @@ const Header = () => {
 
         {/* ── DESKTOP LEFT — Logo + Nav ── */}
         <div className="hidden md:flex items-center">
-          <div className="w-12 h-12 bg-white flex items-center justify-center rounded-sm mr-4 shrink-0">
+          <div className="w-12 h-12  flex items-center justify-center  mr-4 shrink-0">
             <Link to={"/"}>
               <img src="/Tooclean.jpg" alt="logo" />
             </Link>
@@ -81,23 +83,22 @@ const Header = () => {
             </div>
             <Link
               to="/founder"
-              className="text-white text-[11px] font-bold tracking-[0.1em] uppercase px-5 h-16 flex items-center hover:opacity-70 transition-opacity"
+              className="text-black text-[11px] font-bold tracking-[0.1em] uppercase px-5 h-16 flex items-center hover:opacity-70 transition-opacity"
             >
               Too Clean
             </Link>
             <Link
               to="/track-order"
-              className="text-white text-[11px] font-bold tracking-[0.1em] uppercase px-5 h-16 flex items-center hover:opacity-70 transition-opacity"
+              className="text-black text-[11px] font-bold tracking-[0.1em] uppercase px-5 h-16 flex items-center hover:opacity-70 transition-opacity"
             >
               Track Your Order
             </Link>
           </nav>
         </div>
-
         {/* ── MOBILE CENTER — Logo ── */}
         {!mobileOpen && (
           <Link to="/" className="md:hidden absolute left-1/2 -translate-x-1/2">
-            <div className="w-10 h-10 bg-white flex items-center justify-center rounded-sm">
+            <div className="w-10 h-10  flex items-center justify-center rounded-sm">
               {/* <Link to={"/"}> */}
               <img src="/Tooclean.jpg" alt="logo" />
               {/* </Link> */}
@@ -108,12 +109,12 @@ const Header = () => {
         {/* ── RIGHT — Region + Cart (shared) ── */}
         <div className="flex items-center gap-2">
           <span className="hidden md:block text-white/20 text-sm mx-1">|</span>
-          <Link
-            to={"/product/6871a082-bd02-445d-ab13-5deeb7a31738"}
-            className="text-white hover:opacity-70 transition-opacity md:ml-2"
+          <a
+            href={"#products"}
+            className=" hover:opacity-70 transition-opacity md:ml-2"
           >
-            <ShoppingBag size={22} strokeWidth={1.8} />
-          </Link>
+            <ShoppingBag size={22} strokeWidth={1.8} color="black" />
+          </a>
         </div>
       </header>
 
@@ -130,8 +131,8 @@ const Header = () => {
             <div className="px-6 py-8 flex flex-col gap-1">
               {/* Shop with sub-links */}
               <div>
-                <button
-                  onClick={() => setShopOpen(!shopOpen)}
+                {/* <button
+                  onClick={() => setShopOpen(true)}
                   className="w-full flex items-center justify-between  text-[12px] font-bold tracking-[0.1em] uppercase py-4 border-b border-white/10"
                 >
                   SHOP
@@ -151,31 +152,26 @@ const Header = () => {
                       >
                         {item}
                       </Link>
-                    ))}
+                    ))} 
                   </div>
-                )}
+                )} */}
               </div>
-
-              <Link
-                to="/founder"
-                onClick={() => setMobileOpen(false)}
-                className=" text-[12px] font-bold tracking-[0.1em] uppercase py-4 border-b border-white/10 hover:opacity-70 transition-opacity"
-              >
-                Too Clean Vision
-              </Link>
-              <Link
-                to="/track-order"
-                onClick={() => setMobileOpen(false)}
-                className="text-[12px] font-bold tracking-[0.1em] uppercase py-4 border-b border-white/10 hover:opacity-70 transition-opacity"
-              >
-                Track Your Order
-              </Link>
-
-              {/* Region */}
-              {/* <button className="flex items-center gap-2 text-[#d1d5db] text-[12px] uppercase tracking-wide py-4 mt-4 hover:text-white transition-colors">
-                Nigeria | NGN
-                <ChevronDown size={12} />
-              </button> */}
+              <div className="flex flex-col mt-10">
+                <Link
+                  to="/founder"
+                  onClick={() => setMobileOpen(false)}
+                  className=" text-[12px] font-bold tracking-[0.1em] uppercase py-4 mt- border-b border-white/10 hover:opacity-70 transition-opacity"
+                >
+                  Too Clean Vision
+                </Link>
+                <Link
+                  to="/track-order"
+                  onClick={() => setMobileOpen(false)}
+                  className="text-[12px] font-bold tracking-[0.1em] uppercase py-4 border-b border-white/10 hover:opacity-70 transition-opacity"
+                >
+                  Track Your Order
+                </Link>
+              </div>
             </div>
           </div>
         </div>

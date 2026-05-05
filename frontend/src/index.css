@@ -8,6 +8,9 @@
   scrollbar-width: none;
 }
 
+html {
+  scroll-behavior: smooth;
+}
 @font-face {
   font-family: "Geist";
   src: url("./assets/fonts/Outfit-Medium.ttf") format("woff2");

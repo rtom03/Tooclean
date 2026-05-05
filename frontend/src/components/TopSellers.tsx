@@ -9,7 +9,10 @@ const TopSellers = () => {
   console.log(error);
   if (isError) return <ErrorState />;
   return (
-    <section className="w-full px-7 py-5 flex flex-col items-center bg-[#453224]">
+    <section
+      className="w-full px-7 py-5 flex flex-col items-center bg-[#453224] scroll-mt-20"
+      id="products"
+    >
       <h1 className="text-5xl font-bold text-[#FBF6F0] text-center tracking-tight mb-12">
         SHOP HERE
       </h1>

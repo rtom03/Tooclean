@@ -3,6 +3,46 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+// services/fezAuth.ts
+
+let fezToken = null;
+let tokenExpiry = 0; // timestamp in ms
+
+const FEZ_BASE = "https://apisandbox.fezdelivery.co/v1";
+
+export const loginToFez = async () => {
+  const res = await axios.post(`${FEZ_BASE}/auth/login`, {
+    email: process.env.FEZ_EMAIL,
+    password: process.env.FEZ_PASSWORD,
+  });
+
+  // ⚠️ Adjust depending on actual response shape
+  const token = res.data?.token || res.data?.data?.token;
+
+  if (!token) {
+    throw new Error("Fez login failed: no token returned");
+  }
+
+  // Fez said ~3 hours → set slightly less to be safe
+  const expiresInMs = 2.5 * 60 * 60 * 1000;
+
+  fezToken = token;
+  tokenExpiry = Date.now() + expiresInMs;
+
+  console.log("🔐 Fez token refreshed");
+
+  return fezToken;
+};
+
+export const getFezToken = async () => {
+  // reuse token if still valid
+  if (fezToken && Date.now() < tokenExpiry) {
+    return fezToken;
+  }
+
+  return await loginToFez();
+};
+
 export const triggerFezDelivery = async (order) => {
   if (order.deliveryStatus && order.deliveryStatus !== "not_created") {
     console.log("⚠️ Delivery already handled, skipping");
