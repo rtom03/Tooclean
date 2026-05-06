@@ -12,6 +12,7 @@ export const createOrderSchema = z.object({
   phone: z.string().min(10, "Phone number must be at least 10 digits"),
   address: z.string().min(1, "Address is required"),
   state: z.string().min(2, "Please select a state"),
+  deliveryPrice: z.number(),
 });
 
 export const NAIRA = "₦";

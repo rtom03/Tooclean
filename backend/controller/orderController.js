@@ -7,20 +7,55 @@ import { z } from "zod";
 import { prisma } from "../utils/db.js";
 import { triggerFezDelivery } from "../services/fez.js";
 
-const createOrderSchema = z.object({
-  customerName: z
-    .string()
-    .min(3, "Name must be at least 2 words")
-    .regex(
-      /^[A-Za-z]+(?:\s[A-Za-z]+)+$/,
-      "Enter a valid full name (e.g. John Doe)",
-    ),
-  email: z.string().email(),
-  phone: z.string().min(10),
-  address: z.string().min(1),
-  state: z.string().min(2),
-});
+const DELIVERY_RATES = [
+  { state: "Lagos", price: 2700 },
 
+  { state: "Ekiti", price: 4569 },
+  { state: "Ondo", price: 4569 },
+  { state: "Oyo", price: 4569 },
+  { state: "Ogun", price: 4569 },
+  { state: "Osun", price: 4569 },
+
+  { state: "Akwa Ibom", price: 6719 },
+  { state: "Cross River", price: 5644 },
+  { state: "Rivers", price: 5644 },
+  { state: "Delta", price: 5644 },
+  { state: "Edo", price: 5644 },
+  { state: "Bayelsa", price: 5644 },
+
+  { state: "Niger", price: 6450 },
+  { state: "Benue", price: 6450 },
+  { state: "Plateau", price: 6450 },
+  { state: "Kogi", price: 6450 },
+  { state: "FCT", price: 6181 },
+  { state: "Kwara", price: 5644 },
+  { state: "Nasarawa", price: 6450 },
+
+  { state: "Enugu", price: 5644 },
+  { state: "Anambra", price: 5644 },
+  { state: "Imo", price: 5644 },
+  { state: "Abia", price: 5644 },
+  { state: "Ebonyi", price: 5644 },
+
+  { state: "Jigawa", price: 6450 },
+  { state: "Kano", price: 6450 },
+  { state: "Kaduna", price: 6450 },
+  { state: "Zamfara", price: 6450 },
+  { state: "Sokoto", price: 6450 },
+  { state: "Kebbi", price: 6450 },
+  { state: "Katsina", price: 6450 },
+
+  { state: "Gombe", price: 6450 },
+  { state: "Bauchi", price: 6450 },
+  { state: "Borno", price: 6450 },
+  { state: "Adamawa", price: 6450 },
+  { state: "Taraba", price: 6450 },
+  { state: "Yobe", price: 6450 },
+];
+
+const DELIVERY_RATE_MAP = Object.fromEntries(
+  DELIVERY_RATES.map((item) => [item.state, item.price]),
+);
 // ── CREATE ORDER + GENERATE VIRTUAL ACCOUNT ────────────────
 
 export const orderData = async (req, res) => {
@@ -82,22 +117,29 @@ export const getOrderDataById = async (req, res) => {
 
 export const initializeTransfer = async (req, res) => {
   try {
-    const parsed = createOrderSchema.safeParse(req.body);
+    const parsed = req.body;
+    console.log(parsed);
     const { orderId } = req.params;
-    const reference = `TC-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
     const order = await prisma.order.findUnique({
       where: { id: orderId },
     });
-    if (!parsed.success) {
+    if (!parsed) {
       return res
         .status(400)
         .json({ errors: parsed.error.flatten().fieldErrors });
     }
 
-    const { customerName, email, phone, address, state } = parsed.data;
+    const { customerName, email, phone, address, state, deliveryPrice } =
+      parsed;
 
-    // 1. Generate order number
+    const stateDeliveryPrice = DELIVERY_RATE_MAP[state];
+    // console.log(stateDeliveryPrice);
+
+    if (!stateDeliveryPrice) {
+      return res.status(400).json({ error: "Invalid state" });
+    }
+    const totalAmount = order.total + stateDeliveryPrice;
     const orderNumber = `TC-${Date.now().toString().slice(-6)}`;
 
     // 2. Create Paystack customer
@@ -126,8 +168,9 @@ export const initializeTransfer = async (req, res) => {
         phone,
         address,
         state,
+        deliveryPrice,
         orderDetails: order,
-        total: order.total,
+        total: totalAmount,
         status: "pending",
         paymentStatus: "unpaid",
         paystackCustomerCode: paystackCustomer.customer_code,
@@ -146,6 +189,7 @@ export const initializeTransfer = async (req, res) => {
         phone: orderDetails.phone,
         address: orderDetails.address,
         state: orderDetails.state,
+        deliveryPrice: orderDetails.deliveryPrice,
         orderDetails: orderDetails.orderDetails,
         orderNumber: orderDetails.orderNumber,
         total: orderDetails.total,

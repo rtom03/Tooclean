@@ -48,45 +48,71 @@ export const triggerFezDelivery = async (order) => {
     console.log("⚠️ Delivery already handled, skipping");
     return;
   }
+
   console.log("📦 triggerFezDelivery called:", order.id);
+
   try {
+    const token = await getFezToken();
+
+    // 🔑 Required Fez fields
     const payload = {
+      BatchID: `BATCH-${Date.now()}`, // or reuse per batch
+      uniqueID: order.id, // MUST be unique per delivery
       recipientName: order.customerName,
-      recipientEmail: order.email,
       recipientPhone: order.phone,
       recipientAddress: order.address,
       recipientState: order.state,
-      orderNo: order.orderNumber,
+      weight: 1, // adjust if you calculate weight
+      valueOfItem: `${order.total}`, // string as required
     };
 
-    const response = await axios.post(
-      "https://apisandbox.fezdelivery.co/v1/order",
-      payload,
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.FEZ_TOKEN}`,
-        },
+    console.log("📡 Sending Fez payload:", payload);
+
+    const response = await axios.post(`${FEZ_BASE}/order`, payload, {
+      headers: {
+        Authorization: `Bearer ${token}`, // 🔑 login token
+        "api-token": process.env.FEZ_API_TOKEN, // 🔑 required
       },
-    );
+    });
 
     console.log("🚚 Fez delivery created:", response.data);
 
-    // optionally store tracking info
     await prisma.payment_Info.update({
       where: { id: order.id },
       data: {
         deliveryStatus: "created",
-        fezTrackingId: response.data.data?.orderId,
+        fezTrackingId: response.data.data?.orderId || null,
       },
     });
+
+    console.log("✅ Delivery saved to DB");
   } catch (error) {
-    console.error(
-      "❌ Fez delivery failed:",
-      error.response?.data || error.message,
-    );
     console.error("❌ Fez delivery failed:");
     console.error("Status:", error.response?.status);
     console.error("Data:", error.response?.data);
     console.error("Message:", error.message);
+
+    // 🔁 retry once if token expired
+    if (error.response?.status === 401) {
+      console.log("🔄 Token expired, retrying...");
+
+      try {
+        const newToken = await getFezToken(); // will refresh
+
+        const retryResponse = await axios.post(`${FEZ_BASE}/order`, payload, {
+          headers: {
+            Authorization: `Bearer ${newToken}`,
+            "api-token": process.env.FEZ_API_TOKEN,
+          },
+        });
+
+        console.log("🚚 Fez delivery created (retry):", retryResponse.data);
+      } catch (retryError) {
+        console.error(
+          "❌ Retry failed:",
+          retryError.response?.data || retryError.message,
+        );
+      }
+    }
   }
 };

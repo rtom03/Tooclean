@@ -10,6 +10,7 @@ import {
   type Product,
 } from "../constant/index.type";
 import Loader from "../components/Loader";
+import { DELIVERY_RATES } from "../constant";
 
 const inputClass =
   "w-full border border-[#ddd] rounded-lg px-3.5 py-2.5 text-[14px] text-[#1a1a1a] placeholder:text-[#bbb] outline-none focus:border-[#1a1a1a] transition-colors bg-white";
@@ -80,8 +81,20 @@ const Checkout = () => {
     phone: "",
     address: "",
     state: "",
+    deliveryPrice: 0,
   });
 
+  const handleStateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const stateName = e.target.value;
+
+    const selected = DELIVERY_RATES.find((item) => item.state === stateName);
+
+    setForm((prev) => ({
+      ...prev,
+      state: stateName,
+      deliveryPrice: selected?.price || 0,
+    }));
+  };
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
@@ -90,10 +103,6 @@ const Checkout = () => {
       ...prev,
       [e.target.name]: e.target.value,
     }));
-
-    // if (errors[name as keyof OrderInfo]) {
-    //   setErrors((prev) => ({ ...prev, [name]: undefined }));
-    // }
   };
 
   return (
@@ -215,14 +224,25 @@ const Checkout = () => {
             Delivery
           </h3>
           <div className="flex flex-col gap-2.5">
-            <select className={inputClass} name="state" onChange={handleChange}>
-              <option value="">Nigeria</option>
-              <option>Lagos</option>
-              <option>Abuja</option>
-              <option>Rivers</option>
-              <option>Kano</option>
-              <option>Oyo</option>
+            <select
+              className={inputClass}
+              name="state"
+              onChange={handleStateChange}
+            >
+              <option value="">Select State</option>
+
+              {DELIVERY_RATES.map((item) => (
+                <option key={item.state} value={item.state}>
+                  {item.state}
+                </option>
+              ))}
             </select>
+            {form.state && (
+              <div className="flex justify-between items-center px-0.5 mt-2 text-sm text-gray-600">
+                <span>{form.state}</span>
+                <span>₦{form.deliveryPrice.toLocaleString()}</span>
+              </div>
+            )}
             {errors.state && (
               <p className="text-red-500 text-[11px] mt-1">{errors.state}</p>
             )}
@@ -322,13 +342,16 @@ const Checkout = () => {
         {/* Totals */}
         <div className="flex justify-between text-[14px] text-[#555] mb-2.5">
           <span>Shipping</span>
-          <span className="text-[#1a7a3c] font-semibold">Free</span>
+          <span className="text-[#1a7a3c] font-semibold">
+            {" "}
+            ₦{form.deliveryPrice.toLocaleString("en-NG")}
+          </span>
         </div>
         <div className="h-px bg-[#e8e8e8] my-3" />
-        <div className="flex justify-between text-[17px] font-extrabold text-[#1a1a1a]">
+        {/* <div className="flex justify-between text-[17px] font-extrabold text-[#1a1a1a]">
           <span>Total</span>
-          <span>₦{bundle?.total?.toLocaleString("en-NG") ?? "—"}</span>
-        </div>
+          <span>₦{bundle?.total?.toLocaleString("en-NG")  ?? "—"}</span>
+        </div> */}
       </div>
     </div>
   );

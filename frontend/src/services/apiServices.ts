@@ -111,7 +111,8 @@ const initializePayment = async (
   });
 
   if (!res.ok) {
-    throw new Error("Error fetching data");
+    const err = await res.json().catch(() => null);
+    throw new Error(err?.error || err?.message || JSON.stringify(err));
   }
   return await res.json();
 };

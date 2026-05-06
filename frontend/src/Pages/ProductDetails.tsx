@@ -16,6 +16,14 @@ const generateBundles = (basePrice: number) => [
     // badge: "Free Shipping",
   },
   {
+    qty: 2,
+    label: "2 Bottle",
+    price: basePrice * 2 - 500,
+    badge: "Save ₦500 ",
+
+    // badge: "Free Shipping",
+  },
+  {
     qty: 3,
     label: "3 Bottles",
     price: basePrice * 3 - 1500,

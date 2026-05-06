@@ -51,6 +51,7 @@ model Payment_Info {
   phone                String
   address              String
   state                String
+  deliveryPrice        Float?
   orderDetails         Json
   total                Float
   status               String   @default("pending")  // pending | paid | processing | shipped | delivered | failed
