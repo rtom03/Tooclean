@@ -8,32 +8,75 @@ import ProductDetailSkeleton from "../components/skeleton/ProductDetailsSkeleton
 import ErrorState from "../components/IsErrorState";
 
 // generate bundles dynamically from product price
+// const generateBundles = (basePrice: number) => [
+//   {
+//     qty: 1,
+//     label: "1 Bottle",
+//     price: basePrice,
+//     multiplyItemByQty: (q) => {
+//       return q;
+//     },
+
+//     // badge: "Free Shipping",
+//   },
+//   {
+//     qty: 2,
+//     label: "2 Bottle",
+//     price: basePrice * 2 - 500,
+//     badge: "Save ₦500 ",
+//     multiplyItemByQty: (q) => {
+//       return q;
+//     },
+
+//     // badge: "Free Shipping",
+//   },
+//   {
+//     qty: 3,
+//     label: "3 Bottles",
+//     price: basePrice * 3 - 1500,
+//     badge: "Save ₦1500 ",
+//     multiplyItemByQty: (q) => {
+//       return q;
+//     },
+//   },
+//   {
+//     qty: 5,
+//     label: "5 Bottles",
+//     price: basePrice * 5 - 5000, // 27% off
+//     badge: "Save ₦5000 ",
+//     multiplyItemByQty: (q) => {
+//       return q;
+//     },
+//   },
+// ];
+
 const generateBundles = (basePrice: number) => [
   {
     qty: 1,
     label: "1 Bottle",
     price: basePrice,
-    // badge: "Free Shipping",
+    multiplyItemByQty: (q: number) => q * 1,
   },
   {
     qty: 2,
     label: "2 Bottle",
     price: basePrice * 2 - 500,
-    badge: "Save ₦500 ",
-
-    // badge: "Free Shipping",
+    badge: "Save ₦500",
+    multiplyItemByQty: (q: number) => q * 2,
   },
   {
     qty: 3,
     label: "3 Bottles",
     price: basePrice * 3 - 1500,
-    badge: "Save ₦1500 ",
+    badge: "Save ₦1500",
+    multiplyItemByQty: (q: number) => q * 3,
   },
   {
     qty: 5,
     label: "5 Bottles",
-    price: basePrice * 5 - 5000, // 27% off
-    badge: "Save ₦5000 ",
+    price: basePrice * 5 - 5000,
+    badge: "Save ₦5000",
+    multiplyItemByQty: (q: number) => q * 5,
   },
 ];
 
@@ -41,10 +84,37 @@ const ProductDetail = () => {
   const [selected, setSelected] = useState<number>(1); // default select 1 bottle
   const { id } = useParams<{ id: string }>();
   const [loading, setLoading] = useState(false);
+  const [quantity, setQuantity] = useState<number>(1); // base unit quantity
+
   const navigate = useNavigate();
+  const { data, isPending, isError, error } = useProduct(id!);
+  if (isPending) return <ProductDetailSkeleton />;
+  if (isError) return <ErrorState />;
+  console.log(error);
+  // console.log(data);
+  const bundles = data ? generateBundles(data?.product.price) : [];
+
+  // const handleBuyNow = async () => {
+  //   setLoading(!loading);
+  //   if (!data) return;
+
+  //   const selectedBundle = bundles.find((b) => b.qty === selected);
+  //   if (!selectedBundle) return;
+
+  //   try {
+  //     const res = await createOrderData({
+  //       productId: data.product.id,
+  //       qty: selectedBundle.qty,
+  //     });
+  //     setLoading(loading);
+  //     navigate(`/check-out/${res.orderId}`);
+  //   } catch (err) {
+  //     console.error(err);
+  //   }
+  // };
 
   const handleBuyNow = async () => {
-    setLoading(!loading);
+    setLoading(true);
     if (!data) return;
 
     const selectedBundle = bundles.find((b) => b.qty === selected);
@@ -53,21 +123,15 @@ const ProductDetail = () => {
     try {
       const res = await createOrderData({
         productId: data.product.id,
-        qty: selectedBundle.qty,
+        qty: selectedBundle.multiplyItemByQty(quantity), // ← uses the multiplier
       });
-      setLoading(loading);
+      setLoading(false);
       navigate(`/check-out/${res.orderId}`);
     } catch (err) {
       console.error(err);
+      setLoading(false);
     }
   };
-
-  const { data, isPending, isError, error } = useProduct(id!);
-  if (isPending) return <ProductDetailSkeleton />;
-  if (isError) return <ErrorState />;
-  console.log(error);
-  // console.log(data);
-  const bundles = data ? generateBundles(data?.product.price) : [];
 
   return (
     <div className="max-w-5xl bg-[#F0E9DF] mx-auto px-7 py-12 grid grid-cols-1 md:grid-cols-2 gap-14">
@@ -105,9 +169,40 @@ const ProductDetail = () => {
                 ${selected === b.qty ? "border-[#1a1a1a]" : "border-[#e0e0e0]"}`}
             >
               {/* Badge */}
-              <div className="absolute -top-3 right-3 bg-[#1a1a1a] text-white text-[9px] font-extrabold tracking-[0.08em] uppercase px-2.5 py-1 rounded whitespace-nowrap">
-                {b.badge}
-              </div>
+              {b.badge && (
+                <div className="absolute -top-3 left-3 bg-[#1a1a1a] text-white text-[9px] font-extrabold tracking-[0.08em] uppercase px-2.5 py-1 rounded whitespace-nowrap">
+                  {b.badge}
+                </div>
+              )}
+
+              {selected === b.qty && (
+                <div className="bg-white rounded-3xl absolute flex items-center -top-6 right-3 px-2.5 py-1 gap-2 mt-1.5">
+                  <span className="text-[11px] text-[#666]">Qty:</span>
+                  <span className="text-[13px] font-bold text-[#1a1a1a]">
+                    {b.multiplyItemByQty(quantity)}
+                  </span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation(); // prevent card selection toggle
+                      setQuantity((prev) => prev + 1);
+                    }}
+                    className="w-5 h-5 rounded-full bg-[#1a1a1a] text-white text-[13px] font-bold flex items-center justify-center hover:opacity-80 transition-opacity"
+                  >
+                    +
+                  </button>
+                  {quantity > 1 && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setQuantity((prev) => Math.max(1, prev - 1));
+                      }}
+                      className="w-5 h-5 rounded-full bg-[#ccc] text-[#1a1a1a] text-[13px] font-bold flex items-center justify-center hover:opacity-80 transition-opacity"
+                    >
+                      −
+                    </button>
+                  )}
+                </div>
+              )}
 
               {/* Radio */}
               <div
@@ -121,7 +216,6 @@ const ProductDetail = () => {
 
               {/* Thumbnails — duplicate images based on qty */}
               <div className="relative shrink-0 flex items-center">
-                {/* {Array.from({ length: b.qty }).map((_, i) => ( */}
                 <img
                   // key={i}
                   src={data?.product.images?.[0] ?? "/placeholder.jpg"}
@@ -129,7 +223,6 @@ const ProductDetail = () => {
                   className="w-10 h-10 object-contain"
                   // style={{ marginLeft: i > 0 ? -16 : 0 }} // overlap effect
                 />
-                {/* ))} */}
                 {/* qty badge */}
                 <div className="absolute -bottom-1 -left-1 bg-[#1a1a1a] text-white text-[9px] font-extrabold w-[18px] h-[18px] rounded flex items-center justify-center">
                   x{b.qty}
@@ -141,11 +234,6 @@ const ProductDetail = () => {
                 <p className="text-[15px] font-bold text-[#1a1a1a]">
                   {b.label}
                 </p>
-                {/* <div className="flex gap-2 mt-1">
-                  <span className="text-[11px] font-semibold text-[#1a7a3c]">
-                    Free Shipping
-                  </span>
-                </div> */}
               </div>
 
               {/* Price */}
