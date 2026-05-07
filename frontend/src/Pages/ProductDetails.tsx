@@ -7,49 +7,6 @@ import { useProduct } from "../api/productQuery";
 import ProductDetailSkeleton from "../components/skeleton/ProductDetailsSkeleton";
 import ErrorState from "../components/IsErrorState";
 
-// generate bundles dynamically from product price
-// const generateBundles = (basePrice: number) => [
-//   {
-//     qty: 1,
-//     label: "1 Bottle",
-//     price: basePrice,
-//     multiplyItemByQty: (q) => {
-//       return q;
-//     },
-
-//     // badge: "Free Shipping",
-//   },
-//   {
-//     qty: 2,
-//     label: "2 Bottle",
-//     price: basePrice * 2 - 500,
-//     badge: "Save ₦500 ",
-//     multiplyItemByQty: (q) => {
-//       return q;
-//     },
-
-//     // badge: "Free Shipping",
-//   },
-//   {
-//     qty: 3,
-//     label: "3 Bottles",
-//     price: basePrice * 3 - 1500,
-//     badge: "Save ₦1500 ",
-//     multiplyItemByQty: (q) => {
-//       return q;
-//     },
-//   },
-//   {
-//     qty: 5,
-//     label: "5 Bottles",
-//     price: basePrice * 5 - 5000, // 27% off
-//     badge: "Save ₦5000 ",
-//     multiplyItemByQty: (q) => {
-//       return q;
-//     },
-//   },
-// ];
-
 const generateBundles = (basePrice: number) => [
   {
     qty: 1,
@@ -94,25 +51,7 @@ const ProductDetail = () => {
   // console.log(data);
   const bundles = data ? generateBundles(data?.product.price) : [];
 
-  // const handleBuyNow = async () => {
-  //   setLoading(!loading);
-  //   if (!data) return;
-
-  //   const selectedBundle = bundles.find((b) => b.qty === selected);
-  //   if (!selectedBundle) return;
-
-  //   try {
-  //     const res = await createOrderData({
-  //       productId: data.product.id,
-  //       qty: selectedBundle.qty,
-  //     });
-  //     setLoading(loading);
-  //     navigate(`/check-out/${res.orderId}`);
-  //   } catch (err) {
-  //     console.error(err);
-  //   }
-  // };
-
+  console.log(setQuantity(0));
   const handleBuyNow = async () => {
     setLoading(true);
     if (!data) return;
