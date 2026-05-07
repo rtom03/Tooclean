@@ -41,7 +41,6 @@ const ProductDetail = () => {
   const [selected, setSelected] = useState<number>(1); // default select 1 bottle
   const { id } = useParams<{ id: string }>();
   const [loading, setLoading] = useState(false);
-  const [quantity, setQuantity] = useState<number>(1); // base unit quantity
 
   const navigate = useNavigate();
   const { data, isPending, isError, error } = useProduct(id!);
@@ -51,7 +50,6 @@ const ProductDetail = () => {
   // console.log(data);
   const bundles = data ? generateBundles(data?.product.price) : [];
 
-  console.log(setQuantity(0));
   const handleBuyNow = async () => {
     setLoading(true);
     if (!data) return;
@@ -62,7 +60,7 @@ const ProductDetail = () => {
     try {
       const res = await createOrderData({
         productId: data.product.id,
-        qty: selectedBundle.multiplyItemByQty(quantity), // ← uses the multiplier
+        qty: selectedBundle.qty, // ← uses the multiplier
       });
       setLoading(false);
       navigate(`/check-out/${res.orderId}`);
