@@ -175,7 +175,7 @@ const ProductDetail = () => {
                 </div>
               )}
 
-              {selected === b.qty && (
+              {/* {selected === b.qty && (
                 <div className="bg-white rounded-3xl absolute flex items-center -top-6 right-3 px-2.5 py-1 gap-2 mt-1.5">
                   <span className="text-[11px] text-[#666]">Qty:</span>
                   <span className="text-[13px] font-bold text-[#1a1a1a]">
@@ -202,7 +202,7 @@ const ProductDetail = () => {
                     </button>
                   )}
                 </div>
-              )}
+              )} */}
 
               {/* Radio */}
               <div

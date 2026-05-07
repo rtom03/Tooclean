@@ -5,39 +5,45 @@ dotenv.config();
 
 // services/fezAuth.ts
 
-let fezToken = null;
-let tokenExpiry = 0; // timestamp in ms
+let fezAuth = {
+  token: null,
+  secretKey: null,
+  expiresAt: 0,
+};
 
 const FEZ_BASE = "https://apisandbox.fezdelivery.co/v1";
 
 export const loginToFez = async () => {
-  const res = await axios.post(`${FEZ_BASE}/auth/login`, {
-    email: process.env.FEZ_EMAIL,
+  const res = await axios.post(`${FEZ_BASE}/user/authenticate`, {
+    user_id: process.env.FEZ_USER_ID,
     password: process.env.FEZ_PASSWORD,
   });
 
-  // ⚠️ Adjust depending on actual response shape
-  const token = res.data?.token || res.data?.data?.token;
+  const token = res.data?.authDetails?.authToken;
 
-  if (!token) {
-    throw new Error("Fez login failed: no token returned");
+  const secretKey = res.data?.orgDetails?.["secret-key"];
+
+  const expiresAt = res.data?.authDetails?.expireToken;
+
+  if (!token || !secretKey) {
+    throw new Error("Fez login failed");
   }
 
-  // Fez said ~3 hours → set slightly less to be safe
-  const expiresInMs = 2.5 * 60 * 60 * 1000;
-
-  fezToken = token;
-  tokenExpiry = Date.now() + expiresInMs;
+  fezAuth = {
+    token,
+    secretKey,
+    expiresAt: new Date(expiresAt).getTime(),
+  };
 
   console.log("🔐 Fez token refreshed");
 
-  return fezToken;
+  return fezAuth.token;
 };
 
-export const getFezToken = async () => {
-  // reuse token if still valid
-  if (fezToken && Date.now() < tokenExpiry) {
-    return fezToken;
+export const getFezAuth = async () => {
+  // token still valid
+  if (fezAuth.token && Date.now() < fezAuth.expiresAt) {
+    return fezAuth.token;
   }
 
   return await loginToFez();
