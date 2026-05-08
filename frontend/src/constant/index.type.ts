@@ -60,7 +60,7 @@ export type Password = {
 export type InitializePaymentResponse = {
   message: string;
   payment_info: {
-    id: string;
+    id: string | undefined;
     name: string;
     email: string;
     phone: string;

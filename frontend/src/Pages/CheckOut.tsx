@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Lock } from "lucide-react";
 import { useParams } from "react-router-dom";
-import { initializePayment } from "../services/apiServices";
 import {
   createOrderSchema,
   type InitializePaymentResponse,
@@ -10,6 +9,7 @@ import {
 import Loader from "../components/Loader";
 import { DELIVERY_RATES } from "../constant";
 import { useGetOrderById } from "../api/orderQuery";
+import { useInitializePayment } from "../api/initPaymentMutation";
 
 const inputClass =
   "w-full border border-[#ddd] rounded-lg px-3.5 py-2.5 text-[14px] text-[#1a1a1a] placeholder:text-[#bbb] outline-none focus:border-[#1a1a1a] transition-colors bg-white";
@@ -20,11 +20,17 @@ const Checkout = () => {
   const [paymentData, setPaymentData] =
     useState<InitializePaymentResponse | null>(null);
   const [step, setStep] = useState<"form" | "payment">("form");
-  const [loading, setLoading] = useState(false);
   type FormErrors = Partial<Record<keyof OrderInfo, string>>;
   const [errors, setErrors] = useState<FormErrors>({});
 
   const { data } = useGetOrderById(id!);
+  const {
+    mutateAsync: initializeTransfer,
+    isPending,
+    // error,
+  } = useInitializePayment();
+
+  // console.log(initializePayment.length);
 
   const validate = (): boolean => {
     const result = createOrderSchema.safeParse(form);
@@ -43,23 +49,19 @@ const Checkout = () => {
     return true;
   };
 
-  const handleInitTransfer = async (e: any) => {
-    e.preventDefault();
+  const handleInitTransfer = async () => {
     if (!validate()) return;
-
-    if (loading) return; // prevent double submit
-
-    setLoading(true);
     try {
-      if (!id) return;
-      const response = await initializePayment(id, form);
-      console.log(`HERE ${response}`);
-      setPaymentData(response); // contains accountNumber, bankName, etc.
+      const response = await initializeTransfer({
+        id,
+        data: form,
+      });
+      setPaymentData(response);
       setStep("payment");
+
+      console.log(response);
     } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
+      console.error(error);
     }
   };
 
@@ -283,7 +285,7 @@ const Checkout = () => {
           className="w-full bg-[#1a1a1a] text-white text-[14px] font-bold tracking-wide uppercase py-4 rounded-lg hover:opacity-85 transition-opacity active:scale-[0.98] flex items-center justify-center"
           disabled={step === "payment"}
         >
-          {loading ? <Loader /> : "Place Order"}
+          {isPending ? <Loader /> : "Place Order"}
         </button>
         <div className="flex items-center justify-center gap-1.5 mt-4 text-[12px] text-[#aaa]">
           <Lock size={12} />
