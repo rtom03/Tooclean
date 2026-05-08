@@ -73,7 +73,7 @@ const ProductDetail = () => {
   return (
     <div className="max-w-5xl bg-[#F0E9DF] mx-auto px-7 py-12 grid grid-cols-1 md:grid-cols-2 gap-14">
       {/* LEFT — Image */}
-      <ProductImageGallery images={data?.product.images ?? []} />
+      <ProductImageGallery product={data?.product} />
 
       {/* RIGHT — Info */}
       <div className="flex flex-col pt-2">

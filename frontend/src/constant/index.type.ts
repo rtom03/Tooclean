@@ -19,15 +19,14 @@ export const NAIRA = "₦";
 
 export type OrderInfo = z.infer<typeof createOrderSchema>;
 export type Product = {
-  id: string;
-  name: string;
-  price: number;
-  color: string;
-  description: string;
-  qty: number;
-  images: string[];
-  createdAt: string; // ISO date string
-  updatedAt: string; // ISO date string
+  product: {
+    id: string;
+    name: string;
+    description: string;
+    price: number;
+    images: string[];
+    qty?: number | 0;
+  };
 };
 
 export type Order = {

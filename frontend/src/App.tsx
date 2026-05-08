@@ -13,6 +13,7 @@ import Orders from "./Admin/Pages/Orders";
 import AdminPublicRoute from "./Admin/AdminPublicRoute";
 import ProtectedAdminRoute from "./Admin/ProtectedAdminRoute";
 import ProductDetail from "./Pages/ProductDetails";
+import CartBody from "./Pages/Cart";
 
 const App = () => {
   return (
@@ -21,6 +22,7 @@ const App = () => {
         <Route path="/" element={<HomeScreen />} />
         <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="founder" element={<Founder />} />
+        <Route path="cart" element={<CartBody />} />
         <Route path="/check-out/:id" element={<Checkout />} />
         <Route path="/track-order" element={<TrackOrder />} />
       </Route>

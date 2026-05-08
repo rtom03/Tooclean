@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { ShoppingBag, ChevronDown, Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useCartStore } from "../store/cartStore";
 
 const shopLinks = ["Black Hairline Spray", "Brown Hairline Spray"];
 
@@ -8,6 +9,9 @@ const Header = () => {
   const [shopOpen, setShopOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const { items } = useCartStore();
+  const hasItems = items.length > 0;
+
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (
@@ -109,12 +113,23 @@ const Header = () => {
         {/* ── RIGHT — Region + Cart (shared) ── */}
         <div className="flex items-center gap-2">
           <span className="hidden md:block text-white/20 text-sm mx-1">|</span>
-          <a
-            href={"#products"}
+          <span className="hidden md:block text-white/20 text-sm mx-1">|</span>
+          <Link
+            to={"/cart"}
+            className="hover:opacity-70 transition-opacity md:ml-2"
+          >
+            <ShoppingBag
+              size={22}
+              strokeWidth={1.8}
+              color={hasItems ? "red" : "black"}
+            />
+          </Link>
+          {/* <Link
+            to={"/cart"}
             className=" hover:opacity-70 transition-opacity md:ml-2"
           >
             <ShoppingBag size={22} strokeWidth={1.8} color="black" />
-          </a>
+          </Link> */}
         </div>
       </header>
 

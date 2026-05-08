@@ -13,6 +13,7 @@ type Product = {
     description: string;
     price: number;
     images: string[];
+    qty?: number | 0;
   };
 };
 
@@ -35,7 +36,7 @@ export const useProducts = () => {
 };
 
 export const useProduct = (id: string) => {
-  return useQuery<Product | null>({
+  return useQuery<Product>({
     queryKey: ["product", id],
     queryFn: () => getProduct(id),
     enabled: !!id, // prevents running when id is undefined
