@@ -36,7 +36,14 @@ export type Order = {
   price: number;
   total: number;
   createdAt: string;
-  product: Product; // 👈 nested
+  product: {
+    id: string;
+    name: string;
+    description: string;
+    price: number;
+    images: string[];
+    qty: number;
+  };
 };
 
 export type Admin = {

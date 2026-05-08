@@ -1,24 +1,22 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Lock } from "lucide-react";
 import { useParams } from "react-router-dom";
-import { getOrderData, initializePayment } from "../services/apiServices";
+import { initializePayment } from "../services/apiServices";
 import {
   createOrderSchema,
   type InitializePaymentResponse,
-  type Order,
   type OrderInfo,
-  type Product,
 } from "../constant/index.type";
 import Loader from "../components/Loader";
 import { DELIVERY_RATES } from "../constant";
+import { useGetOrderById } from "../api/orderQuery";
 
 const inputClass =
   "w-full border border-[#ddd] rounded-lg px-3.5 py-2.5 text-[14px] text-[#1a1a1a] placeholder:text-[#bbb] outline-none focus:border-[#1a1a1a] transition-colors bg-white";
 
 const Checkout = () => {
   const { id } = useParams<string>();
-  const [bundle, setBundle] = useState<Order | null>(null);
-  const [product, setProduct] = useState<Product | null>(null);
+
   const [paymentData, setPaymentData] =
     useState<InitializePaymentResponse | null>(null);
   const [step, setStep] = useState<"form" | "payment">("form");
@@ -26,17 +24,7 @@ const Checkout = () => {
   type FormErrors = Partial<Record<keyof OrderInfo, string>>;
   const [errors, setErrors] = useState<FormErrors>({});
 
-  useEffect(() => {
-    if (!id) return;
-
-    const fetchOrder = async () => {
-      const res = await getOrderData(id);
-      setProduct(res?.product);
-      setBundle(res);
-    };
-
-    fetchOrder();
-  }, [id]);
+  const { data } = useGetOrderById(id!);
 
   const validate = (): boolean => {
     const result = createOrderSchema.safeParse(form);
@@ -311,27 +299,27 @@ const Checkout = () => {
 
         {/* Items */}
         <div className="flex flex-col gap-4 mb-5">
-          {product && bundle && (
+          {data?.product && (
             <div className="flex items-center gap-4">
               <div className="relative shrink-0">
                 <img
-                  src={product?.product.images?.[0] ?? "/placeholder.jpg"}
-                  alt={product?.product.name}
+                  src={data.product.images[0] ?? "/placeholder.jpg"}
+                  alt={data.product?.name}
                   className="w-14 h-14 object-contain rounded-lg border border-[#e8e8e8] bg-white p-1"
                 />
                 <div className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[#555] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                  {bundle?.qty}
+                  {data?.qty}
                 </div>
               </div>
               <div className="flex-1">
                 <p className="text-[14px] font-semibold text-[#1a1a1a]">
-                  {product.product.name}
+                  {data.product.name}
                 </p>
                 {/* <p className="text-[12px] text-[#888] mt-0.5">{bundle.}</p> */}
               </div>
               <div className="text-right">
                 <p className="text-[14px] font-bold text-[#1a1a1a]">
-                  ₦{bundle.total.toLocaleString("en-NG")}
+                  ₦{data.total.toLocaleString("en-NG")}
                 </p>
               </div>
             </div>

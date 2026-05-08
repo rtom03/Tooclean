@@ -98,6 +98,14 @@ const getOrderData = async (id: string) => {
   return await res.json();
 };
 
+const getOrderDataById = async (id: string) => {
+  const res = await fetch(`${BASE_URL}/order/order-data/${id}`);
+  if (!res.ok) {
+    throw new Error("Error fetching data");
+  }
+  return await res.json();
+};
+
 const initializePayment = async (
   id: string,
   data: OrderInfo,
