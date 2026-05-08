@@ -1,19 +1,28 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  createOrderData,
   getOrder,
   getOrderById,
   getOrders,
   updateOrderStatus,
 } from "../services/apiServices";
-import type { Order } from "../constant/index.type";
+import type { OrderByIdResponse } from "../types/order";
 
 export const useGetOrderById = (id: string) => {
-  return useQuery<Order>({
+  return useQuery<OrderByIdResponse>({
     queryKey: ["orderData", id],
     queryFn: () => getOrderById(id),
     enabled: !!id, // prevents running when id is undefined
   });
 };
+
+export const useCreateOrder = () => {
+  return useMutation({
+    mutationFn: createOrderData,
+  });
+};
+
+// ADMIN
 export const useOrders = () => {
   return useQuery({
     queryKey: ["orders"],

@@ -5,6 +5,14 @@ import type {
   Password,
 } from "../constant/index.type";
 
+export type OrderItemPayload = {
+  productId: string;
+  qty: number;
+};
+
+export type CreateOrderPayload = {
+  items: OrderItemPayload[];
+};
 const BASE_URL =
   import.meta.env.MODE === "production" ? "/api" : import.meta.env.VITE_API_URL; // const BASE_URL = "/api";
 
@@ -76,17 +84,35 @@ export const removeProductExtraImages = async (id: string) => {
   return res.json();
 };
 
-const createOrderData = async (data: { productId: string; qty: number }) => {
+// const createOrderData = async (data: { productId: string; qty: number }) => {
+//   const res = await fetch(`${BASE_URL}/order/create-order`, {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify(data),
+//   });
+//   if (!res.ok) {
+//     throw new Error("Error fetching data");
+//   }
+//   return await res.json();
+// };
+
+const createOrderData = async (data: CreateOrderPayload) => {
   const res = await fetch(`${BASE_URL}/order/create-order`, {
     method: "POST",
+
     headers: {
       "Content-Type": "application/json",
     },
+
     body: JSON.stringify(data),
   });
+
   if (!res.ok) {
-    throw new Error("Error fetching data");
+    throw new Error("Error creating order");
   }
+
   return await res.json();
 };
 

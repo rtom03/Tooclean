@@ -58,61 +58,145 @@ const DELIVERY_RATE_MAP = Object.fromEntries(
 );
 // ── CREATE ORDER + GENERATE VIRTUAL ACCOUNT ────────────────
 
+// export const orderData = async (req, res) => {
+//   const { productId, qty } = req.body;
+
+//   try {
+//     // 🔒 Always fetch product from DB
+//     const product = await prisma.product.findUnique({
+//       where: { id: productId },
+//     });
+
+//     if (!product) {
+//       return res.status(404).json({ message: "Product not found" });
+//     }
+
+//     // 💡 Apply same bundle logic on backend
+//     let total = product.price * qty;
+
+//     if (qty === 3) total -= 1500;
+//     if (qty === 5) total -= 5000;
+
+//     const order = await prisma.order.create({
+//       data: {
+//         productId,
+//         qty,
+//         price: product.price,
+//         total,
+//       },
+//     });
+
+//     res.json({ orderId: order.id });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: "Server error" });
+//   }
+// };
+
 export const orderData = async (req, res) => {
-  const { productId, qty } = req.body;
+  const { items } = req.body;
 
   try {
-    // 🔒 Always fetch product from DB
-    const product = await prisma.product.findUnique({
-      where: { id: productId },
-    });
-
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({
+        message: "No items provided",
+      });
     }
 
-    // 💡 Apply same bundle logic on backend
-    let total = product.price * qty;
+    let orderTotal = 0;
 
-    if (qty === 3) total -= 1500;
-    if (qty === 5) total -= 5000;
+    // Build order items
+    const orderItemsData = [];
 
-    const order = await prisma.order.create({
-      data: {
+    for (const item of items) {
+      const { productId, qty } = item;
+
+      const product = await prisma.product.findUnique({
+        where: { id: productId },
+      });
+
+      if (!product) {
+        return res.status(404).json({
+          message: `Product not found: ${productId}`,
+        });
+      }
+
+      // Bundle logic
+      let subtotal = product.price * qty;
+
+      if (qty === 2) subtotal -= 500;
+      if (qty === 3) subtotal -= 1500;
+      if (qty === 5) subtotal -= 5000;
+
+      orderTotal += subtotal;
+
+      orderItemsData.push({
         productId,
         qty,
         price: product.price,
-        total,
+        subtotal,
+      });
+    }
+
+    // Create order + items
+    const order = await prisma.order.create({
+      data: {
+        total: orderTotal,
+
+        items: {
+          create: orderItemsData,
+        },
+      },
+
+      include: {
+        items: true,
       },
     });
 
-    res.json({ orderId: order.id });
+    console.log(order);
+
+    res.json({
+      orderId: order.id,
+      order,
+    });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Server error" });
+
+    res.status(500).json({
+      message: "Server error",
+    });
   }
 };
-
 export const getOrderDataById = async (req, res) => {
   const { id } = req.params;
 
-  const order = await prisma.order.findUnique({
-    where: { id },
-  });
+  try {
+    const order = await prisma.order.findUnique({
+      where: { id },
 
-  if (!order) {
-    return res.status(404).json({ message: "Order not found" });
+      include: {
+        items: {
+          include: {
+            product: true,
+          },
+        },
+      },
+    });
+
+    if (!order) {
+      return res.status(404).json({
+        message: "Order not found",
+      });
+    }
+
+    res.json(order);
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      message: "Server error",
+    });
   }
-
-  const product = await prisma.product.findUnique({
-    where: { id: order.productId },
-  });
-
-  // 3. Merge response
-  res.json({
-    ...order,
-    product, // attach manually
-  });
 };
 
 export const initializeTransfer = async (req, res) => {

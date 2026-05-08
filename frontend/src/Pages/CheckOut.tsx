@@ -24,6 +24,7 @@ const Checkout = () => {
   const [errors, setErrors] = useState<FormErrors>({});
 
   const { data } = useGetOrderById(id!);
+  // console.log(data);
   const {
     mutateAsync: initializeTransfer,
     isPending,
@@ -301,21 +302,21 @@ const Checkout = () => {
 
         {/* Items */}
         <div className="flex flex-col gap-4 mb-5">
-          {data?.product && (
+          {data?.items.map((item) => (
             <div className="flex items-center gap-4">
               <div className="relative shrink-0">
                 <img
-                  src={data.product.images[0] ?? "/placeholder.jpg"}
-                  alt={data.product?.name}
+                  src={item.product.images[0] ?? "/placeholder.jpg"}
+                  alt={item.product.name}
                   className="w-14 h-14 object-contain rounded-lg border border-[#e8e8e8] bg-white p-1"
                 />
                 <div className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[#555] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                  {data?.qty}
+                  {item.qty}
                 </div>
               </div>
               <div className="flex-1">
                 <p className="text-[14px] font-semibold text-[#1a1a1a]">
-                  {data.product.name}
+                  {item.product.name}
                 </p>
                 {/* <p className="text-[12px] text-[#888] mt-0.5">{bundle.}</p> */}
               </div>
@@ -325,7 +326,7 @@ const Checkout = () => {
                 </p>
               </div>
             </div>
-          )}
+          ))}
         </div>
 
         <div className="h-px bg-[#e8e8e8] mb-4" />

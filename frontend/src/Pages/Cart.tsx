@@ -1,12 +1,31 @@
-import { Trash2 } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
 import { useCartStore } from "../store/cartStore";
+import { useCreateOrder } from "../api/orderQuery";
+import { useNavigate } from "react-router-dom";
 
 export default function CartBody() {
   const { incrementQty, decrementQty, items, removeFromCart, totalPrice } =
     useCartStore();
-
+  const { isPending: isCreatingOrder, mutateAsync } = useCreateOrder();
   const formatPrice = (amount: number) => `₦${amount.toLocaleString("en-NG")}`;
+  const navigate = useNavigate();
 
+  const handleBuyNow = async () => {
+    try {
+      const orderItems = items.map((item) => ({
+        productId: item.id,
+        qty: item.qty,
+      }));
+
+      const res = await mutateAsync({
+        items: orderItems,
+      });
+
+      navigate(`/checkout/${res.orderId}`);
+    } catch (err) {
+      console.error(err);
+    }
+  };
   return (
     <div className="px-4 py-5 font-sans">
       {/* Cart heading */}
@@ -79,7 +98,9 @@ export default function CartBody() {
             </div>
 
             {/* Line total */}
-            <p className="text-sm font-semibold">{formatPrice(totalPrice())}</p>
+            <p className="text-sm font-semibold">
+              {formatPrice(item.price * item.qty)}
+            </p>
           </div>
         ))
       )}
@@ -97,8 +118,15 @@ export default function CartBody() {
           <span className="underline cursor-pointer">shipping</span> calculated
           at checkout.
         </p>
-        <button className="w-full bg-black text-white py-4 rounded-md text-sm font-semibold tracking-wide hover:opacity-80 transition">
-          Checkout
+        <button
+          onClick={handleBuyNow}
+          className="w-full bg-[#453224] text-white text-[14px] font-extrabold tracking-[0.05em] uppercase py-4 rounded-lg hover:opacity-85 transition-opacity active:scale-[0.98] flex items-center justify-center"
+        >
+          {isCreatingOrder ? (
+            <Loader2 className="animate-spin w-5 h-5" />
+          ) : (
+            "Buy Now"
+          )}
         </button>
       </div>
     </div>

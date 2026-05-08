@@ -39,6 +39,8 @@ model Product {
   description String
   qty         Int
   images      String[] // array of image URLs
+  items     OrderItem[]
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -68,11 +70,31 @@ model Payment_Info {
 
 }
 
+// model Order {
+//   id        String   @id @default(uuid())
+//   productId String
+//   qty       Int
+//   price     Int
+//   total     Int
+//   createdAt DateTime @default(now())
+// }
+
 model Order {
+  id        String      @id @default(uuid())
+  total     Int
+  status    String      @default("pending")
+  createdAt DateTime    @default(now())
+  items     OrderItem[]
+  updatedAt DateTime @updatedAt
+}
+
+model OrderItem {
   id        String   @id @default(uuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id])
   productId String
+  product   Product  @relation(fields: [productId], references: [id])
   qty       Int
   price     Int
-  total     Int
-  createdAt DateTime @default(now())
+  subtotal  Int
 }

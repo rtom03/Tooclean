@@ -1,11 +1,11 @@
 import { useState } from "react";
 import ProductImageGallery from "../components/ProductImageGallery";
 import { useNavigate, useParams } from "react-router-dom";
-import { createOrderData } from "../services/apiServices";
 import { Loader2 } from "lucide-react";
 import { useProduct } from "../api/productQuery";
 import ProductDetailSkeleton from "../components/skeleton/ProductDetailsSkeleton";
 import ErrorState from "../components/IsErrorState";
+import { useCreateOrder } from "../api/orderQuery";
 
 const generateBundles = (basePrice: number) => [
   {
@@ -40,33 +40,33 @@ const generateBundles = (basePrice: number) => [
 const ProductDetail = () => {
   const [selected, setSelected] = useState<number>(1); // default select 1 bottle
   const { id } = useParams<{ id: string }>();
-  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
-  const { data, isPending, isError, error } = useProduct(id!);
+  const { data, isPending, isError } = useProduct(id!);
+  const { isPending: isCreatingOrder, mutateAsync } = useCreateOrder();
+
   if (isPending) return <ProductDetailSkeleton />;
   if (isError) return <ErrorState />;
-  console.log(error);
+  // console.log(error);
   // console.log(data);
   const bundles = data ? generateBundles(data?.product.price) : [];
 
   const handleBuyNow = async () => {
-    setLoading(true);
-    if (!data) return;
-
     const selectedBundle = bundles.find((b) => b.qty === selected);
     if (!selectedBundle) return;
-
     try {
-      const res = await createOrderData({
-        productId: data.product.id,
-        qty: selectedBundle.qty, // ← uses the multiplier
+      const res = await mutateAsync({
+        items: [
+          {
+            productId: data.product.id,
+            qty: selectedBundle.qty,
+          },
+        ],
       });
-      setLoading(false);
-      navigate(`/check-out/${res.orderId}`);
+
+      navigate(`/checkout/${res.orderId}`);
     } catch (err) {
       console.error(err);
-      setLoading(false);
     }
   };
 
@@ -189,7 +189,11 @@ const ProductDetail = () => {
           onClick={handleBuyNow}
           className="w-full bg-[#453224] text-white text-[14px] font-extrabold tracking-[0.05em] uppercase py-4 rounded-lg hover:opacity-85 transition-opacity active:scale-[0.98] flex items-center justify-center"
         >
-          {loading ? <Loader2 className="animate-spin w-5 h-5" /> : "Buy Now"}
+          {isCreatingOrder ? (
+            <Loader2 className="animate-spin w-5 h-5" />
+          ) : (
+            "Buy Now"
+          )}
         </button>
         {/* </Link> */}
       </div>

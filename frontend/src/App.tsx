@@ -23,7 +23,7 @@ const App = () => {
         <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="founder" element={<Founder />} />
         <Route path="cart" element={<CartBody />} />
-        <Route path="/check-out/:id" element={<Checkout />} />
+        <Route path="/checkout/:id" element={<Checkout />} />
         <Route path="/track-order" element={<TrackOrder />} />
       </Route>
       <Route element={<AdminLayout />}>
