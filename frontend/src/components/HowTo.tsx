@@ -5,7 +5,7 @@ const HowTo = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [muted, setMuted] = useState(true);
   const [clicked, setClicked] = useState(false);
-  console.log(muted);
+  // console.log(muted);
 
   // auto-mute when scrolled out of view
   useEffect(() => {

@@ -25,7 +25,7 @@ export type Product = {
     description: string;
     price: number;
     images: string[];
-    qty?: number | 0;
+    qty: number;
   };
 };
 

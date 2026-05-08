@@ -315,8 +315,8 @@ const Checkout = () => {
             <div className="flex items-center gap-4">
               <div className="relative shrink-0">
                 <img
-                  src={product?.images?.[0] ?? "/placeholder.jpg"}
-                  alt={product?.name}
+                  src={product?.product.images?.[0] ?? "/placeholder.jpg"}
+                  alt={product?.product.name}
                   className="w-14 h-14 object-contain rounded-lg border border-[#e8e8e8] bg-white p-1"
                 />
                 <div className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[#555] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
@@ -325,7 +325,7 @@ const Checkout = () => {
               </div>
               <div className="flex-1">
                 <p className="text-[14px] font-semibold text-[#1a1a1a]">
-                  {product.name}
+                  {product.product.name}
                 </p>
                 {/* <p className="text-[12px] text-[#888] mt-0.5">{bundle.}</p> */}
               </div>

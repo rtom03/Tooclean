@@ -4,9 +4,9 @@ import ProductSkeleton from "./skeleton/ProductSkeleton";
 import ErrorState from "./IsErrorState";
 
 const TopSellers = () => {
-  const { data, isPending, isError, error } = useProducts();
+  const { data, isPending, isError } = useProducts();
   if (isPending) return <ProductSkeleton />;
-  console.log(error);
+  // console.log(error);
   if (isError) return <ErrorState />;
   return (
     <section

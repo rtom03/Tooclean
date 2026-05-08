@@ -7,7 +7,7 @@ export type CartItem = {
   description: string;
   price: number;
   images: string[];
-  qty?: number | 0;
+  qty: number;
 };
 
 type CartStore = {
@@ -40,7 +40,7 @@ export const useCartStore = create<CartStore>()(
           if (existing) {
             return {
               items: state.items.map((i) =>
-                i.id === item.id ? { ...i, qty: i.qty && i.qty + qty } : i,
+                i.id === item.id ? { ...i, qty: i.qty + qty } : i,
               ),
             };
           }
@@ -58,14 +58,14 @@ export const useCartStore = create<CartStore>()(
       incrementQty: (id) =>
         set((state) => ({
           items: state.items.map((i) =>
-            i.id === id ? { ...i, qty: i.qty && i.qty + 1 } : i,
+            i.id === id ? { ...i, qty: i.qty + 1 } : i,
           ),
         })),
 
       decrementQty: (id) =>
         set((state) => ({
           items: state.items
-            .map((i) => (i.id === id ? { ...i, qty: i.qty && i.qty - 1 } : i))
+            .map((i) => (i.id === id ? { ...i, qty: i.qty - 1 } : i))
             .filter((i) => i.qty > 0),
         })),
 
