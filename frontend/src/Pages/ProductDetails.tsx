@@ -1,12 +1,12 @@
 import { useState } from "react";
 import ProductImageGallery from "../components/ProductImageGallery";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { useProduct } from "../api/productQuery";
 import ProductDetailSkeleton from "../components/skeleton/ProductDetailsSkeleton";
 import ErrorState from "../components/IsErrorState";
 import { useCreateOrder } from "../api/orderQuery";
-import { useCartStore } from "../store/cartStore";
+// import { useCartStore } from "../store/cartStore";
 
 const generateBundles = (basePrice: number) => [
   {
@@ -44,7 +44,7 @@ const ProductDetail = () => {
 
   const navigate = useNavigate();
   const { data, isPending, isError } = useProduct(id!);
-  const { addToCart, items } = useCartStore();
+  // const { addToCart, items } = useCartStore();
   const { isPending: isCreatingOrder, mutateAsync } = useCreateOrder();
 
   if (isPending) return <ProductDetailSkeleton />;
@@ -188,7 +188,7 @@ const ProductDetail = () => {
         </div>
 
         {/* CTA */}
-        <div
+        {/* <div
           className="w-full bg-[#453224] text-white text-[14px] font-extrabold tracking-[0.05em] uppercase py-4 rounded-lg hover:opacity-85 transition-opacity active:scale-[0.98] flex items-center justify-center"
           onClick={() => addToCart(data.product, data.product.qty)}
         >
@@ -197,7 +197,7 @@ const ProductDetail = () => {
           ) : (
             <button>Add To Cart</button>
           )}
-        </div>
+        </div> */}
         <br />
         <button
           onClick={handleBuyNow}
