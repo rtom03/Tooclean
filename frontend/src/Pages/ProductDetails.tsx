@@ -6,6 +6,7 @@ import { useProduct } from "../api/productQuery";
 import ProductDetailSkeleton from "../components/skeleton/ProductDetailsSkeleton";
 import ErrorState from "../components/IsErrorState";
 import { useCreateOrder } from "../api/orderQuery";
+import { useCartStore } from "../store/cartStore";
 // import { useCartStore } from "../store/cartStore";
 
 const generateBundles = (basePrice: number) => [
@@ -44,6 +45,7 @@ const ProductDetail = () => {
 
   const navigate = useNavigate();
   const { data, isPending, isError } = useProduct(id!);
+  const { addToCart } = useCartStore();
   // const { addToCart, items } = useCartStore();
   const { isPending: isCreatingOrder, mutateAsync } = useCreateOrder();
 
@@ -67,6 +69,8 @@ const ProductDetail = () => {
           },
         ],
       });
+
+      addToCart(data.product, selectedBundle.qty);
 
       navigate(`/checkout/${res.orderId}`);
     } catch (err) {
