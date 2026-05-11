@@ -68,9 +68,10 @@ const Founder = () => {
 
       {/* Text */}
       <p className="text-center text-[15px] text-[#555] leading-relaxed max-w-lg">
-        Too Clean was created with one mission: to provide real solutions for
+        World Leading Brand, created with precision. <br /> Stay Clean
+        {/* Too Clean was created with one mission: to provide real solutions for
         your hairline. Every formula is crafted with purpose, so you can feel
-        confident, daily.
+        confident, daily. */}
       </p>
     </div>
   );

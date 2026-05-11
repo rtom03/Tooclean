@@ -4,8 +4,12 @@ import { useCreateOrder } from "../api/orderQuery";
 import { useNavigate } from "react-router-dom";
 
 export default function CartBody() {
-  const { incrementQty, decrementQty, items, removeFromCart, totalPrice } =
-    useCartStore();
+  const {
+    // incrementQty, decrementQty,
+    items,
+    removeFromCart,
+    totalPrice,
+  } = useCartStore();
   const { isPending: isCreatingOrder, mutateAsync } = useCreateOrder();
   const formatPrice = (amount: number) => `₦${amount.toLocaleString("en-NG")}`;
   const navigate = useNavigate();
@@ -70,21 +74,21 @@ export default function CartBody() {
               <div className="flex items-center gap-3">
                 {/* Qty control */}
                 <div className="flex items-center border border-gray-300 rounded-md overflow-hidden">
-                  <button
+                  {/* <button
                     className="w-9 h-9 flex items-center justify-center text-lg hover:bg-gray-100 transition"
                     onClick={() => decrementQty(item.id)}
                   >
                     −
-                  </button>
+                  </button> */}
                   <span className="w-9 h-9 flex items-center justify-center text-sm font-medium border-x border-gray-200">
                     {item.qty}
                   </span>
-                  <button
+                  {/* <button
                     className="w-9 h-9 flex items-center justify-center text-lg hover:bg-gray-100 transition"
                     onClick={() => incrementQty(item.id)}
                   >
                     +
-                  </button>
+                  </button> */}
                 </div>
 
                 {/* Remove */}

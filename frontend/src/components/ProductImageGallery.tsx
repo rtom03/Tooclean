@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useCartStore } from "../store/cartStore";
 import type { Product } from "../constant/index.type";
-import { Link } from "react-router-dom";
 
 const ProductImageGallery = ({ product }: Product) => {
   const [current, setCurrent] = useState(0);
@@ -11,8 +9,6 @@ const ProductImageGallery = ({ product }: Product) => {
     setCurrent((i) => (i === 0 ? product?.images.length - 1 : i - 1));
   const next = () =>
     setCurrent((i) => (i === product?.images.length - 1 ? 0 : i + 1));
-
-  const { addToCart, items } = useCartStore();
 
   return (
     <div className="flex flex-col gap-3.5">
@@ -53,16 +49,6 @@ const ProductImageGallery = ({ product }: Product) => {
             />
           ))}
         </div>
-      </div>
-      <div
-        className="bg-[#1a1a1a] py-2 px-1.5 justify-center text-center text-white"
-        onClick={() => addToCart(product, product.qty)}
-      >
-        {items.find((item) => item.id == product.id) ? (
-          <Link to={"/cart"}>Go To Cart</Link>
-        ) : (
-          <button>Add To Cart</button>
-        )}
       </div>
     </div>
   );

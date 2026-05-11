@@ -2,8 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { ShoppingBag, ChevronDown, Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useCartStore } from "../store/cartStore";
-
-const shopLinks = ["Black Hairline Spray", "Brown Hairline Spray"];
+import { useProducts } from "../api/productQuery";
 
 const Header = () => {
   const [shopOpen, setShopOpen] = useState(false);
@@ -11,6 +10,7 @@ const Header = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { items } = useCartStore();
   const hasItems = items.length > 0;
+  const { data, isPending, isError } = useProducts();
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -73,13 +73,13 @@ const Header = () => {
               </button>
               {shopOpen && (
                 <div className="absolute top-16 left-0 border border-t-0 border-white/10 min-w-[180px] py-2 z-50">
-                  {shopLinks.map((item) => (
+                  {data?.products.map((item) => (
                     <Link
-                      key={item}
-                      to="#"
+                      key={item.id}
+                      to={`/product/${item.id}`}
                       className="block px-5 py-2.5 text-[11px] font-semibold tracking-[0.08em] uppercase text-[#aaa] hover:text-white hover:bg-white/5 transition-all"
                     >
-                      {item}
+                      {item.name}
                     </Link>
                   ))}
                 </div>
@@ -89,7 +89,7 @@ const Header = () => {
               to="/founder"
               className="text-black text-[11px] font-bold tracking-[0.1em] uppercase px-5 h-16 flex items-center hover:opacity-70 transition-opacity"
             >
-              Too Clean
+              Too Clean Vision
             </Link>
             <Link
               to="/track-order"
