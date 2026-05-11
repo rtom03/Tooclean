@@ -122,10 +122,10 @@ export const orderData = async (req, res) => {
       }
 
       // Bundle logic
-      let subtotal =
-        product.price > 1 ? product.price * qty - 500 : product.price;
+      let subtotal = product.price;
+      // > 1 ? product.price * qty - 500 : product.price;
 
-      if (qty > 1) subtotal -= 500;
+      // if (qty > 1) subtotal -= 500;
       // if (qty === 3) subtotal -= 1500;
       // if (qty === 5 || qty > 5) subtotal -= 5000;
 
