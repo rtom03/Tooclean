@@ -9,7 +9,7 @@ const Header = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { items } = useCartStore();
-  const hasItems = items.length > 0;
+  const cartQty = items.map((val) => val.qty);
   const { data } = useProducts();
 
   useEffect(() => {
@@ -111,25 +111,30 @@ const Header = () => {
         )}
 
         {/* ── RIGHT — Region + Cart (shared) ── */}
-        <div className="flex items-center gap-2">
-          <span className="hidden md:block text-white/20 text-sm mx-1">|</span>
-          <span className="hidden md:block text-white/20 text-sm mx-1">|</span>
+        {/* <div className="flex items-center gap-2">
           <Link
             to={"/cart"}
             className="hover:opacity-70 transition-opacity md:ml-2"
           >
-            <ShoppingBag
-              size={22}
-              strokeWidth={1.8}
-              color={hasItems ? "red" : "black"}
-            />
+            <span className="absolute top-1.5 right-5 text-red-600">
+              {cartQty}
+            </span>
+            <ShoppingBag size={22} strokeWidth={1.8} className="relative" />
           </Link>
-          {/* <Link
+        </div> */}
+
+        <div className="flex items-center gap-2">
+          <Link
             to={"/cart"}
-            className=" hover:opacity-70 transition-opacity md:ml-2"
+            className="hover:opacity-70 transition-opacity md:ml-2 relative"
           >
-            <ShoppingBag size={22} strokeWidth={1.8} color="black" />
-          </Link> */}
+            {cartQty && (
+              <span className="absolute -top-2 -right-2 min-w-[16px] h-4 px-0.5 bg-red-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none">
+                {cartQty}
+              </span>
+            )}
+            <ShoppingBag size={22} strokeWidth={1.8} />
+          </Link>
         </div>
       </header>
 
