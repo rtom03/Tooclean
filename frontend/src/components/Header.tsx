@@ -10,7 +10,7 @@ const Header = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { items } = useCartStore();
   const hasItems = items.length > 0;
-  const { data, isPending, isError } = useProducts();
+  const { data } = useProducts();
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
