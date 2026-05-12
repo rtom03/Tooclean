@@ -9,14 +9,14 @@ export default function CartBody() {
     // incrementQty, decrementQty,
     items,
     removeFromCart,
-    totalPrice,
+    // totalPrice,
   } = useCartStore();
   const { isPending: isCreatingOrder, mutateAsync } = useCreateOrder();
   const formatPrice = (amount: number) => `₦${amount.toLocaleString("en-NG")}`;
   const navigate = useNavigate();
-  const estimatePrice = items.map((est) => {
-    (est.price, est.qty);
-  });
+  // const estimatePrice = items.map((est) => {
+  //   (est.price, est.qty);
+  // });
   const handleBuyNow = async () => {
     try {
       const orderItems = items.map((item) => ({
