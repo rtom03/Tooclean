@@ -2,6 +2,7 @@ import { Loader2, Trash2 } from "lucide-react";
 import { useCartStore } from "../store/cartStore";
 import { useCreateOrder } from "../api/orderQuery";
 import { useNavigate } from "react-router-dom";
+import { calculateSubtotal } from "../constant";
 
 export default function CartBody() {
   const {
@@ -103,7 +104,9 @@ export default function CartBody() {
 
             {/* Line total */}
             <p className="text-sm font-semibold">
-              {formatPrice(item.price * item.qty)}
+              {formatPrice(
+                calculateSubtotal(item.price, item.qty).subtotal,
+              )}{" "}
             </p>
           </div>
         ))
