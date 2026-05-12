@@ -14,7 +14,9 @@ export default function CartBody() {
   const { isPending: isCreatingOrder, mutateAsync } = useCreateOrder();
   const formatPrice = (amount: number) => `₦${amount.toLocaleString("en-NG")}`;
   const navigate = useNavigate();
-
+  const estimatePrice = items.map((est) => {
+    (est.price, est.qty);
+  });
   const handleBuyNow = async () => {
     try {
       const orderItems = items.map((item) => ({
@@ -104,9 +106,7 @@ export default function CartBody() {
 
             {/* Line total */}
             <p className="text-sm font-semibold">
-              {formatPrice(
-                calculateSubtotal(item.price, item.qty).subtotal,
-              )}{" "}
+              {formatPrice(calculateSubtotal(item.price, item.qty).subtotal)}
             </p>
           </div>
         ))
@@ -114,12 +114,6 @@ export default function CartBody() {
 
       {/* Summary */}
       <div className="mt-4">
-        <div className="flex justify-between items-center py-3">
-          <span className="font-semibold">Estimated total</span>
-          <span className="font-semibold text-base">
-            {formatPrice(totalPrice())}
-          </span>
-        </div>
         <p className="text-xs text-gray-400 mb-4">
           Taxes, discounts and{" "}
           <span className="underline cursor-pointer">shipping</span> calculated
