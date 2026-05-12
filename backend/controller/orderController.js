@@ -53,45 +53,28 @@ const DELIVERY_RATES = [
   { state: "Yobe", price: 6450 },
 ];
 
+const calculateSubtotal = (price, qty) => {
+  const baseTotal = price * qty;
+
+  let discount = 0;
+
+  if (qty >= 5) {
+    discount = 5000;
+  } else if (qty === 3) {
+    discount = 1000;
+  } else if (qty === 2) {
+    discount = 1000;
+  }
+
+  return {
+    subtotal: baseTotal - discount,
+    discount,
+  };
+};
+
 const DELIVERY_RATE_MAP = Object.fromEntries(
   DELIVERY_RATES.map((item) => [item.state, item.price]),
 );
-// ── CREATE ORDER + GENERATE VIRTUAL ACCOUNT ────────────────
-
-// export const orderData = async (req, res) => {
-//   const { productId, qty } = req.body;
-
-//   try {
-//     // 🔒 Always fetch product from DB
-//     const product = await prisma.product.findUnique({
-//       where: { id: productId },
-//     });
-
-//     if (!product) {
-//       return res.status(404).json({ message: "Product not found" });
-//     }
-
-//     // 💡 Apply same bundle logic on backend
-//     let total = product.price * qty;
-
-//     if (qty === 3) total -= 1500;
-//     if (qty === 5) total -= 5000;
-
-//     const order = await prisma.order.create({
-//       data: {
-//         productId,
-//         qty,
-//         price: product.price,
-//         total,
-//       },
-//     });
-
-//     res.json({ orderId: order.id });
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json({ message: "Server error" });
-//   }
-// };
 
 export const orderData = async (req, res) => {
   const { items } = req.body;
@@ -122,11 +105,7 @@ export const orderData = async (req, res) => {
       }
 
       // Bundle logic
-      let subtotal = product.price * qty;
-
-      // if (qty > 1) subtotal -= 500;
-      // if (qty === 3) subtotal -= 1500;
-      // if (qty === 5 || qty > 5) subtotal -= 5000;
+      const { subtotal, discount } = calculateSubtotal(product.price, qty);
 
       orderTotal += subtotal;
 
