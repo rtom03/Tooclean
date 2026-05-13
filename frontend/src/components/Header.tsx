@@ -72,12 +72,12 @@ const Header = () => {
                 />
               </button>
               {shopOpen && (
-                <div className="absolute top-16 left-0 border border-t-0 border-white/10 min-w-[180px] py-2 z-50">
+                <div className="bg-[#453224] text-white absolute top-16 left-0 border border-t-0 border-white/10 min-w-[180px] py-2 z-50">
                   {data?.products.map((item) => (
                     <Link
                       key={item.id}
                       to={`/product/${item.id}`}
-                      className="block px-5 py-2.5 text-[11px] font-semibold tracking-[0.08em] uppercase text-[#aaa] hover:text-white hover:bg-white/5 transition-all"
+                      className="block px-5 py-2.5 text-[10px] font-semibold tracking-[0.08em] uppercase text-[#ffffff] hover:text-white hover:bg-white/5 transition-all"
                     >
                       {item.name}
                     </Link>

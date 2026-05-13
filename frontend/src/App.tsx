@@ -14,6 +14,7 @@ import AdminPublicRoute from "./Admin/AdminPublicRoute";
 import ProtectedAdminRoute from "./Admin/ProtectedAdminRoute";
 import ProductDetail from "./Pages/ProductDetails";
 import CartBody from "./Pages/Cart";
+import Emails from "./Admin/Pages/Emails";
 
 const App = () => {
   return (
@@ -38,6 +39,7 @@ const App = () => {
           <Route path="/admin/products" element={<Products />} />
           <Route path="/admin/orders" element={<Orders />} />
           <Route path="/admin/settings" element={<Settings />} />
+          <Route path="/admin/emails" element={<Emails />} />
         </Route>
       </Route>
     </Routes>
