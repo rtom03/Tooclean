@@ -138,7 +138,7 @@ const initializePayment = async (
 
   if (!res.ok) {
     const err = await res.json().catch(() => null);
-    throw new Error(err?.error || err?.message || JSON.stringify(err));
+    throw new Error(err || err?.message || JSON.stringify(err));
   }
   return await res.json();
 };

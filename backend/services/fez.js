@@ -14,30 +14,34 @@ let fezAuth = {
 const FEZ_BASE = "https://apisandbox.fezdelivery.co/v1";
 
 export const loginToFez = async () => {
-  const res = await axios.post(`${FEZ_BASE}/user/authenticate`, {
-    user_id: process.env.FEZ_USER_ID,
-    password: process.env.FEZ_PASSWORD,
-  });
+  try {
+    const res = await axios.post(`${FEZ_BASE}/user/authenticate`, {
+      user_id: process.env.FEZ_USER_ID,
+      password: process.env.FEZ_PASSWORD,
+    });
 
-  const token = res.data?.authDetails?.authToken;
+    const token = res.data?.authDetails?.authToken;
 
-  const secretKey = res.data?.orgDetails?.["secret-key"];
+    const secretKey = res.data?.orgDetails?.["secret-key"];
 
-  const expiresAt = res.data?.authDetails?.expireToken;
+    const expiresAt = res.data?.authDetails?.expireToken;
+    console.log(token);
+    if (!token || !secretKey) {
+      throw new Error("Fez login failed");
+    }
 
-  if (!token || !secretKey) {
-    throw new Error("Fez login failed");
+    fezAuth = {
+      token: token,
+      secretKey: secretKey,
+      expiresAt: new Date(expiresAt).getTime(),
+    };
+
+    console.log(`ITS TOKEN ${fezAuth}`);
+
+    return fezAuth.token;
+  } catch (error) {
+    console.log(error);
   }
-
-  fezAuth = {
-    token,
-    secretKey,
-    expiresAt: new Date(expiresAt).getTime(),
-  };
-
-  console.log("🔐 Fez token refreshed");
-
-  return fezAuth.token;
 };
 
 export const getFezToken = async () => {
@@ -59,7 +63,7 @@ export const triggerFezDelivery = async (order) => {
 
   try {
     const token = await getFezToken();
-
+    console.log(token);
     // 🔑 Required Fez fields
     const payload = {
       BatchID: `BATCH-${Date.now()}`, // or reuse per batch
