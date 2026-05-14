@@ -40,7 +40,7 @@ export const loginToFez = async () => {
   return fezAuth.token;
 };
 
-export const getFezAuth = async () => {
+export const getFezToken = async () => {
   // token still valid
   if (fezAuth.token && Date.now() < fezAuth.expiresAt) {
     return fezAuth.token;
