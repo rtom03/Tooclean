@@ -1,9 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createOrderData,
-  getOrder,
   getOrderById,
   getOrders,
+  getPaymentInfo,
   updateOrderStatus,
 } from "../services/apiServices";
 import type { OrderByIdResponse } from "../types/order";
@@ -30,11 +30,14 @@ export const useOrders = () => {
   });
 };
 
-export const useOrder = (id: string) => {
+export const usePaymentInfo = (id?: string) => {
   return useQuery({
-    queryKey: ["order", id],
-    queryFn: () => getOrder(id),
-    enabled: !!id, // prevents running when id is undefined
+    queryKey: ["payment-info", id],
+    queryFn: () => {
+      if (!id) throw new Error("Missing id");
+      return getPaymentInfo(id);
+    },
+    refetchInterval: 5000,
   });
 };
 

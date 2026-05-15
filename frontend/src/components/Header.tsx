@@ -9,7 +9,7 @@ const Header = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { items } = useCartStore();
-  const cartQty = items.map((val) => val.qty);
+  const cartQty = items.reduce((sum, item) => sum + item.qty, 0);
   const { data } = useProducts();
 
   useEffect(() => {
@@ -128,7 +128,7 @@ const Header = () => {
             to={"/cart"}
             className="hover:opacity-70 transition-opacity md:ml-2 relative"
           >
-            {cartQty.length > 0 && (
+            {cartQty > 0 && (
               <span className="absolute -top-2 -right-2 min-w-[16px] h-4 px-0.5 bg-red-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none">
                 {cartQty}
               </span>

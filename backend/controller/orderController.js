@@ -8,7 +8,7 @@ import { prisma } from "../utils/db.js";
 import { triggerFezDelivery } from "../services/fez.js";
 
 const DELIVERY_RATES = [
-  { state: "Lagos", price: 100 },
+  { state: "Lagos", price: 2700 },
 
   { state: "Ekiti", price: 4569 },
   { state: "Ondo", price: 4569 },
@@ -261,44 +261,9 @@ export const initializeTransfer = async (req, res) => {
         accountName: orderDetails.dedicatedAccountName,
         amount: orderDetails.total,
         note: `Transfer exactly ₦${orderDetails.total} to complete your order`,
+        paymentStatus: orderDetails.paymentStatus,
       },
     });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// ── GET ORDER STATUS (for track order page) ────────────────
-export const getOrderByPhone = async (req, res) => {
-  try {
-    const { phone, orderNumber } = req.query;
-
-    if (!phone && !orderNumber) {
-      return res.status(400).json({ error: "Provide phone or order number" });
-    }
-
-    const order = await prisma.payment_Info.findFirst({
-      where: {
-        OR: [phone ? { phone } : {}, orderNumber ? { orderNumber } : {}],
-      },
-      select: {
-        orderNumber: true,
-        customerName: true,
-        status: true,
-        paymentStatus: true,
-        total: true,
-        items: true,
-        createdAt: true,
-        // never expose bank details or internal IDs in track endpoint
-      },
-    });
-
-    if (!order) {
-      return res.status(404).json({ error: "Order not found" });
-    }
-
-    res.status(200).json({ order });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
@@ -385,17 +350,115 @@ export const getAllOrders = async (req, res) => {
   }
 };
 
-export const getOrder = async (req, res) => {
+export const getPaymentInfo = async (req, res) => {
   const { id } = req.query;
 
   try {
-    const order = await prisma.payment_Info.findUnique({
+    const payment_info = await prisma.payment_Info.findUnique({
       where: { id: String(id) },
     });
 
-    res.status(200).json({ order });
+    res.set("Cache-Control", "no-store");
+
+    res.status(200).json({ payment_info });
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+};
+
+export const getLatestOrderByPhone = async (req, res) => {
+  try {
+    const { phone } = req.query;
+
+    if (!phone) {
+      return res.status(400).json({ error: "Phone number is required" });
+    }
+
+    const order = await prisma.payment_Info.findFirst({
+      where: {
+        phone: String(phone),
+      },
+
+      orderBy: {
+        createdAt: "desc",
+      },
+
+      select: {
+        orderNumber: true,
+        customerName: true,
+        phone: true,
+
+        status: true,
+        paymentStatus: true,
+        deliveryStatus: true,
+
+        total: true,
+        deliveryPrice: true,
+
+        orderDetails: true,
+
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    if (!order) {
+      return res.status(404).json({ error: "No order found" });
+    }
+
+    res.status(200).json({ order });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: error.message,
+    });
+  }
+};
+
+export const getOrderByOrderNumber = async (req, res) => {
+  try {
+    const { orderNumber } = req.query;
+
+    if (!orderNumber) {
+      return res.status(400).json({ error: "Order number is required" });
+    }
+
+    const order = await prisma.payment_Info.findUnique({
+      where: {
+        orderNumber: String(orderNumber),
+      },
+
+      select: {
+        orderNumber: true,
+        customerName: true,
+        phone: true,
+
+        status: true,
+        paymentStatus: true,
+        deliveryStatus: true,
+
+        total: true,
+        deliveryPrice: true,
+
+        orderDetails: true,
+
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    res.status(200).json({ order });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: error.message,
+    });
   }
 };
 

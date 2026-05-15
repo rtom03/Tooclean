@@ -84,20 +84,6 @@ export const removeProductExtraImages = async (id: string) => {
   return res.json();
 };
 
-// const createOrderData = async (data: { productId: string; qty: number }) => {
-//   const res = await fetch(`${BASE_URL}/order/create-order`, {
-//     method: "POST",
-//     headers: {
-//       "Content-Type": "application/json",
-//     },
-//     body: JSON.stringify(data),
-//   });
-//   if (!res.ok) {
-//     throw new Error("Error fetching data");
-//   }
-//   return await res.json();
-// };
-
 const createOrderData = async (data: CreateOrderPayload) => {
   const res = await fetch(`${BASE_URL}/order/create-order`, {
     method: "POST",
@@ -122,6 +108,41 @@ const getOrderById = async (id: string) => {
     throw new Error("Error fetching data");
   }
   return await res.json();
+};
+
+// services/order.ts
+
+export const getOrderByPhone = async (phone: string) => {
+  const res = await fetch(`${BASE_URL}/order/track/phone?phone=${phone}`, {
+    credentials: "include",
+    cache: "no-store",
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+
+    throw new Error(err?.error || "Failed to fetch order");
+  }
+
+  return res.json();
+};
+
+export const getOrderByOrderNumber = async (orderNumber: string) => {
+  const res = await fetch(
+    `${BASE_URL}/order/track/order-number?orderNumber=${orderNumber}`,
+    {
+      credentials: "include",
+      cache: "no-store",
+    },
+  );
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+
+    throw new Error(err?.error || "Failed to fetch order");
+  }
+
+  return res.json();
 };
 
 const initializePayment = async (
@@ -198,9 +219,10 @@ const getOrders = async () => {
   return res.json();
 };
 
-const getOrder = async (id: string) => {
-  const res = await fetch(`${BASE_URL}/order?id=${id}`, {
+const getPaymentInfo = async (id: string) => {
+  const res = await fetch(`${BASE_URL}/order/payment-info?id=${id}`, {
     credentials: "include",
+    cache: "no-store",
   });
 
   if (!res.ok) {
@@ -235,5 +257,5 @@ export {
   adminLogin,
   changePassword,
   getOrders,
-  getOrder,
+  getPaymentInfo,
 };

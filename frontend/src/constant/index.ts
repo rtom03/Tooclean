@@ -1,5 +1,7 @@
+import type { InitializePaymentResponse } from "./index.type";
+
 export const DELIVERY_RATES = [
-  { state: "Lagos", price: 100 },
+  { state: "Lagos", price: 2700 },
 
   { state: "Ekiti", price: 4569 },
   { state: "Ondo", price: 4569 },
@@ -60,5 +62,41 @@ export const calculateSubtotal = (price: number, qty: number) => {
   return {
     subtotal: baseTotal - discount,
     discount,
+  };
+};
+
+export const normalizePaymentData = (data: any): InitializePaymentResponse => {
+  return {
+    message: "Payment info fetched successfully",
+
+    payment_info: {
+      id: data?.payment_info?.id,
+
+      name: data?.payment_info?.customerName,
+
+      email: data.payment_info.email,
+
+      phone: data.payment_info.phone,
+
+      address: data.payment_info.address,
+
+      state: data.payment_info.state,
+
+      orderDetails: data.payment_info.orderDetails,
+
+      orderNumber: data.payment_info.orderNumber,
+
+      total: data.payment_info.total,
+
+      bankName: data.payment_info.dedicatedBankName,
+
+      accountNumber: data.payment_info.dedicatedAccountNo,
+
+      accountName: data.payment_info.dedicatedAccountName,
+      amount: data.payment_info.total,
+      note: "Transfer the exact amount to complete your order",
+
+      paymentStatus: data.payment_info.paymentStatus,
+    },
   };
 };

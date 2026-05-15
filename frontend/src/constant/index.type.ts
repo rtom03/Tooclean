@@ -74,6 +74,7 @@ export type InitializePaymentResponse = {
     accountName: string;
     amount: number;
     note: string;
+    paymentStatus: string;
   };
 };
 
@@ -107,3 +108,13 @@ export interface OrderData {
   createdAt: string; // ISO string from backend
   updatedAt: string;
 }
+
+export type TrackedOrder = {
+  orderNumber: string;
+  customerName: string;
+  status: string;
+  paymentStatus: string;
+  deliveryStatus: string;
+  total: number;
+  createdAt: string;
+};

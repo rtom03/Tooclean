@@ -1,8 +1,10 @@
 import { Router } from "express";
 import {
   getAllOrders,
-  getOrder,
+  getLatestOrderByPhone,
+  getOrderByOrderNumber,
   getOrderDataById,
+  getPaymentInfo,
   initializeTransfer,
   orderData,
   paystackWebhook,
@@ -14,7 +16,9 @@ const isOrderRoute = Router();
 isOrderRoute.patch("/update-status/", updateOrderStatus);
 isOrderRoute.post("/paystack/webhook", paystackWebhook);
 isOrderRoute.get("/all-orders", getAllOrders);
-isOrderRoute.get("/order/:id", getOrder);
+isOrderRoute.get("/payment-info", getPaymentInfo);
+isOrderRoute.get("/track/phone", getLatestOrderByPhone);
+isOrderRoute.get("/track/order-number", getOrderByOrderNumber);
 isOrderRoute.get("/order-data/:id", getOrderDataById);
 isOrderRoute.post("/create-order", orderData);
 isOrderRoute.post("/initialize-transfer/:orderId", initializeTransfer);
