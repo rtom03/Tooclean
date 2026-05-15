@@ -17,14 +17,18 @@ export const loginToFez = async () => {
     console.log("📧 USER ID:", process.env.FEZ_USER_ID);
     console.log("🔑 PASSWORD EXISTS:", !!process.env.FEZ_PASSWORD);
 
-    const payload = {
+    const payload = JSON.stringify({
       user_id: process.env.FEZ_USER_ID,
       password: process.env.FEZ_PASSWORD,
-    };
-
+    });
     console.log("📡 Sending payload:", payload);
 
-    const res = await axios.post(`${FEZ_BASE}/user/authenticate`, payload);
+    const res = await axios.post(`${FEZ_BASE}/user/authenticate`, payload, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    console.log(res.config.data);
 
     console.log("✅ Full Fez response:");
     console.log(JSON.stringify(res.data, null, 2));
