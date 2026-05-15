@@ -1,11 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Lock } from "lucide-react";
 import { useParams } from "react-router-dom";
-import {
-  createOrderSchema,
-  type InitializePaymentResponse,
-  type OrderInfo,
-} from "../constant/index.type";
+import { createOrderSchema, type OrderInfo } from "../constant/index.type";
 import Loader from "../components/Loader";
 import { DELIVERY_RATES, normalizePaymentData } from "../constant";
 import { useGetOrderById, usePaymentInfo } from "../api/orderQuery";
@@ -14,7 +10,7 @@ import UnPaidUI from "../components/UnPaidUI";
 import UnderPaidUI from "../components/UnderPaidUI";
 import PaidUI from "../components/PaidUI";
 import { usePaymentStore } from "../store/paymentStore";
-import { getPaymentInfo } from "../services/apiServices";
+// import { getPaymentInfo } from "../services/apiServices";
 
 const inputClass =
   "w-full border border-[#ddd] rounded-lg px-3.5 py-2.5 text-[14px] text-[#1a1a1a] placeholder:text-[#bbb] outline-none focus:border-[#1a1a1a] transition-colors bg-white";
