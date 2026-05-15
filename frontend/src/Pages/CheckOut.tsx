@@ -10,6 +10,7 @@ import UnPaidUI from "../components/UnPaidUI";
 import UnderPaidUI from "../components/UnderPaidUI";
 import PaidUI from "../components/PaidUI";
 import { usePaymentStore } from "../store/paymentStore";
+import { useCartStore } from "../store/cartStore";
 // import { getPaymentInfo } from "../services/apiServices";
 
 const inputClass =
@@ -19,8 +20,10 @@ const Checkout = () => {
   const { id } = useParams<string>();
 
   const paymentData = usePaymentStore((state) => state.paymentData);
-
   const setPaymentData = usePaymentStore((state) => state.setPaymentData);
+  const clearPaymentData = usePaymentStore((state) => state.clearPaymentData);
+  const storedAt = usePaymentStore((state) => state.storedAt);
+  const clearCart = useCartStore((state) => state.clearCart);
 
   const paymentId = useMemo(
     () => paymentData?.payment_info?.id,
@@ -33,12 +36,28 @@ const Checkout = () => {
   // console.log("STRINGIFIED:", JSON.stringify(paymentInfo, null, 2));
 
   useEffect(() => {
-    if (paymentInfo) {
-      const normalizedData = normalizePaymentData(paymentInfo);
+    if (!paymentInfo) return;
 
-      setPaymentData(normalizedData);
+    const normalizedData = normalizePaymentData(paymentInfo);
+
+    setPaymentData(normalizedData);
+
+    if (normalizedData.payment_info?.paymentStatus === "paid") {
+      clearCart();
     }
-  }, [paymentInfo]);
+  }, [paymentInfo, setPaymentData, clearCart]);
+
+  useEffect(() => {
+    if (!storedAt) return;
+
+    const ONE_HOUR = 1000 * 60 * 60;
+
+    const isExpired = Date.now() - storedAt > ONE_HOUR;
+
+    if (isExpired) {
+      clearPaymentData();
+    }
+  }, [storedAt]);
 
   const { data } = useGetOrderById(id!);
 

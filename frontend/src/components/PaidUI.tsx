@@ -1,4 +1,10 @@
+import { useNavigate } from "react-router-dom";
+import { usePaymentStore } from "../store/paymentStore";
+
 const PaidUI = () => {
+  const clearPaymentData = usePaymentStore((state) => state.clearPaymentData);
+  const navigate = useNavigate();
+
   return (
     <>
       <div className="flex items-center gap-2">
@@ -15,6 +21,14 @@ const PaidUI = () => {
       <p className="text-[13px] text-[#666]">
         Your order is now being processed.
       </p>
+      <button
+        onClick={() => {
+          clearPaymentData();
+          navigate("/");
+        }}
+      >
+        Continue Shopping
+      </button>
     </>
   );
 };
