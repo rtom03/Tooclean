@@ -5,54 +5,72 @@ dotenv.config();
 
 // services/fezAuth.ts
 
-let fezAuth = {
-  token: null,
-  secretKey: null,
-  expiresAt: 0,
-};
-
 const FEZ_BASE = "https://apisandbox.fezdelivery.co/v1";
+
+let fezToken = null;
+let tokenExpiry = 0;
 
 export const loginToFez = async () => {
   try {
-    const res = await axios.post(`${FEZ_BASE}/user/authenticate`, {
+    console.log("🔐 Starting Fez login...");
+
+    console.log("📧 USER ID:", process.env.FEZ_USER_ID);
+    console.log("🔑 PASSWORD EXISTS:", !!process.env.FEZ_PASSWORD);
+
+    const payload = {
       user_id: process.env.FEZ_USER_ID,
       password: process.env.FEZ_PASSWORD,
-    });
+    };
+
+    console.log("📡 Sending payload:", payload);
+
+    const res = await axios.post(`${FEZ_BASE}/user/authenticate`, payload);
+
+    console.log("✅ Full Fez response:");
+    console.log(JSON.stringify(res.data, null, 2));
 
     const token = res.data?.authDetails?.authToken;
 
-    const secretKey = res.data?.orgDetails?.["secret-key"];
-
     const expiresAt = res.data?.authDetails?.expireToken;
-    console.log(token);
-    if (!token || !secretKey) {
-      throw new Error("Fez login failed");
+
+    if (!token) {
+      console.log("❌ No token returned");
+
+      throw new Error("Fez login failed: no token returned");
     }
 
-    fezAuth = {
-      token: token,
-      secretKey: secretKey,
-      expiresAt: new Date(expiresAt).getTime(),
-    };
+    fezToken = token;
 
-    console.log(`ITS TOKEN ${fezAuth}`);
+    tokenExpiry = new Date(expiresAt).getTime();
 
-    return fezAuth.token;
+    console.log("✅ Token stored");
+    console.log("⏰ Expires:", expiresAt);
+
+    return fezToken;
   } catch (error) {
-    console.log(error);
+    console.error("❌ FEZ LOGIN ERROR");
+
+    console.error("Status:", error.response?.status);
+
+    console.error("Response:", error.response?.data);
+
+    console.error("Message:", error.message);
+
+    throw error;
   }
 };
 
 export const getFezToken = async () => {
-  // token still valid
-  if (fezAuth.token && Date.now() < fezAuth.expiresAt) {
-    return fezAuth.token;
+  if (fezToken && Date.now() < tokenExpiry) {
+    console.log("♻️ Using cached Fez token");
+
+    return fezToken;
   }
+
+  console.log("🔄 Fetching new Fez token...");
 
   return await loginToFez();
 };
-
 export const triggerFezDelivery = async (order) => {
   if (order.deliveryStatus && order.deliveryStatus !== "not_created") {
     console.log("⚠️ Delivery already handled, skipping");
