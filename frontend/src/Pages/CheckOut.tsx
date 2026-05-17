@@ -61,6 +61,17 @@ const Checkout = () => {
     clearPaymentData,
   ]);
 
+  useEffect(() => {
+    return () => {
+      const currentPayment = usePaymentStore.getState().paymentData;
+
+      const isPaid = currentPayment?.payment_info?.paymentStatus === "paid";
+
+      if (isPaid) {
+        clearPaymentData();
+      }
+    };
+  }, [clearPaymentData]);
   const [step, setStep] = useState<"form" | "payment">("form");
   type FormErrors = Partial<Record<keyof OrderInfo, string>>;
   const [errors, setErrors] = useState<FormErrors>({});
@@ -276,7 +287,7 @@ const Checkout = () => {
           </div>
         </div>
 
-        {paymentData ? (
+        {paymentData && paymentData.payment_info.paymentStatus !== "paid" ? (
           <CheckOutNote />
         ) : (
           <button
