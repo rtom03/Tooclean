@@ -11,6 +11,7 @@ import UnderPaidUI from "../components/UnderPaidUI";
 import PaidUI from "../components/PaidUI";
 import { usePaymentStore } from "../store/paymentStore";
 import { useCartStore } from "../store/cartStore";
+import CheckOutNote from "../components/CheckOutNote";
 // import { getPaymentInfo } from "../services/apiServices";
 
 const inputClass =
@@ -22,11 +23,10 @@ const Checkout = () => {
   const paymentData = usePaymentStore((state) => state.paymentData);
   const setPaymentData = usePaymentStore((state) => state.setPaymentData);
   const clearPaymentData = usePaymentStore((state) => state.clearPaymentData);
-  const storedAt = usePaymentStore((state) => state.storedAt);
   const removePurchasedItems = useCartStore(
     (state) => state.removePurchasedItems,
   );
-  const cartData = useCartStore((state) => state.items);
+  const { data } = useGetOrderById(id!);
 
   const paymentId = useMemo(
     () => paymentData?.payment_info?.id,
@@ -41,6 +41,8 @@ const Checkout = () => {
   useEffect(() => {
     if (!paymentInfo) return;
 
+    console.log(data);
+
     const normalizedData = normalizePaymentData(paymentInfo);
 
     setPaymentData(normalizedData);
@@ -48,49 +50,16 @@ const Checkout = () => {
     const isPaid = normalizedData.payment_info?.paymentStatus === "paid";
 
     if (isPaid) {
-      const purchasedIds = cartData?.map((item) => item.id) || [];
-
+      const purchasedIds = data?.items.map((item) => item.productId) || [];
       removePurchasedItems(purchasedIds);
-      clearPaymentData();
-
-      const remainingItems = useCartStore.getState().items;
-
-      if (remainingItems.length === 0) {
-        clearPaymentData();
-      }
     }
   }, [
     paymentInfo,
-    cartData,
+    data,
     setPaymentData,
     removePurchasedItems,
     clearPaymentData,
   ]);
-  // useEffect(() => {
-  //   if (!paymentInfo) return;
-
-  //   const normalizedData = normalizePaymentData(paymentInfo);
-
-  //   setPaymentData(normalizedData);
-
-  //   if (normalizedData.payment_info?.paymentStatus === "paid") {
-  //     clearCart();
-  //   }
-  // }, [paymentInfo, setPaymentData, clearCart]);
-
-  useEffect(() => {
-    if (!storedAt) return;
-
-    const ONE_HOUR = 1000 * 60 * 60;
-
-    const isExpired = Date.now() - storedAt > ONE_HOUR;
-
-    if (isExpired) {
-      clearPaymentData();
-    }
-  }, [storedAt]);
-
-  const { data } = useGetOrderById(id!);
 
   const [step, setStep] = useState<"form" | "payment">("form");
   type FormErrors = Partial<Record<keyof OrderInfo, string>>;
@@ -307,20 +276,17 @@ const Checkout = () => {
           </div>
         </div>
 
-        {/* CTA */}
-        <button
-          onClick={handleInitTransfer}
-          className="w-full bg-[#1a1a1a] text-white text-[14px] font-bold tracking-wide uppercase py-4 rounded-lg hover:opacity-85 transition-opacity active:scale-[0.98] flex items-center justify-center"
-          disabled={step === "payment"}
-        >
-          {isPending ? (
-            <Loader />
-          ) : paymentData ? (
-            "Complete Your Previous Order Or Go To Cart To Complete All Order Has One"
-          ) : (
-            "Place Order"
-          )}
-        </button>
+        {paymentData ? (
+          <CheckOutNote />
+        ) : (
+          <button
+            onClick={handleInitTransfer}
+            className="w-full bg-[#1a1a1a] text-white text-[14px] font-bold tracking-wide uppercase py-4 rounded-lg hover:opacity-85 transition-opacity active:scale-[0.98] flex items-center justify-center"
+            disabled={step === "payment"}
+          >
+            {isPending ? <Loader /> : "Place Order"}
+          </button>
+        )}
         <div className="flex items-center justify-center gap-1.5 mt-4 text-[12px] text-[#aaa]">
           <Lock size={12} />
           Secure & encrypted checkout
