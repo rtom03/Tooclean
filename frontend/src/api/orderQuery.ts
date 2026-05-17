@@ -30,14 +30,13 @@ export const useOrders = () => {
   });
 };
 
-export const usePaymentInfo = (id?: string) => {
+export const usePaymentInfo = (id?: string, enabled = true) => {
   return useQuery({
     queryKey: ["payment-info", id],
-    queryFn: () => {
-      if (!id) throw new Error("Missing id");
-      return getPaymentInfo(id);
-    },
-    refetchInterval: 5000,
+
+    queryFn: () => getPaymentInfo(id!),
+
+    enabled: !!id && enabled,
   });
 };
 

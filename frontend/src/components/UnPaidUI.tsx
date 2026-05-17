@@ -1,7 +1,6 @@
 import type { InitializePaymentResponse } from "../constant/index.type";
 
-const UnPaidUI = ({ message, payment_info }: InitializePaymentResponse) => {
-  console.log(message);
+const UnPaidUI = ({ payment_info }: InitializePaymentResponse) => {
   return (
     <>
       <div className="flex items-center gap-2 mb-2">

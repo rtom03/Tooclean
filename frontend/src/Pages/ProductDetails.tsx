@@ -7,6 +7,7 @@ import ProductDetailSkeleton from "../components/skeleton/ProductDetailsSkeleton
 import ErrorState from "../components/IsErrorState";
 import { useCreateOrder } from "../api/orderQuery";
 import { useCartStore } from "../store/cartStore";
+import { usePaymentStore } from "../store/paymentStore";
 // import { useCartStore } from "../store/cartStore";
 
 const generateBundles = (basePrice: number) => [
@@ -48,6 +49,7 @@ const ProductDetail = () => {
   const { addToCart } = useCartStore();
   // const { addToCart, items } = useCartStore();
   const { isPending: isCreatingOrder, mutateAsync } = useCreateOrder();
+  const { paymentData } = usePaymentStore();
 
   if (isPending) return <ProductDetailSkeleton />;
   if (isError) return <ErrorState />;
@@ -61,6 +63,10 @@ const ProductDetail = () => {
 
     if (!selectedBundle) return;
     try {
+      if (paymentData) {
+        navigate(`/checkout/${paymentData.payment_info.orderDetails}`);
+      }
+
       const res = await mutateAsync({
         items: [
           {

@@ -6,6 +6,7 @@ import {
   getOrderDataById,
   getPaymentInfo,
   initializeTransfer,
+  mergePaymentOrder,
   orderData,
   paystackWebhook,
   updateOrderStatus,
@@ -14,6 +15,7 @@ import {
 const isOrderRoute = Router();
 
 isOrderRoute.patch("/update-status/", updateOrderStatus);
+isOrderRoute.patch("/merge-payment-order/:id", mergePaymentOrder);
 isOrderRoute.post("/paystack/webhook", paystackWebhook);
 isOrderRoute.get("/all-orders", getAllOrders);
 isOrderRoute.get("/payment-info", getPaymentInfo);

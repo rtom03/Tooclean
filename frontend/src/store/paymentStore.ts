@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { InitializePaymentResponse } from "../constant/index.type";
+import { useMutation } from "@tanstack/react-query";
+import { mergePaymentOrder } from "../services/apiServices";
 
 interface PaymentStore {
   paymentData: InitializePaymentResponse | null;
@@ -23,7 +25,6 @@ export const usePaymentStore = create<PaymentStore>()(
       clearPaymentData: () =>
         set({
           paymentData: null,
-
           // ✅ clear this too
           storedAt: null,
         }),
@@ -33,3 +34,9 @@ export const usePaymentStore = create<PaymentStore>()(
     },
   ),
 );
+
+export const useMergePaymentOrder = () => {
+  return useMutation({
+    mutationFn: mergePaymentOrder,
+  });
+};

@@ -248,6 +248,36 @@ export const updateOrderStatus = async (id: string, status: string) => {
   return res.json();
 };
 
+export const mergePaymentOrder = async ({
+  paymentId,
+  items,
+}: {
+  paymentId: string;
+  items: {
+    productId: string;
+    qty: number;
+  }[];
+}) => {
+  const res = await fetch(
+    `${BASE_URL}/order/merge-payment-order/${paymentId}`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        items,
+      }),
+    },
+  );
+
+  if (!res.ok) {
+    throw new Error("Failed to merge order");
+  }
+
+  return await res.json();
+};
+
 export {
   getProducts,
   getProduct,

@@ -82,7 +82,7 @@ export const normalizePaymentData = (data: any): InitializePaymentResponse => {
 
       state: data.payment_info.state,
 
-      orderDetails: data.payment_info.orderDetails,
+      orderDetails: data.payment_info.orderDetails.id,
 
       orderNumber: data.payment_info.orderNumber,
 
@@ -94,7 +94,6 @@ export const normalizePaymentData = (data: any): InitializePaymentResponse => {
 
       accountName: data.payment_info.dedicatedAccountName,
       amount: data.payment_info.total,
-      note: "Transfer the exact amount to complete your order",
 
       paymentStatus: data.payment_info.paymentStatus,
     },

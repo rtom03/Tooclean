@@ -3,6 +3,8 @@ import { useCartStore } from "../store/cartStore";
 import { useCreateOrder } from "../api/orderQuery";
 import { useNavigate } from "react-router-dom";
 import { calculateSubtotal } from "../constant";
+import { useMergePaymentOrder, usePaymentStore } from "../store/paymentStore";
+import { useEffect } from "react";
 
 export default function CartBody() {
   const {
@@ -11,14 +13,35 @@ export default function CartBody() {
     removeFromCart,
     // totalPrice,
   } = useCartStore();
+  const { paymentData } = usePaymentStore();
+  const clearPaymentData = usePaymentStore((state) => state.clearPaymentData);
+
   const { isPending: isCreatingOrder, mutateAsync } = useCreateOrder();
+  // const { mutateAsync: mergePaymentOrderMutation, isPending: isMergingOrder } =
+  useMergePaymentOrder();
+
   const formatPrice = (amount: number) => `₦${amount.toLocaleString("en-NG")}`;
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const isCartEmpty = items.length === 0;
+
+    const isPaid = paymentData?.payment_info?.paymentStatus === "paid";
+
+    // preserve paid success screen
+    if (isCartEmpty && !isPaid) {
+      clearPaymentData();
+    }
+  }, [items, paymentData, clearPaymentData]);
+
   // const estimatePrice = items.map((est) => {
   //   (est.price, est.qty);
   // });
   const handleBuyNow = async () => {
     try {
+      if (paymentData) {
+        navigate(`/checkout/${paymentData.payment_info.orderDetails}`);
+      }
       const orderItems = items.map((item) => ({
         productId: item.id,
         qty: item.qty,
@@ -33,6 +56,29 @@ export default function CartBody() {
       console.error(err);
     }
   };
+
+  // const handleMergeOrder = async () => {
+  //   if (!paymentData) return;
+  //   console.log(paymentData);
+  //   try {
+  //     const cartItems = items.map((item) => ({
+  //       productId: item.id,
+  //       qty: item.qty,
+  //     }));
+
+  //     const response = await mergePaymentOrderMutation({
+  //       paymentId: paymentData.payment_info.id!,
+
+  //       items: cartItems,
+  //     });
+
+  //     const normalized = normalizePaymentData(response);
+
+  //     setPaymentData(normalized);
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
   return (
     <div className="px-4 py-5 font-sans">
       {/* Cart heading */}

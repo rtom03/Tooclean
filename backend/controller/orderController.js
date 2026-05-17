@@ -489,3 +489,98 @@ export const updateOrderStatus = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+export const mergePaymentOrder = async (req, res) => {
+  const { id } = req.params;
+
+  const { items } = req.body;
+
+  try {
+    const payment = await prisma.payment_Info.findUnique({
+      where: { id },
+    });
+
+    if (!payment) {
+      return res.status(404).json({
+        message: "Payment info order not found",
+      });
+    }
+
+    // prevent merge after payment
+    if (payment.paymentStatus === "paid") {
+      return res.status(409).json({
+        message: "Cannot modify paid order",
+      });
+    }
+
+    // existing items
+    const existingItems = payment.orderDetails?.items || [];
+
+    // merge items
+    const map = new Map();
+
+    [...existingItems, ...items].forEach((item) => {
+      const existing = map.get(item.productId);
+
+      if (existing) {
+        existing.qty += item.qty;
+      } else {
+        map.set(item.productId, {
+          productId: item.productId,
+          qty: item.qty,
+        });
+      }
+    });
+
+    const mergedItems = Array.from(map.values());
+
+    let total = 0;
+
+    const normalizedItems = [];
+
+    // rebuild totals
+    for (const item of mergedItems) {
+      const product = await prisma.product.findUnique({
+        where: {
+          id: item.productId,
+        },
+      });
+
+      if (!product) continue;
+
+      const { subtotal, discount } = calculateSubtotal(product.price, item.qty);
+
+      total += subtotal;
+
+      normalizedItems.push({
+        productId: product.id,
+        qty: item.qty,
+        price: product.price,
+
+        subtotal,
+
+        discount,
+      });
+    }
+
+    const updatedPayment = await prisma.payment_Info.update({
+      where: { id },
+
+      data: {
+        orderDetails: {
+          items: normalizedItems,
+        },
+
+        total: total + (payment.deliveryPrice || 0),
+      },
+    });
+
+    res.json(updatedPayment);
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: "Server error",
+    });
+  }
+};

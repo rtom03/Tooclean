@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Lock } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { createOrderSchema, type OrderInfo } from "../constant/index.type";
@@ -23,25 +23,21 @@ const Checkout = () => {
   const paymentData = usePaymentStore((state) => state.paymentData);
   const setPaymentData = usePaymentStore((state) => state.setPaymentData);
   const clearPaymentData = usePaymentStore((state) => state.clearPaymentData);
+  const cartItems = useCartStore((state) => state.items);
   const removePurchasedItems = useCartStore(
     (state) => state.removePurchasedItems,
   );
   const { data } = useGetOrderById(id!);
-
-  const paymentId = useMemo(
-    () => paymentData?.payment_info?.id,
-    [paymentData?.payment_info?.id],
-  );
-
-  const { data: paymentInfo } = usePaymentInfo(paymentId);
-  console.log(paymentId);
-  // console.log("RAW PAYMENT INFO:", paymentInfo);
-  // console.log("STRINGIFIED:", JSON.stringify(paymentInfo, null, 2));
+  const paymentId = paymentData?.payment_info?.id;
+  const shouldFetchPayment =
+    cartItems.length > 0 && !!paymentData?.payment_info?.id;
+  console.log(paymentData);
+  const { data: paymentInfo } = usePaymentInfo(paymentId, shouldFetchPayment);
 
   useEffect(() => {
     if (!paymentInfo) return;
-
-    console.log(data);
+    // console.log(paymentInfo);
+    // console.log(data);
 
     const normalizedData = normalizePaymentData(paymentInfo);
 
@@ -72,6 +68,17 @@ const Checkout = () => {
       }
     };
   }, [clearPaymentData]);
+
+  useEffect(() => {
+    const isCartEmpty = cartItems.length === 0;
+
+    const isPaid = paymentData?.payment_info?.paymentStatus === "paid";
+
+    // preserve paid success screen
+    if (isCartEmpty && !isPaid) {
+      clearPaymentData();
+    }
+  }, [cartItems, paymentData, clearPaymentData]);
   const [step, setStep] = useState<"form" | "payment">("form");
   type FormErrors = Partial<Record<keyof OrderInfo, string>>;
   const [errors, setErrors] = useState<FormErrors>({});
@@ -110,7 +117,6 @@ const Checkout = () => {
         data: form,
       });
       setPaymentData(response);
-      console.log(setPaymentData);
       setStep("payment");
 
       console.log(response);
@@ -158,7 +164,7 @@ const Checkout = () => {
         </p>
 
         {/* Contact */}
-        {paymentData ? (
+        {paymentData?.payment_info ? (
           <div className="bg-[#f7f7f5] border border-[#e8e8e8] rounded-2xl p-6 space-y-4">
             {paymentData.payment_info.paymentStatus === "unpaid" ? (
               <UnPaidUI
