@@ -26,7 +26,7 @@ const CheckOutNote = () => {
 
           <div className="flex-1">
             <p className="text-[15px] font-bold text-[#1a1a1a]">
-              Complete Your Previous Order
+              Complete Your Pending Order
             </p>
 
             <p className="mt-1 text-[13px] leading-relaxed text-[#666]">

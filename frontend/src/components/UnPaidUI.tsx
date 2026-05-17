@@ -39,7 +39,6 @@ const UnPaidUI = ({ message, payment_info }: InitializePaymentResponse) => {
         <p className="text-[20px] font-black text-[#1a1a1a] tracking-tight">
           {payment_info.accountName}
         </p>
-        <button onClick={() => console.log(payment_info)}>click</button>
       </div>
 
       {/* Amount */}
