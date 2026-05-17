@@ -17,6 +17,8 @@ type CartStore = {
 
   removeFromCart: (id: string) => void;
 
+  removePurchasedItems: (purchasedIds: string[]) => void;
+
   incrementQty: (id: string) => void;
 
   decrementQty: (id: string) => void;
@@ -55,6 +57,10 @@ export const useCartStore = create<CartStore>()(
           items: state.items.filter((i) => i.id !== id),
         })),
 
+      removePurchasedItems: (purchasedIds) =>
+        set((state) => ({
+          items: state.items.filter((item) => !purchasedIds.includes(item.id)),
+        })),
       incrementQty: (id) =>
         set((state) => ({
           items: state.items.map((i) =>

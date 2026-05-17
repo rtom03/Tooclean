@@ -23,7 +23,10 @@ const Checkout = () => {
   const setPaymentData = usePaymentStore((state) => state.setPaymentData);
   const clearPaymentData = usePaymentStore((state) => state.clearPaymentData);
   const storedAt = usePaymentStore((state) => state.storedAt);
-  const clearCart = useCartStore((state) => state.clearCart);
+  const removePurchasedItems = useCartStore(
+    (state) => state.removePurchasedItems,
+  );
+  const cartData = useCartStore((state) => state.items);
 
   const paymentId = useMemo(
     () => paymentData?.payment_info?.id,
@@ -42,10 +45,38 @@ const Checkout = () => {
 
     setPaymentData(normalizedData);
 
-    if (normalizedData.payment_info?.paymentStatus === "paid") {
-      clearCart();
+    const isPaid = normalizedData.payment_info?.paymentStatus === "paid";
+
+    if (isPaid) {
+      const purchasedIds = cartData?.map((item) => item.id) || [];
+
+      removePurchasedItems(purchasedIds);
+      clearPaymentData();
+
+      const remainingItems = useCartStore.getState().items;
+
+      if (remainingItems.length === 0) {
+        clearPaymentData();
+      }
     }
-  }, [paymentInfo, setPaymentData, clearCart]);
+  }, [
+    paymentInfo,
+    cartData,
+    setPaymentData,
+    removePurchasedItems,
+    clearPaymentData,
+  ]);
+  // useEffect(() => {
+  //   if (!paymentInfo) return;
+
+  //   const normalizedData = normalizePaymentData(paymentInfo);
+
+  //   setPaymentData(normalizedData);
+
+  //   if (normalizedData.payment_info?.paymentStatus === "paid") {
+  //     clearCart();
+  //   }
+  // }, [paymentInfo, setPaymentData, clearCart]);
 
   useEffect(() => {
     if (!storedAt) return;
@@ -282,7 +313,13 @@ const Checkout = () => {
           className="w-full bg-[#1a1a1a] text-white text-[14px] font-bold tracking-wide uppercase py-4 rounded-lg hover:opacity-85 transition-opacity active:scale-[0.98] flex items-center justify-center"
           disabled={step === "payment"}
         >
-          {isPending ? <Loader /> : "Place Order"}
+          {isPending ? (
+            <Loader />
+          ) : paymentData ? (
+            "Complete Your Previous Order Or Go To Cart To Complete All Order Has One"
+          ) : (
+            "Place Order"
+          )}
         </button>
         <div className="flex items-center justify-center gap-1.5 mt-4 text-[12px] text-[#aaa]">
           <Lock size={12} />
