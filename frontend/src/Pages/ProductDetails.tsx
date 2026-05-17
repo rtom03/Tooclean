@@ -65,20 +65,19 @@ const ProductDetail = () => {
     try {
       if (paymentData) {
         navigate(`/checkout/${paymentData.payment_info.orderDetails}`);
+      } else {
+        const res = await mutateAsync({
+          items: [
+            {
+              productId: data.product.id,
+              qty: selectedBundle.qty,
+            },
+          ],
+        });
+
+        addToCart(data.product, selectedBundle.qty);
+        navigate(`/checkout/${res.orderId}`);
       }
-
-      const res = await mutateAsync({
-        items: [
-          {
-            productId: data.product.id,
-            qty: selectedBundle.qty,
-          },
-        ],
-      });
-
-      addToCart(data.product, selectedBundle.qty);
-
-      navigate(`/checkout/${res.orderId}`);
     } catch (err) {
       console.error(err);
     }
