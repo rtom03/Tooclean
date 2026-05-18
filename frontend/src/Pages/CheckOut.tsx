@@ -11,7 +11,7 @@ import UnderPaidUI from "../components/UnderPaidUI";
 import PaidUI from "../components/PaidUI";
 import { usePaymentStore } from "../store/paymentStore";
 import { useCartStore } from "../store/cartStore";
-import CheckOutNote from "../components/CheckOutNote";
+// import CheckOutNote from "../components/CheckOutNote";
 // import { getPaymentInfo } from "../services/apiServices";
 
 const inputClass =
@@ -32,7 +32,7 @@ const Checkout = () => {
   const shouldFetchPayment =
     cartItems.length > 0 && !!paymentData?.payment_info?.id;
   const { data: paymentInfo } = usePaymentInfo(paymentId, shouldFetchPayment);
-  console.log(paymentInfo);
+  // console.log(paymentInfo);
 
   useEffect(() => {
     if (!paymentInfo) return;
@@ -296,9 +296,7 @@ const Checkout = () => {
           </div>
         </div>
 
-        {paymentData && paymentData.payment_info.paymentStatus !== "paid" ? (
-          <CheckOutNote />
-        ) : (
+        {!paymentData?.payment_info && (
           <button
             onClick={handleInitTransfer}
             className="w-full bg-[#1a1a1a] text-white text-[14px] font-bold tracking-wide uppercase py-4 rounded-lg hover:opacity-85 transition-opacity active:scale-[0.98] flex items-center justify-center"
