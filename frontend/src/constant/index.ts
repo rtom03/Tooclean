@@ -96,6 +96,8 @@ export const normalizePaymentData = (data: any): InitializePaymentResponse => {
       amount: data.payment_info.total,
 
       paymentStatus: data.payment_info.paymentStatus,
+      amountPaid: data.payment_info.amountPaid,
+      balanceRemaining: data.payment_info.balanceRemaining,
     },
   };
 };

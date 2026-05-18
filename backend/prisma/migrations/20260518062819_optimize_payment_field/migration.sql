@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Payment_Info" ADD COLUMN     "amountPaid" DOUBLE PRECISION NOT NULL DEFAULT 0,
+ADD COLUMN     "balanceRemaining" DOUBLE PRECISION NOT NULL DEFAULT 0;

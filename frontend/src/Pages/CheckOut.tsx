@@ -31,8 +31,8 @@ const Checkout = () => {
   const paymentId = paymentData?.payment_info?.id;
   const shouldFetchPayment =
     cartItems.length > 0 && !!paymentData?.payment_info?.id;
-  console.log(paymentData);
   const { data: paymentInfo } = usePaymentInfo(paymentId, shouldFetchPayment);
+  console.log(paymentInfo);
 
   useEffect(() => {
     if (!paymentInfo) return;
@@ -172,7 +172,10 @@ const Checkout = () => {
                 message={paymentData.message}
               />
             ) : paymentData.payment_info.paymentStatus === "underpaid" ? (
-              <UnderPaidUI />
+              <UnderPaidUI
+                payment_info={paymentData.payment_info}
+                message={paymentData.message}
+              />
             ) : paymentData.payment_info.paymentStatus === "paid" ? (
               <PaidUI />
             ) : null}

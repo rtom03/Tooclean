@@ -56,6 +56,8 @@ model Payment_Info {
   deliveryPrice        Float?
   orderDetails         Json
   total                Float
+  amountPaid          Float   @default(0) // actual amount received
+  balanceRemaining     Float   @default(0)
   status               String   @default("pending")  // pending | paid | processing | shipped | delivered | failed
   paymentStatus        String   @default("unpaid")   // unpaid | paid
   paystackCustomerCode String?

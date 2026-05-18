@@ -262,6 +262,8 @@ export const initializeTransfer = async (req, res) => {
         amount: orderDetails.total,
         note: `Transfer exactly ₦${orderDetails.total} to complete your order`,
         paymentStatus: orderDetails.paymentStatus,
+        amountPaid: orderDetails.amountPaid,
+        balanceRemaining: orderDetails.balanceRemaining,
       },
     });
   } catch (error) {
@@ -303,25 +305,26 @@ export const paystackWebhook = async (req, res) => {
       }
 
       // verify amount matches (Paystack sends in kobo)
+      const expectedAmount = order.total;
       const paidAmount = amount / 100;
-      if (paidAmount < order.total) {
-        // underpayment — flag it
-        await prisma.payment_Info.update({
-          where: { id: order.id },
-          data: { paymentStatus: "underpaid", paystackReference: reference },
-        });
-        return res.sendStatus(200);
-      }
 
-      // mark as paid
+      const remaining = expectedAmount - paidAmount;
+
       const updatedOrder = await prisma.payment_Info.update({
         where: { id: order.id },
         data: {
-          paymentStatus: "paid",
-          status: "processing",
+          paymentStatus: paidAmount >= expectedAmount ? "paid" : "underpaid",
+
+          status: paidAmount >= expectedAmount ? "processing" : "pending",
+
+          amountPaid: paidAmount,
+          balanceRemaining: Math.max(expectedAmount - paidAmount, 0),
+
           paystackReference: reference,
         },
       });
+
+      console.log("UPDATED ORDER:", updatedOrder);
 
       if (updatedOrder.paymentStatus === "paid") {
         console.log("🚀 About to trigger Fez for order:", updatedOrder.id);

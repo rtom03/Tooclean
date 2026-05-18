@@ -74,6 +74,8 @@ export type InitializePaymentResponse = {
     accountName: string;
     amount: number;
     paymentStatus: string;
+    amountPaid: number;
+    balanceRemaining: number;
   };
 };
 
