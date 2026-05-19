@@ -8,7 +8,7 @@ import { prisma } from "../utils/db.js";
 import { triggerFezDelivery } from "../services/fez.js";
 
 const DELIVERY_RATES = [
-  { state: "Lagos", price: 2700 },
+  { state: "Lagos", price: 50 },
 
   { state: "Ekiti", price: 4569 },
   { state: "Ondo", price: 4569 },
@@ -17,6 +17,7 @@ const DELIVERY_RATES = [
   { state: "Osun", price: 4569 },
 
   { state: "Akwa Ibom", price: 6719 },
+
   { state: "Cross River", price: 5644 },
   { state: "Rivers", price: 5644 },
   { state: "Delta", price: 5644 },
@@ -326,10 +327,10 @@ export const paystackWebhook = async (req, res) => {
 
       console.log("UPDATED ORDER:", updatedOrder);
 
-      if (updatedOrder.paymentStatus === "paid") {
-        console.log("🚀 About to trigger Fez for order:", updatedOrder.id);
-        await triggerFezDelivery(updatedOrder);
-      }
+      // if (updatedOrder.paymentStatus === "paid") {
+      //   console.log("🚀 About to trigger Fez for order:", updatedOrder.id);
+      //   await triggerFezDelivery(updatedOrder);
+      // }
     }
 
     console.log("Event type:", event.event);

@@ -5,7 +5,7 @@ dotenv.config();
 
 // services/fezAuth.ts
 
-const FEZ_BASE = "https://apisandbox.fezdelivery.co/v1";
+const FEZ_BASE = "https://api.fezdelivery.co/";
 
 let fezToken = null;
 let tokenExpiry = 0;

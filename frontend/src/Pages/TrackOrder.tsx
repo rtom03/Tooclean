@@ -78,7 +78,7 @@ const TrackOrder = () => {
               >
                 <div>
                   <label className="block text-[11px] font-bold tracking-[0.06em] uppercase text-[#555] mb-2">
-                    Track With Your Sumbited Phone Number
+                    Track With Your Submitted Phone Number
                   </label>
                   <input
                     className={inputClass}

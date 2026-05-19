@@ -32,7 +32,7 @@ const Checkout = () => {
   const shouldFetchPayment =
     cartItems.length > 0 && !!paymentData?.payment_info?.id;
   const { data: paymentInfo } = usePaymentInfo(paymentId, shouldFetchPayment);
-  console.log(paymentInfo);
+  // console.log(paymentInfo);
 
   useEffect(() => {
     if (!paymentInfo) return;
