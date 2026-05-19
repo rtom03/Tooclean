@@ -296,9 +296,13 @@ export const paystackWebhook = async (req, res) => {
       const order = await prisma.payment_Info.findFirst({
         where: {
           paystackCustomerCode: customer.customer_code,
-          paymentStatus: "unpaid",
+          paymentStatus: {
+            in: ["unpaid", "underpaid"],
+          },
         },
-        orderBy: { createdAt: "desc" }, // ✅ latest order wins
+        orderBy: {
+          createdAt: "desc",
+        },
       });
 
       if (!order) {
