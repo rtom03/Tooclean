@@ -98,6 +98,8 @@ export const normalizePaymentData = (data: any): InitializePaymentResponse => {
       paymentStatus: data.payment_info.paymentStatus,
       amountPaid: data.payment_info.amountPaid,
       balanceRemaining: data.payment_info.balanceRemaining,
+
+      deliveryPrice: data.payment_info.deliveryPrice,
     },
   };
 };

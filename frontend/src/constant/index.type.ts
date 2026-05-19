@@ -76,6 +76,7 @@ export type InitializePaymentResponse = {
     paymentStatus: string;
     amountPaid: number;
     balanceRemaining: number;
+    deliveryPrice: number;
   };
 };
 

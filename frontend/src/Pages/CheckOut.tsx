@@ -32,7 +32,7 @@ const Checkout = () => {
   const shouldFetchPayment =
     cartItems.length > 0 && !!paymentData?.payment_info?.id;
   const { data: paymentInfo } = usePaymentInfo(paymentId, shouldFetchPayment);
-  // console.log(paymentInfo);
+  console.log(paymentInfo);
 
   useEffect(() => {
     if (!paymentInfo) return;
@@ -349,10 +349,17 @@ const Checkout = () => {
         <div className="h-px bg-[#e8e8e8] mb-4" />
         {/* Totals */}
         <div className="flex justify-between text-[14px] text-[#555] mb-2.5">
-          <span>Shipping</span>
+          <span
+            onClick={() => console.log(paymentData?.payment_info.deliveryPrice)}
+          >
+            Shipping
+          </span>
           <span className="text-[#1a7a3c] font-semibold">
             {" "}
-            ₦{form.deliveryPrice.toLocaleString("en-NG")}
+            ₦
+            {form.deliveryPrice
+              ? form.deliveryPrice.toLocaleString("en-NG")
+              : paymentData?.payment_info.deliveryPrice.toLocaleString("en-NG")}
           </span>
         </div>
         <div className="h-px bg-[#e8e8e8] my-3" />
