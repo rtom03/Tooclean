@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useAdminResetPassword } from "../../api/adminMutation";
+import Loader from "../../components/Loader";
 
 const Settings = () => {
   const [current, setCurrent] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
 
-  const resetMutation = useAdminResetPassword();
+  const { isPending, data: resetMutation } = useAdminResetPassword();
 
   const handleReset = (e: any) => {
     e.preventDefault();
@@ -85,8 +86,12 @@ const Settings = () => {
             />
           </form>
           <div className="px-5 py-3.5 border-t border-[#e8e8e8] flex justify-end">
-            <button className="bg-[#1a1a1a] text-white text-[12px] font-bold px-4 py-2 rounded-lg hover:opacity-80">
-              Update password
+            <button
+              title="submit"
+              disabled={isPending}
+              className="w-full bg-[#1a1a1a] text-white text-[14px] font-bold py-3 rounded-lg hover:opacity-80 transition-opacity disabled:opacity-50"
+            >
+              {isPending ? <Loader /> : "Login"}
             </button>
           </div>
         </div>

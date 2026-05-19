@@ -11,16 +11,19 @@ const AdminLogin = () => {
   const [showPw, setShowPw] = useState(false);
 
   const loginMutation = useAdminLogin();
+  const { isPending, isError, failureReason } = loginMutation;
   const navigate = useNavigate();
-
-  // useEffect(() => {
-  //   setEmail("");
-  //   setPassword("");
-  // }, []);
-  const handleLogin = async (e: any) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    loginMutation.mutate({ email, password });
-    navigate("/admin/dashboard");
+
+    try {
+      const res = await loginMutation.mutateAsync({ email, password });
+      if (res) {
+        navigate("/admin/dashboard");
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
   const inputClass =
     "w-full border-[1.5px] border-[#e0e0e0] rounded-lg px-3.5 py-2.5 text-[14px] text-[#1a1a1a] placeholder:text-[#ccc] outline-none focus:border-[#1a1a1a] transition-colors";
@@ -54,9 +57,9 @@ const AdminLogin = () => {
           </p>
 
           {/* Error */}
-          {loginMutation.isError && (
+          {isError && (
             <div className="bg-[#fcebeb] border border-[#f09595] rounded-lg px-4 py-2.5 text-[13px] text-[#791f1f] mb-5">
-              {loginMutation.failureReason}
+              {failureReason}
             </div>
           )}
 
@@ -101,10 +104,10 @@ const AdminLogin = () => {
           {/* Submit */}
           <button
             title="submit"
-            disabled={loginMutation.isPending}
+            disabled={isPending}
             className="w-full bg-[#1a1a1a] text-white text-[14px] font-bold py-3 rounded-lg hover:opacity-80 transition-opacity disabled:opacity-50"
           >
-            {loginMutation.isPending ? <Loader /> : "Login"}
+            {isPending ? <Loader /> : "Login"}
           </button>
         </form>
       </div>

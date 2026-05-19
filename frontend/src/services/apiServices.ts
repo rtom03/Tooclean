@@ -167,21 +167,24 @@ const initializePayment = async (
 // Admin
 
 const adminLogin = async (data: Admin) => {
-  const res = await fetch(`${BASE_URL}/admin/sign-in`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    // credentials: "include",
-    body: JSON.stringify(data),
-  });
-
-  if (!res.ok) {
-    const err = await res.json().catch(() => null);
-    throw new Error(err?.message || "Login failed");
+  try {
+    const res = await fetch(`${BASE_URL}/admin/sign-in`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      // credentials: "include",
+      body: JSON.stringify(data),
+    });
+    if (res.ok) {
+      return res.json();
+    }
+    console.log();
+  } catch (error: any) {
+    throw new Error(
+      error?.response?.data?.message || "Invalid email or password",
+    );
   }
-
-  return res.json();
 };
 
 const changePassword = async (data: Password) => {
