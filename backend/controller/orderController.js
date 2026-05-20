@@ -310,21 +310,29 @@ export const paystackWebhook = async (req, res) => {
       }
 
       // verify amount matches (Paystack sends in kobo)
-      const expectedAmount = order.total;
-      const paidAmount = amount / 100;
+      // const expectedAmount = order.total;
+      // const paidAmount = amount / 100;
 
-      const remaining = expectedAmount - paidAmount;
+      // const remaining = expectedAmount - paidAmount;
+      const expectedAmount = Number(order.total);
+      // current incoming payment
+      const newPaidAmount = amount / 100;
+      // previously paid amount (important for underpaid retries)
+      const previousPaidAmount = Number(order.amountPaid || 0);
+      // cumulative total paid
+      const totalPaidAmount = previousPaidAmount + newPaidAmount;
+      // remaining balance
+      const remaining = expectedAmount - totalPaidAmount;
+      // final payment status
+      const isFullyPaid = totalPaidAmount >= expectedAmount;
 
       const updatedOrder = await prisma.payment_Info.update({
         where: { id: order.id },
         data: {
-          paymentStatus: paidAmount >= expectedAmount ? "paid" : "underpaid",
-
-          status: paidAmount >= expectedAmount ? "processing" : "pending",
-
-          amountPaid: paidAmount,
-          balanceRemaining: Math.max(expectedAmount - paidAmount, 0),
-
+          paymentStatus: isFullyPaid ? "paid" : "underpaid",
+          status: isFullyPaid ? "processing" : "pending",
+          amountPaid: totalPaidAmount,
+          balanceRemaining: Math.max(remaining, 0),
           paystackReference: reference,
         },
       });
