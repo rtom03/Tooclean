@@ -14,8 +14,8 @@ export const loginToFez = async () => {
   try {
     console.log("🔐 Starting Fez login...");
 
-    console.log("📧 USER ID:", process.env.FEZ_USER_ID);
-    console.log("🔑 PASSWORD EXISTS:", !!process.env.FEZ_PASSWORD);
+    // console.log("📧 USER ID:", process.env.FEZ_USER_ID);
+    // console.log("🔑 PASSWORD EXISTS:", !!process.env.FEZ_PASSWORD);
 
     const payload = JSON.stringify({
       user_id: process.env.FEZ_USER_ID,

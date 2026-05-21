@@ -338,10 +338,10 @@ export const paystackWebhook = async (req, res) => {
 
       console.log("UPDATED ORDER:", updatedOrder);
 
-      // if (updatedOrder.paymentStatus === "paid") {
-      //   console.log("🚀 About to trigger Fez for order:", updatedOrder.id);
-      //   await triggerFezDelivery(updatedOrder);
-      // }
+      if (updatedOrder.paymentStatus === "paid") {
+        console.log("🚀 About to trigger Fez for order:", updatedOrder.id);
+        await triggerFezDelivery(updatedOrder);
+      }
     }
 
     console.log("Event type:", event.event);
