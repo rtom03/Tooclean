@@ -9,7 +9,6 @@ import { triggerFezDelivery } from "../services/fez.js";
 
 const DELIVERY_RATES = [
   { state: "Lagos", price: 2700 },
-
   { state: "Ekiti", price: 4569 },
   { state: "Ondo", price: 4569 },
   { state: "Oyo", price: 4569 },
