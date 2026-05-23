@@ -9,6 +9,7 @@ const FEZ_BASE = "https://apisandbox.fezdelivery.co/v1";
 //  "https://api.fezdelivery.co/";
 
 let fezToken = null;
+let secretKey = null;
 let tokenExpiry = 0;
 
 export const loginToFez = async () => {
@@ -32,9 +33,10 @@ export const loginToFez = async () => {
     // console.log(res.config.data);
 
     console.log("✅ Full Fez response:");
-    // console.log(JSON.stringify(res.data, null, 2));
+    console.log(JSON.stringify(res.data, null, 2));
 
     const token = res.data?.authDetails?.authToken;
+    const key = res.data?.orgDetails?.secretKey;
 
     const expiresAt = res.data?.authDetails?.expireToken;
 
@@ -45,6 +47,7 @@ export const loginToFez = async () => {
     }
 
     fezToken = token;
+    secretKey = key;
 
     tokenExpiry = new Date(expiresAt).getTime();
 
@@ -69,72 +72,137 @@ export const getFezToken = async () => {
   if (fezToken && Date.now() < tokenExpiry) {
     console.log("♻️ Using cached Fez token");
 
-    return fezToken;
+    return { fezToken, secretKey };
   }
 
   console.log("🔄 Fetching new Fez token...");
 
   return await loginToFez();
 };
+// export const triggerFezDelivery = async (order) => {
+//   if (order.deliveryStatus && order.deliveryStatus !== "not_created") {
+//     console.log("⚠️ Delivery already handled, skipping");
+//     return;
+//   }
+//   console.log("📦 triggerFezDelivery called:", order.id);
+
+//   try {
+//     const token = await getFezToken();
+//     console.log(token);
+//     // 🔑 Required Fez fields
+//     const payload = {
+//       BatchID: `BATCH-${Date.now()}`, // or reuse per batch
+//       uniqueID: order.id, // MUST be unique per delivery
+//       recipientName: order.customerName,
+//       recipientPhone: order.phone,
+//       recipientAddress: order.address,
+//       recipientState: order.state,
+//       weight: 1, // adjust if you calculate weight
+//       valueOfItem: `${order.total}`, // string as required
+//     };
+
+//     console.log("📡 Sending Fez payload:", payload);
+
+//     const response = await axios.post(`${FEZ_BASE}/order`, payload, {
+//       headers: {
+//         Authorization: `Bearer ${token}`, // 🔑 login token
+//         secret_key: process.env.FEZ_API_TOKEN, // 🔑 required
+//       },
+//     });
+
+//     console.log("🚚 Fez delivery created:", response.data);
+
+//     await prisma.payment_Info.update({
+//       where: { id: order.id },
+//       data: {
+//         deliveryStatus: "created",
+//         fezTrackingId: response.data.data?.orderId || null,
+//       },
+//     });
+
+//     console.log("✅ Delivery saved to DB");
+//   } catch (error) {
+//     console.error("❌ Fez delivery failed:");
+//     console.error("Status:", error.response?.status);
+//     console.error("Data:", error.response?.data);
+//     console.error("Message:", error.message);
+
+//     // 🔁 retry once if token expired
+//     if (error.response?.status === 401) {
+//       console.log("🔄 Token expired, retrying...");
+
+//       try {
+//         const newToken = await getFezToken(); // will refresh
+
+//         const retryResponse = await axios.post(`${FEZ_BASE}/order`, payload, {
+//           headers: {
+//             Authorization: `Bearer ${newToken}`,
+//             secret_key: process.env.FEZ_API_TOKEN,
+//           },
+//         });
+
+//         console.log("🚚 Fez delivery created (retry):", retryResponse.data);
+//       } catch (retryError) {
+//         console.error(
+//           "❌ Retry failed:",
+//           retryError.response?.data || retryError.message,
+//         );
+//       }
+//     }
+//   }
+// };
+
 export const triggerFezDelivery = async (order) => {
   if (order.deliveryStatus && order.deliveryStatus !== "not_created") {
     console.log("⚠️ Delivery already handled, skipping");
     return;
   }
-  console.log("📦 triggerFezDelivery called:", order.id);
 
-  try {
-    const token = await getFezToken();
-    console.log(token);
-    // 🔑 Required Fez fields
-    const payload = {
-      BatchID: `BATCH-${Date.now()}`, // or reuse per batch
-      uniqueID: order.id, // MUST be unique per delivery
+  console.log("📦 triggerFezDelivery called:", order.id);
+  console.log(secretKey);
+  // ✅ MOVE PAYLOAD HERE
+  const payload = [
+    {
+      BatchID: `BATCH-${Date.now()}`,
+      uniqueID: order.id,
       recipientName: order.customerName,
       recipientPhone: order.phone,
       recipientAddress: order.address,
       recipientState: order.state,
-      weight: 1, // adjust if you calculate weight
-      valueOfItem: `${order.total}`, // string as required
-    };
+      weight: 1,
+      valueOfItem: `${order.total}`,
+    },
+  ];
+
+  try {
+    const { token, secretKey } = await getFezToken();
+    console.log(token, secretKey);
 
     console.log("📡 Sending Fez payload:", payload);
 
     const response = await axios.post(`${FEZ_BASE}/order`, payload, {
       headers: {
-        Authorization: `Bearer ${token}`, // 🔑 login token
-        secret_key: process.env.FEZ_API_TOKEN, // 🔑 required
+        Authorization: `Bearer ${token}`,
+        secret_key: process.env.FEZ_API_TOKEN,
       },
     });
 
     console.log("🚚 Fez delivery created:", response.data);
-
-    await prisma.payment_Info.update({
-      where: { id: order.id },
-      data: {
-        deliveryStatus: "created",
-        fezTrackingId: response.data.data?.orderId || null,
-      },
-    });
-
-    console.log("✅ Delivery saved to DB");
   } catch (error) {
     console.error("❌ Fez delivery failed:");
     console.error("Status:", error.response?.status);
     console.error("Data:", error.response?.data);
-    console.error("Message:", error.message);
 
-    // 🔁 retry once if token expired
     if (error.response?.status === 401) {
       console.log("🔄 Token expired, retrying...");
 
       try {
-        const newToken = await getFezToken(); // will refresh
+        const newToken = await getFezToken(true);
 
         const retryResponse = await axios.post(`${FEZ_BASE}/order`, payload, {
           headers: {
             Authorization: `Bearer ${newToken}`,
-            "api-token": process.env.FEZ_API_TOKEN,
+            secret_key: secretKey, // ✅ FIXED
           },
         });
 
