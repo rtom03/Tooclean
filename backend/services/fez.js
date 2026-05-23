@@ -29,10 +29,10 @@ export const loginToFez = async () => {
         "Content-Type": "application/json",
       },
     });
-    console.log(res.config.data);
+    // console.log(res.config.data);
 
     console.log("✅ Full Fez response:");
-    console.log(JSON.stringify(res.data, null, 2));
+    // console.log(JSON.stringify(res.data, null, 2));
 
     const token = res.data?.authDetails?.authToken;
 
@@ -81,7 +81,6 @@ export const triggerFezDelivery = async (order) => {
     console.log("⚠️ Delivery already handled, skipping");
     return;
   }
-
   console.log("📦 triggerFezDelivery called:", order.id);
 
   try {
@@ -104,7 +103,7 @@ export const triggerFezDelivery = async (order) => {
     const response = await axios.post(`${FEZ_BASE}/order`, payload, {
       headers: {
         Authorization: `Bearer ${token}`, // 🔑 login token
-        "api-token": process.env.FEZ_API_TOKEN, // 🔑 required
+        secret_key: process.env.FEZ_API_TOKEN, // 🔑 required
       },
     });
 
