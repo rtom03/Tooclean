@@ -9,148 +9,76 @@ const FEZ_BASE = "https://apisandbox.fezdelivery.co/v1";
 //  "https://api.fezdelivery.co/";
 
 let fezToken = null;
-let secretKey = null;
+let fezSecretKey = null;
 let tokenExpiry = 0;
 
 export const loginToFez = async () => {
   try {
     console.log("🔐 Starting Fez login...");
 
-    // console.log("📧 USER ID:", process.env.FEZ_USER_ID);
-    // console.log("🔑 PASSWORD EXISTS:", !!process.env.FEZ_PASSWORD);
-
-    const payload = JSON.stringify({
+    const payload = {
       user_id: process.env.FEZ_USER_ID,
       password: process.env.FEZ_PASSWORD,
-    });
-    console.log("📡 Sending payload:", payload);
+    };
 
     const res = await axios.post(`${FEZ_BASE}/user/authenticate`, payload, {
       headers: {
         "Content-Type": "application/json",
       },
     });
-    // console.log(res.config.data);
 
     console.log("✅ Full Fez response:");
     console.log(JSON.stringify(res.data, null, 2));
 
     const token = res.data?.authDetails?.authToken;
-    const key = res.data?.orgDetails?.secretKey;
+
+    // ✅ IMPORTANT FIX
+    const secretKey = res.data?.orgDetails?.["secret-key"];
 
     const expiresAt = res.data?.authDetails?.expireToken;
 
     if (!token) {
-      console.log("❌ No token returned");
-
       throw new Error("Fez login failed: no token returned");
     }
 
+    if (!secretKey) {
+      throw new Error("Fez login failed: no secret key returned");
+    }
+
     fezToken = token;
-    secretKey = key;
+    fezSecretKey = secretKey;
 
     tokenExpiry = new Date(expiresAt).getTime();
 
     console.log("✅ Token stored");
+    console.log("✅ Secret key stored");
     console.log("⏰ Expires:", expiresAt);
 
-    return fezToken;
+    return {
+      token: fezToken,
+      secretKey: fezSecretKey,
+    };
   } catch (error) {
     console.error("❌ FEZ LOGIN ERROR");
-
     console.error("Status:", error.response?.status);
-
     console.error("Response:", error.response?.data);
-
     console.error("Message:", error.message);
 
     throw error;
   }
 };
 
-export const getFezToken = async () => {
-  if (fezToken && Date.now() < tokenExpiry) {
-    console.log("♻️ Using cached Fez token");
-
-    return { fezToken, secretKey };
+export const getFezAuth = async (forceRefresh = false) => {
+  if (!forceRefresh && fezToken && fezSecretKey && Date.now() < tokenExpiry) {
+    console.log("♻️ Using cached Fez auth");
+    return {
+      token: fezToken,
+      secretKey: fezSecretKey,
+    };
   }
-
-  console.log("🔄 Fetching new Fez token...");
-
+  console.log("🔄 Fetching new Fez auth...");
   return await loginToFez();
 };
-// export const triggerFezDelivery = async (order) => {
-//   if (order.deliveryStatus && order.deliveryStatus !== "not_created") {
-//     console.log("⚠️ Delivery already handled, skipping");
-//     return;
-//   }
-//   console.log("📦 triggerFezDelivery called:", order.id);
-
-//   try {
-//     const token = await getFezToken();
-//     console.log(token);
-//     // 🔑 Required Fez fields
-//     const payload = {
-//       BatchID: `BATCH-${Date.now()}`, // or reuse per batch
-//       uniqueID: order.id, // MUST be unique per delivery
-//       recipientName: order.customerName,
-//       recipientPhone: order.phone,
-//       recipientAddress: order.address,
-//       recipientState: order.state,
-//       weight: 1, // adjust if you calculate weight
-//       valueOfItem: `${order.total}`, // string as required
-//     };
-
-//     console.log("📡 Sending Fez payload:", payload);
-
-//     const response = await axios.post(`${FEZ_BASE}/order`, payload, {
-//       headers: {
-//         Authorization: `Bearer ${token}`, // 🔑 login token
-//         secret_key: process.env.FEZ_API_TOKEN, // 🔑 required
-//       },
-//     });
-
-//     console.log("🚚 Fez delivery created:", response.data);
-
-//     await prisma.payment_Info.update({
-//       where: { id: order.id },
-//       data: {
-//         deliveryStatus: "created",
-//         fezTrackingId: response.data.data?.orderId || null,
-//       },
-//     });
-
-//     console.log("✅ Delivery saved to DB");
-//   } catch (error) {
-//     console.error("❌ Fez delivery failed:");
-//     console.error("Status:", error.response?.status);
-//     console.error("Data:", error.response?.data);
-//     console.error("Message:", error.message);
-
-//     // 🔁 retry once if token expired
-//     if (error.response?.status === 401) {
-//       console.log("🔄 Token expired, retrying...");
-
-//       try {
-//         const newToken = await getFezToken(); // will refresh
-
-//         const retryResponse = await axios.post(`${FEZ_BASE}/order`, payload, {
-//           headers: {
-//             Authorization: `Bearer ${newToken}`,
-//             secret_key: process.env.FEZ_API_TOKEN,
-//           },
-//         });
-
-//         console.log("🚚 Fez delivery created (retry):", retryResponse.data);
-//       } catch (retryError) {
-//         console.error(
-//           "❌ Retry failed:",
-//           retryError.response?.data || retryError.message,
-//         );
-//       }
-//     }
-//   }
-// };
 
 export const triggerFezDelivery = async (order) => {
   if (order.deliveryStatus && order.deliveryStatus !== "not_created") {
@@ -159,7 +87,6 @@ export const triggerFezDelivery = async (order) => {
   }
 
   console.log("📦 triggerFezDelivery called:", order.id);
-  console.log(secretKey);
   // ✅ MOVE PAYLOAD HERE
   const payload = [
     {
@@ -175,15 +102,12 @@ export const triggerFezDelivery = async (order) => {
   ];
 
   try {
-    const { token, secretKey } = await getFezToken();
-    console.log(token, secretKey);
-
     console.log("📡 Sending Fez payload:", payload);
 
     const response = await axios.post(`${FEZ_BASE}/order`, payload, {
       headers: {
-        Authorization: `Bearer ${token}`,
-        secret_key: process.env.FEZ_API_TOKEN,
+        Authorization: `Bearer ${fezToken}`,
+        secret_key: fezSecretKey,
       },
     });
 
@@ -197,7 +121,7 @@ export const triggerFezDelivery = async (order) => {
       console.log("🔄 Token expired, retrying...");
 
       try {
-        const newToken = await getFezToken(true);
+        const { token, secretKey } = await getFezAuth(true);
 
         const retryResponse = await axios.post(`${FEZ_BASE}/order`, payload, {
           headers: {
