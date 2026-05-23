@@ -100,16 +100,16 @@ export const triggerFezDelivery = async (order) => {
       valueOfItem: `${order.total}`,
     },
   ];
-  const secret = process.env.FEZ_API_SECRET;
+
   try {
     console.log("📡 Sending Fez payload:", payload);
-    console.log(`HERE IS SECRET KEY: ${secret}`);
+
     const response = await axios.post(`${FEZ_BASE}/order`, payload, {
       headers: {
-        secret_key: secret,
+        Authorization: `Bearer ${fezToken}`,
+        secret_key: fezSecretKey,
       },
     });
-    // Authorization: `Bearer ${fezToken}`,
 
     console.log("🚚 Fez delivery created:", response.data);
   } catch (error) {
@@ -117,26 +117,28 @@ export const triggerFezDelivery = async (order) => {
     console.error("Status:", error.response?.status);
     console.error("Data:", error.response?.data);
 
-    // if (error.response?.status === 401) {
-    //   console.log("🔄 Token expired, retrying...");
+    if (error.response?.status === 401) {
+      console.log("🔄 Token expired, retrying...");
 
-    //   try {
-    //     const { token, secretKey } = await getFezAuth(true);
+      try {
+        const { token, secretKey } = await getFezAuth(true);
 
-    //     const retryResponse = await axios.post(`${FEZ_BASE}/order`, payload, {
-    //       headers: {
-    //         Authorization: `Bearer ${token}`,
-    //         secret_key: secretKey, // ✅ FIXED
-    //       },
-    //     });
+        console.log(`HERE IS YOR AUTH:${token}, SECRET:${secretKey}`);
 
-    //     console.log("🚚 Fez delivery created (retry):", retryResponse.data);
-    //   } catch (retryError) {
-    //     console.error(
-    //       "❌ Retry failed:",
-    //       retryError.response?.data || retryError.message,
-    //     );
-    //   }
-    // }
+        const retryResponse = await axios.post(`${FEZ_BASE}/order`, payload, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            secret_key: secretKey, // ✅ FIXED
+          },
+        });
+
+        console.log("🚚 Fez delivery created (retry):", retryResponse.data);
+      } catch (retryError) {
+        console.error(
+          "❌ Retry failed:",
+          retryError.response?.data || retryError.message,
+        );
+      }
+    }
   }
 };
