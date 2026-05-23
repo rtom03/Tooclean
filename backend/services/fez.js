@@ -107,7 +107,7 @@ export const triggerFezDelivery = async (order) => {
     const response = await axios.post(`${FEZ_BASE}/order`, payload, {
       headers: {
         Authorization: `Bearer ${fezToken}`,
-        secret_key: fezSecretKey,
+        "secret-key": fezSecretKey,
       },
     });
 
@@ -128,7 +128,7 @@ export const triggerFezDelivery = async (order) => {
         const retryResponse = await axios.post(`${FEZ_BASE}/order`, payload, {
           headers: {
             Authorization: `Bearer ${token}`,
-            secret_key: secretKey, // ✅ FIXED
+            "secret-key": secretKey, // ✅ FIXED
           },
         });
 
