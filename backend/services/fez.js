@@ -101,15 +101,21 @@ export const triggerFezDelivery = async (order) => {
     },
   ];
 
+  console.log(
+    "🔑 Secret key present?",
+    !!fezSecretKey,
+    fezSecretKey?.slice(0, 6),
+  );
+
   try {
     console.log("📡 Sending Fez payload:", payload);
 
     const response = await axios.post(`${FEZ_BASE}/order`, payload, {
       headers: {
-        Authorization: `Bearer ${fezToken}`,
         secret_key: fezSecretKey,
       },
     });
+    // Authorization: `Bearer ${fezToken}`,
 
     console.log("🚚 Fez delivery created:", response.data);
   } catch (error) {
@@ -117,26 +123,26 @@ export const triggerFezDelivery = async (order) => {
     console.error("Status:", error.response?.status);
     console.error("Data:", error.response?.data);
 
-    if (error.response?.status === 401) {
-      console.log("🔄 Token expired, retrying...");
+    // if (error.response?.status === 401) {
+    //   console.log("🔄 Token expired, retrying...");
 
-      try {
-        const { token, secretKey } = await getFezAuth(true);
+    //   try {
+    //     const { token, secretKey } = await getFezAuth(true);
 
-        const retryResponse = await axios.post(`${FEZ_BASE}/order`, payload, {
-          headers: {
-            Authorization: `Bearer ${newToken}`,
-            secret_key: secretKey, // ✅ FIXED
-          },
-        });
+    //     const retryResponse = await axios.post(`${FEZ_BASE}/order`, payload, {
+    //       headers: {
+    //         Authorization: `Bearer ${token}`,
+    //         secret_key: secretKey, // ✅ FIXED
+    //       },
+    //     });
 
-        console.log("🚚 Fez delivery created (retry):", retryResponse.data);
-      } catch (retryError) {
-        console.error(
-          "❌ Retry failed:",
-          retryError.response?.data || retryError.message,
-        );
-      }
-    }
+    //     console.log("🚚 Fez delivery created (retry):", retryResponse.data);
+    //   } catch (retryError) {
+    //     console.error(
+    //       "❌ Retry failed:",
+    //       retryError.response?.data || retryError.message,
+    //     );
+    //   }
+    // }
   }
 };
