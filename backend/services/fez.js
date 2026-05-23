@@ -100,19 +100,13 @@ export const triggerFezDelivery = async (order) => {
       valueOfItem: `${order.total}`,
     },
   ];
-
-  console.log(
-    "🔑 Secret key present?",
-    !!fezSecretKey,
-    fezSecretKey?.slice(0, 6),
-  );
-
+  const secret = process.env.FEZ_API_SECRET;
   try {
     console.log("📡 Sending Fez payload:", payload);
-
+    console.log(`HERE IS SECRET KEY: ${secret}`);
     const response = await axios.post(`${FEZ_BASE}/order`, payload, {
       headers: {
-        secret_key: fezSecretKey,
+        secret_key: secret,
       },
     });
     // Authorization: `Bearer ${fezToken}`,
