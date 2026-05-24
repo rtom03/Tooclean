@@ -58,6 +58,7 @@ model Payment_Info {
   total                Float
   amountPaid           Float   @default(0) // actual amount received
   balanceRemaining     Float   @default(0)
+  discountCode         String?
   status               String   @default("pending")  // pending | paid | processing | shipped | delivered | failed
   paymentStatus        String   @default("unpaid")   // unpaid | paid
   paystackCustomerCode String?
@@ -98,4 +99,13 @@ model OrderItem {
   qty       Int
   price     Int
   subtotal  Int
+}
+
+model DiscountCode {
+  id              String   @id @default(uuid())
+  code            String   @unique
+  name            String
+  discount_price  Float    @default(0)
+  isActive        Boolean @default(true)
+  createdAt       DateTime @default(now())
 }

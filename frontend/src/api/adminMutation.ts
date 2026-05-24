@@ -13,9 +13,6 @@ const useAdminLogin = () => {
     onSuccess: (data) => {
       setAdmin(data);
     },
-    onError: (error: any) => {
-      console.log(error.message);
-    },
   });
 };
 

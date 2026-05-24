@@ -35,8 +35,11 @@ const AdminLayout = () => {
           <NavLink to="/admin/settings" className={navClass}>
             Settings
           </NavLink>
-          <NavLink to="/admin/emails" className={navClass}>
+          {/* <NavLink to="/admin/emails" className={navClass}>
             Subscriber's Email
+          </NavLink> */}
+          <NavLink to="/admin/discount-codes" className={navClass}>
+            Discount Codes
           </NavLink>
         </div>
         <div className="flex items-center gap-3">

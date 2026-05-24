@@ -173,17 +173,17 @@ const adminLogin = async (data: Admin) => {
       headers: {
         "Content-Type": "application/json",
       },
-      // credentials: "include",
       body: JSON.stringify(data),
     });
-    if (res.ok) {
-      return res.json();
+
+    const responseData = await res.json();
+
+    if (!res.ok) {
+      throw new Error(responseData?.message || "Invalid email or password");
     }
-    console.log();
+    return responseData;
   } catch (error: any) {
-    throw new Error(
-      error?.response?.data?.message || "Invalid email or password",
-    );
+    throw new Error(error?.message || "Something went wrong");
   }
 };
 
@@ -236,7 +236,7 @@ const getPaymentInfo = async (id: string) => {
   return res.json();
 };
 
-export const updateOrderStatus = async (id: string, status: string) => {
+const updateOrderStatus = async (id: string, status: string) => {
   const res = await fetch(`${BASE_URL}/order/update-status?id=${id}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
@@ -251,7 +251,7 @@ export const updateOrderStatus = async (id: string, status: string) => {
   return res.json();
 };
 
-export const mergePaymentOrder = async ({
+const mergePaymentOrder = async ({
   paymentId,
   items,
 }: {
@@ -281,14 +281,69 @@ export const mergePaymentOrder = async ({
   return await res.json();
 };
 
+const createDiscountCode = async (data: {
+  name: string;
+  discount_price: number;
+}) => {
+  try {
+    const res = await fetch(`${BASE_URL}/discount/create`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify(data),
+    });
+
+    const responseData = await res.json();
+
+    if (!res.ok) {
+      throw new Error(
+        responseData?.message || "Failed to create discount code",
+      );
+    }
+
+    return responseData;
+  } catch (error: any) {
+    if (error instanceof TypeError) {
+      throw new Error("Unable to connect to server");
+    }
+
+    throw new Error(error?.message || "Something went wrong");
+  }
+};
+
+const getDiscountCodes = async () => {
+  try {
+    const res = await fetch(`${BASE_URL}/discount/get-discounts`);
+    const responseData = await res.json();
+    if (!res.ok) {
+      throw new Error(
+        responseData?.message || "Failed to create discount code",
+      );
+    }
+    return responseData;
+  } catch (error: any) {
+    if (error instanceof TypeError) {
+      throw new Error("Unable to connect to server");
+    }
+
+    throw new Error(error?.message || "Something went wrong");
+  }
+};
+
 export {
   getProducts,
   getProduct,
   createOrderData,
   getOrderById,
   initializePayment,
+  mergePaymentOrder,
   adminLogin,
   changePassword,
   getOrders,
   getPaymentInfo,
+  updateOrderStatus,
+  createDiscountCode,
+  getDiscountCodes,
 };

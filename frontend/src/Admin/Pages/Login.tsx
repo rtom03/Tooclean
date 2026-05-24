@@ -15,7 +15,6 @@ const AdminLogin = () => {
   const navigate = useNavigate();
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     try {
       const res = await loginMutation.mutateAsync({ email, password });
       if (res) {
@@ -59,7 +58,7 @@ const AdminLogin = () => {
           {/* Error */}
           {isError && (
             <div className="bg-[#fcebeb] border border-[#f09595] rounded-lg px-4 py-2.5 text-[13px] text-[#791f1f] mb-5">
-              {failureReason}
+              {failureReason?.message}
             </div>
           )}
 

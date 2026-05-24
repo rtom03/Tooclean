@@ -6,9 +6,10 @@ import {
 import { z } from "zod";
 import { prisma } from "../utils/db.js";
 import { triggerFezDelivery } from "../services/fez.js";
+import { generateDiscountCode } from "../utils/utils.js";
 
 const DELIVERY_RATES = [
-  { state: "Lagos", price: 50 },
+  { state: "Lagos", price: 2700 },
   { state: "Ekiti", price: 4569 },
   { state: "Ondo", price: 4569 },
   { state: "Oyo", price: 4569 },
@@ -313,6 +314,12 @@ export const paystackWebhook = async (req, res) => {
       // const paidAmount = amount / 100;
 
       // const remaining = expectedAmount - paidAmount;
+      if (event.discountCode) {
+        const discountCode = await prisma.discountCode.findUnique({
+          where: { code: event.discountCode },
+        });
+      }
+
       const expectedAmount = Number(order.total);
       // current incoming payment
       const newPaidAmount = amount / 100;
@@ -338,10 +345,10 @@ export const paystackWebhook = async (req, res) => {
 
       console.log("UPDATED ORDER:", updatedOrder);
 
-      if (updatedOrder.paymentStatus === "paid") {
-        console.log("🚀 About to trigger Fez for order:", updatedOrder.id);
-        await triggerFezDelivery(updatedOrder);
-      }
+      // if (updatedOrder.paymentStatus === "paid") {
+      //   console.log("🚀 About to trigger Fez for order:", updatedOrder.id);
+      //   await triggerFezDelivery(updatedOrder);
+      // }
     }
 
     console.log("Event type:", event.event);

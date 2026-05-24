@@ -15,6 +15,7 @@ import ProtectedAdminRoute from "./Admin/ProtectedAdminRoute";
 import ProductDetail from "./Pages/ProductDetails";
 import CartBody from "./Pages/Cart";
 import Emails from "./Admin/Pages/Emails";
+import Discount from "./Admin/Pages/Discount";
 
 const App = () => {
   return (
@@ -37,6 +38,7 @@ const App = () => {
         <Route element={<ProtectedAdminRoute />}>
           <Route path="/admin/dashboard" element={<Dashboard />} />
           <Route path="/admin/products" element={<Products />} />
+          <Route path="/admin/discount-codes" element={<Discount />} />
           <Route path="/admin/orders" element={<Orders />} />
           <Route path="/admin/settings" element={<Settings />} />
           <Route path="/admin/emails" element={<Emails />} />
