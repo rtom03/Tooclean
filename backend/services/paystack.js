@@ -43,6 +43,25 @@ export const createDedicatedAccount = async (
   }
 };
 
+export const initializeTransaction = async (email, amount) => {
+  try {
+    const { data } = await paystack.post("/transaction/initialize", {
+      email,
+      amount: amount * 100,
+
+      currency: "NGN",
+
+      channels: ["bank_transfer"],
+
+      callback_url: `${process.env.FRONTEND_URL}/payment/success`,
+    });
+
+    return data.data;
+  } catch (error) {
+    console.log(error.response?.data || error.message);
+  }
+};
+
 // ── 3. Fetch existing dedicated account ────────────────────
 export const getDedicatedAccount = async (accountId) => {
   const { data } = await paystack.get(`/dedicated_account/${accountId}`);

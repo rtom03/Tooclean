@@ -62,9 +62,9 @@ model Payment_Info {
   status               String   @default("pending")  // pending | paid | processing | shipped | delivered | failed
   paymentStatus        String   @default("unpaid")   // unpaid | paid
   paystackCustomerCode String?
-  dedicatedAccountNo   String?
-  dedicatedBankName    String?
-  dedicatedAccountName String?
+  // dedicatedAccountNo   String?
+  // dedicatedBankName    String?
+  // dedicatedAccountName String?
   paystackReference    String?
   deliveryStatus       String @default("not_created")
   fezTrackingId        String?

@@ -13,6 +13,7 @@ export const createOrderSchema = z.object({
   address: z.string().min(1, "Address is required"),
   state: z.string().min(2, "Please select a state"),
   deliveryPrice: z.number(),
+  discountCode: z.string(),
 });
 
 export const NAIRA = "₦";
@@ -69,9 +70,12 @@ export type InitializePaymentResponse = {
     orderDetails: JSON;
     orderNumber: string;
     total: number;
-    bankName: string;
-    accountNumber: string;
-    accountName: string;
+    authorization_url: string;
+    access_code: string;
+    paystackReference: string;
+    // bankName: string;
+    // accountNumber: string;
+    // accountName: string;
     amount: number;
     paymentStatus: string;
     amountPaid: number;
@@ -103,12 +107,14 @@ export interface OrderData {
   status: OrderStatus;
   paymentStatus: PaymentStatus;
   paystackCustomerCode?: string | null;
-  dedicatedAccountNo?: string | null;
-  dedicatedBankName?: string | null;
-  dedicatedAccountName?: string | null;
-  paystackReference?: string | null;
+  // authorization_url: string;
+  // access_code: string;
+  // paystackReference?: string | null;
   createdAt: string; // ISO string from backend
   updatedAt: string;
+  // dedicatedAccountNo?: string | null;
+  // dedicatedBankName?: string | null;
+  // dedicatedAccountName?: string | null;
 }
 
 export type TrackedOrder = {

@@ -1,18 +1,11 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Lock } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { createOrderSchema, type OrderInfo } from "../constant/index.type";
 import Loader from "../components/Loader";
-import { DELIVERY_RATES, normalizePaymentData } from "../constant";
-import { useGetOrderById, usePaymentInfo } from "../api/orderQuery";
+import { DELIVERY_RATES } from "../constant";
+import { useGetOrderById } from "../api/orderQuery";
 import { useInitializePayment } from "../api/initPaymentMutation";
-import UnPaidUI from "../components/UnPaidUI";
-import UnderPaidUI from "../components/UnderPaidUI";
-import PaidUI from "../components/PaidUI";
-import { usePaymentStore } from "../store/paymentStore";
-import { useCartStore } from "../store/cartStore";
-// import CheckOutNote from "../components/CheckOutNote";
-// import { getPaymentInfo } from "../services/apiServices";
 
 const inputClass =
   "w-full border border-[#ddd] rounded-lg px-3.5 py-2.5 text-[14px] text-[#1a1a1a] placeholder:text-[#bbb] outline-none focus:border-[#1a1a1a] transition-colors bg-white";
@@ -20,66 +13,13 @@ const inputClass =
 const Checkout = () => {
   const { id } = useParams<string>();
 
-  const paymentData = usePaymentStore((state) => state.paymentData);
-  const setPaymentData = usePaymentStore((state) => state.setPaymentData);
-  const clearPaymentData = usePaymentStore((state) => state.clearPaymentData);
-  const cartItems = useCartStore((state) => state.items);
-  const removePurchasedItems = useCartStore(
-    (state) => state.removePurchasedItems,
-  );
+  // const paymentData = usePaymentStore((state) => state.paymentData);
+
   const { data } = useGetOrderById(id!);
-  const paymentId = paymentData?.payment_info?.id;
-  const shouldFetchPayment =
-    cartItems.length > 0 && !!paymentData?.payment_info?.id;
-  const { data: paymentInfo } = usePaymentInfo(paymentId, shouldFetchPayment);
+
   // console.log(paymentInfo);
 
-  useEffect(() => {
-    if (!paymentInfo) return;
-    // console.log(paymentInfo);
-    // console.log(data);
-
-    const normalizedData = normalizePaymentData(paymentInfo);
-
-    setPaymentData(normalizedData);
-
-    const isPaid = normalizedData.payment_info?.paymentStatus === "paid";
-
-    if (isPaid) {
-      const purchasedIds = data?.items.map((item) => item.productId) || [];
-      removePurchasedItems(purchasedIds);
-    }
-  }, [
-    paymentInfo,
-    data,
-    setPaymentData,
-    removePurchasedItems,
-    clearPaymentData,
-  ]);
-
-  useEffect(() => {
-    return () => {
-      const currentPayment = usePaymentStore.getState().paymentData;
-
-      const isPaid = currentPayment?.payment_info?.paymentStatus === "paid";
-
-      if (isPaid) {
-        clearPaymentData();
-      }
-    };
-  }, [clearPaymentData]);
-
-  useEffect(() => {
-    const isCartEmpty = cartItems.length === 0;
-
-    const isPaid = paymentData?.payment_info?.paymentStatus === "paid";
-
-    // preserve paid success screen
-    if (isCartEmpty && !isPaid) {
-      clearPaymentData();
-    }
-  }, [cartItems, paymentData, clearPaymentData]);
-  const [step, setStep] = useState<"form" | "payment">("form");
+  // const [step, setStep] = useState<"form" | "payment">("form");
   type FormErrors = Partial<Record<keyof OrderInfo, string>>;
   const [errors, setErrors] = useState<FormErrors>({});
 
@@ -116,8 +56,8 @@ const Checkout = () => {
         id,
         data: form,
       });
-      setPaymentData(response);
-      setStep("payment");
+      // console.log(response);
+      window.location.href = response.payment_info.authorization_url;
 
       console.log(response);
     } catch (error) {
@@ -132,6 +72,7 @@ const Checkout = () => {
     address: "",
     state: "",
     deliveryPrice: 0,
+    discountCode: "",
   });
 
   const handleStateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -164,119 +105,101 @@ const Checkout = () => {
         </p>
 
         {/* Contact */}
-        {paymentData?.payment_info ? (
-          <div className="bg-[#f7f7f5] border border-[#e8e8e8] rounded-2xl p-6 space-y-4">
-            {paymentData.payment_info.paymentStatus === "unpaid" ? (
-              <UnPaidUI
-                payment_info={paymentData.payment_info}
-                message={paymentData.message}
+
+        <div className="mb-7">
+          <h3 className="text-[15px] font-bold text-[#1a1a1a] mb-3">Contact</h3>
+          <div className="flex flex-row gap-2.5">
+            <div>
+              <input
+                className={inputClass}
+                type="email"
+                name="email"
+                placeholder="Email"
+                value={form.email}
+                onChange={handleChange}
               />
-            ) : paymentData.payment_info.paymentStatus === "underpaid" ? (
-              <UnderPaidUI
-                payment_info={paymentData.payment_info}
-                message={paymentData.message}
+              {errors.email && (
+                <p className="text-red-500 text-[11px] mt-1">{errors.email}</p>
+              )}
+            </div>
+            <div>
+              <input
+                className={inputClass}
+                type="tel"
+                name="phone"
+                placeholder="Phone number"
+                value={form.phone}
+                onChange={handleChange}
               />
-            ) : paymentData.payment_info.paymentStatus === "paid" ? (
-              <PaidUI />
-            ) : null}
-            {/* Header */}
+              {errors.phone && (
+                <p className="text-red-500 text-[11px] mt-1">{errors.phone}</p>
+              )}
+            </div>
           </div>
-        ) : (
           <div className="mb-7">
             <h3 className="text-[15px] font-bold text-[#1a1a1a] mb-3">
-              Contact
+              Delivery
             </h3>
-            <div className="flex flex-row gap-2.5">
-              <div>
-                <input
-                  className={inputClass}
-                  type="email"
-                  name="email"
-                  placeholder="Email"
-                  value={form.email}
-                  onChange={handleChange}
-                />
-                {errors.email && (
-                  <p className="text-red-500 text-[11px] mt-1">
-                    {errors.email}
-                  </p>
-                )}
-              </div>
-              <div>
-                <input
-                  className={inputClass}
-                  type="tel"
-                  name="phone"
-                  placeholder="Phone number"
-                  value={form.phone}
-                  onChange={handleChange}
-                />
-                {errors.phone && (
-                  <p className="text-red-500 text-[11px] mt-1">
-                    {errors.phone}
-                  </p>
-                )}
-              </div>
-            </div>
-            <div className="mb-7">
-              <h3 className="text-[15px] font-bold text-[#1a1a1a] mb-3">
-                Delivery
-              </h3>
-              <div className="flex flex-col gap-2.5">
-                <select
-                  className={inputClass}
-                  name="state"
-                  onChange={handleStateChange}
-                >
-                  <option value="">Select State</option>
+            <div className="flex flex-col gap-2.5">
+              <select
+                className={inputClass}
+                name="state"
+                onChange={handleStateChange}
+              >
+                <option value="">Select State</option>
 
-                  {DELIVERY_RATES.map((item) => (
-                    <option key={item.state} value={item.state}>
-                      {item.state}
-                    </option>
-                  ))}
-                </select>
-                {form.state && (
-                  <div className="flex justify-between items-center px-0.5 mt-2 text-sm text-gray-600">
-                    <span>{form.state}</span>
-                    <span>₦{form.deliveryPrice.toLocaleString()}</span>
-                  </div>
-                )}
-                {errors.state && (
-                  <p className="text-red-500 text-[11px] mt-1">
-                    {errors.state}
-                  </p>
-                )}
-                <input
-                  className={inputClass}
-                  type="text"
-                  name="customerName"
-                  placeholder="John Doe"
-                  value={form.customerName}
-                  onChange={handleChange}
-                />
-                {errors.customerName && (
-                  <p className="text-red-500 text-[11px] mt-1">
-                    {errors.customerName}
-                  </p>
-                )}
-                <input
-                  className={inputClass}
-                  type="text"
-                  name="address"
-                  placeholder=" Obafemi Awolowo Wy, Alausa, Ojodu"
-                  value={form.address}
-                  onChange={handleChange}
-                />
-                {errors.address && (
-                  <p className="text-red-500 text-[11px] mt-1">
-                    {errors.address}
-                  </p>
-                )}
-              </div>
+                {DELIVERY_RATES.map((item) => (
+                  <option key={item.state} value={item.state}>
+                    {item.state}
+                  </option>
+                ))}
+              </select>
+              {form.state && (
+                <div className="flex justify-between items-center px-0.5 mt-2 text-sm text-gray-600">
+                  <span>{form.state}</span>
+                  <span>₦{form.deliveryPrice.toLocaleString()}</span>
+                </div>
+              )}
+              {errors.state && (
+                <p className="text-red-500 text-[11px] mt-1">{errors.state}</p>
+              )}
+              <input
+                className={inputClass}
+                type="text"
+                name="customerName"
+                placeholder="John Doe"
+                value={form.customerName}
+                onChange={handleChange}
+              />
+              {errors.customerName && (
+                <p className="text-red-500 text-[11px] mt-1">
+                  {errors.customerName}
+                </p>
+              )}
+              <input
+                className={inputClass}
+                type="text"
+                name="address"
+                placeholder=" Obafemi Awolowo Wy, Alausa, Ojodu"
+                value={form.address}
+                onChange={handleChange}
+              />
+              <input
+                className={inputClass}
+                type="text"
+                name="discountCode"
+                placeholder="Enter your discount (Optional)"
+                value={form.discountCode}
+                onChange={handleChange}
+              />
+              {errors.address && (
+                <p className="text-red-500 text-[11px] mt-1">
+                  {errors.address}
+                </p>
+              )}
             </div>
           </div>
-        )}
+        </div>
 
         {/* Delivery */}
 
@@ -296,15 +219,14 @@ const Checkout = () => {
           </div>
         </div>
 
-        {!paymentData?.payment_info && (
-          <button
-            onClick={handleInitTransfer}
-            className="w-full bg-[#1a1a1a] text-white text-[14px] font-bold tracking-wide uppercase py-4 rounded-lg hover:opacity-85 transition-opacity active:scale-[0.98] flex items-center justify-center"
-            disabled={step === "payment"}
-          >
-            {isPending ? <Loader /> : "Place Order"}
-          </button>
-        )}
+        <button
+          onClick={handleInitTransfer}
+          className="w-full bg-[#1a1a1a] text-white text-[14px] font-bold tracking-wide uppercase py-4 rounded-lg hover:opacity-85 transition-opacity active:scale-[0.98] flex items-center justify-center"
+          disabled={isPending}
+        >
+          {isPending ? <Loader /> : "Place Order"}
+        </button>
+
         <div className="flex items-center justify-center gap-1.5 mt-4 text-[12px] text-[#aaa]">
           <Lock size={12} />
           Secure & encrypted checkout
@@ -349,17 +271,10 @@ const Checkout = () => {
         <div className="h-px bg-[#e8e8e8] mb-4" />
         {/* Totals */}
         <div className="flex justify-between text-[14px] text-[#555] mb-2.5">
-          <span
-            onClick={() => console.log(paymentData?.payment_info.deliveryPrice)}
-          >
-            Shipping
-          </span>
+          <span>Shipping</span>
           <span className="text-[#1a7a3c] font-semibold">
             {" "}
-            ₦
-            {form.deliveryPrice
-              ? form.deliveryPrice.toLocaleString("en-NG")
-              : paymentData?.payment_info.deliveryPrice.toLocaleString("en-NG")}
+            ₦{form.deliveryPrice.toLocaleString("en-NG")}
           </span>
         </div>
         <div className="h-px bg-[#e8e8e8] my-3" />

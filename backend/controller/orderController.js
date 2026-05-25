@@ -1,7 +1,8 @@
 import {
   createPaystackCustomer,
-  createDedicatedAccount,
+  // createDedicatedAccount,
   verifyWebhookSignature,
+  initializeTransaction,
 } from "../services/paystack.js";
 import { z } from "zod";
 import { prisma } from "../utils/db.js";
@@ -182,48 +183,90 @@ export const getOrderDataById = async (req, res) => {
 export const initializeTransfer = async (req, res) => {
   try {
     const parsed = req.body;
-    console.log(parsed);
     const { orderId } = req.params;
-
+    if (!parsed) {
+      return res.status(400).json({
+        error: "Invalid request body",
+      });
+    }
+    const { customerName, email, phone, address, state, discountCode } = parsed;
+    // ---------------------------------------------------
+    // FETCH ORDER
+    // ---------------------------------------------------
     const order = await prisma.order.findUnique({
       where: { id: orderId },
     });
-    if (!parsed) {
-      return res
-        .status(400)
-        .json({ errors: parsed.error.flatten().fieldErrors });
+
+    if (!order) {
+      return res.status(404).json({
+        error: "Order not found",
+      });
     }
+    // ---------------------------------------------------
+    // DELIVERY PRICE
+    // NEVER TRUST FRONTEND DELIVERY PRICE
+    // ---------------------------------------------------
 
-    const { customerName, email, phone, address, state, deliveryPrice } =
-      parsed;
-
-    const stateDeliveryPrice = DELIVERY_RATE_MAP[state];
-    // console.log(stateDeliveryPrice);
-
-    if (!stateDeliveryPrice) {
-      return res.status(400).json({ error: "Invalid state" });
+    const deliveryPrice = DELIVERY_RATE_MAP[state];
+    if (!deliveryPrice) {
+      return res.status(400).json({
+        error: "Invalid state",
+      });
     }
-    const totalAmount = order.total + stateDeliveryPrice;
+    // ---------------------------------------------------
+    // BASE TOTAL
+    // ---------------------------------------------------
+    const subtotal = order.total;
+    const totalBeforeDiscount = subtotal + deliveryPrice;
+    // ---------------------------------------------------
+    // DISCOUNT
+    // ---------------------------------------------------
+    let discountAmount = 0;
+    let appliedDiscount = null;
+    if (discountCode) {
+      const discount = await prisma.discountCode.findUnique({
+        where: {
+          code: discountCode.toUpperCase(),
+        },
+      });
+
+      if (discount && discount.isActive) {
+        discountAmount = discount.discount_price || 0;
+
+        appliedDiscount = discount.code;
+      }
+    }
+    // ---------------------------------------------------
+    // FINAL TOTAL
+    // PREVENT NEGATIVE VALUES
+    // ---------------------------------------------------
+    const finalTotal = Math.max(totalBeforeDiscount - discountAmount, 0);
+    // ---------------------------------------------------
+    // ORDER NUMBER
+    // ---------------------------------------------------
     const orderNumber = `TC-${Date.now().toString().slice(-6)}`;
-
-    // 2. Create Paystack customer
+    // ---------------------------------------------------
+    // PAYSTACK CUSTOMER
+    // ---------------------------------------------------
     const nameParts = customerName.split(" ");
     const firstName = nameParts[0];
     const lastName = nameParts.slice(1).join(" ") || firstName;
-
     const paystackCustomer = await createPaystackCustomer(
       email,
       firstName,
       lastName,
       phone,
     );
-
-    // 3. Create dedicated virtual account
-    const dedicatedAccount = await createDedicatedAccount(
-      paystackCustomer.customer_code,
-    );
-
-    // 4. Save order to DB
+    // ---------------------------------------------------
+    // DEDICATED ACCOUNT
+    // ---------------------------------------------------
+    // const dedicatedAccount = await createDedicatedAccount(
+    //   paystackCustomer.customer_code,
+    // );
+    const transaction = await initializeTransaction(email, finalTotal);
+    // ---------------------------------------------------
+    // SAVE PAYMENT INFO
+    // ---------------------------------------------------
     const orderDetails = await prisma.payment_Info.create({
       data: {
         orderNumber,
@@ -232,17 +275,25 @@ export const initializeTransfer = async (req, res) => {
         phone,
         address,
         state,
-        deliveryPrice,
         orderDetails: order,
-        total: totalAmount,
+        // financials
+        total: finalTotal,
+        deliveryPrice,
+        discountCode: appliedDiscount,
         status: "pending",
         paymentStatus: "unpaid",
+        // paystack
         paystackCustomerCode: paystackCustomer.customer_code,
-        dedicatedAccountNo: dedicatedAccount.account_number,
-        dedicatedBankName: dedicatedAccount.bank.name,
-        dedicatedAccountName: dedicatedAccount.account_name,
+        paystackReference: transaction.reference,
+        // dedicatedAccountNo: dedicatedAccount.account_number,
+        // dedicatedBankName: dedicatedAccount.bank.name,
+        // dedicatedAccountName: dedicatedAccount.account_name,
       },
     });
+
+    // ---------------------------------------------------
+    // RESPONSE
+    // ---------------------------------------------------
 
     res.status(201).json({
       message: "Order created successfully",
@@ -253,15 +304,19 @@ export const initializeTransfer = async (req, res) => {
         phone: orderDetails.phone,
         address: orderDetails.address,
         state: orderDetails.state,
-        deliveryPrice: orderDetails.deliveryPrice,
-        orderDetails: orderDetails.orderDetails,
         orderNumber: orderDetails.orderNumber,
-        total: orderDetails.total,
-        bankName: orderDetails.dedicatedBankName,
-        accountNumber: orderDetails.dedicatedAccountNo,
-        accountName: orderDetails.dedicatedAccountName,
-        amount: orderDetails.total,
-        note: `Transfer exactly ₦${orderDetails.total} to complete your order`,
+        subtotal,
+        deliveryPrice,
+        discountAmount,
+        total: finalTotal,
+        // bankName: orderDetails.dedicatedBankName,
+        // accountNumber: orderDetails.dedicatedAccountNo,
+        // accountName: orderDetails.dedicatedAccountName,
+        authorization_url: transaction.authorization_url,
+        paystackReference: transaction.reference,
+        access_code: transaction.access_code,
+        amount: finalTotal,
+        note: `Transfer exactly ₦${finalTotal} ` + `to complete your order`,
         paymentStatus: orderDetails.paymentStatus,
         amountPaid: orderDetails.amountPaid,
         balanceRemaining: orderDetails.balanceRemaining,
@@ -269,11 +324,13 @@ export const initializeTransfer = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: error.message });
+
+    res.status(500).json({
+      error: error.message || "Something went wrong",
+    });
   }
 };
 
-// ── PAYSTACK WEBHOOK ───────────────────────────────────────
 export const paystackWebhook = async (req, res) => {
   console.log("🔥 Webhook hit!");
 
@@ -308,18 +365,6 @@ export const paystackWebhook = async (req, res) => {
       if (!order) {
         return res.status(404).json({ error: "Order not found" });
       }
-
-      // verify amount matches (Paystack sends in kobo)
-      // const expectedAmount = order.total;
-      // const paidAmount = amount / 100;
-
-      // const remaining = expectedAmount - paidAmount;
-      if (event.discountCode) {
-        const discountCode = await prisma.discountCode.findUnique({
-          where: { code: event.discountCode },
-        });
-      }
-
       const expectedAmount = Number(order.total);
       // current incoming payment
       const newPaidAmount = amount / 100;
@@ -345,10 +390,10 @@ export const paystackWebhook = async (req, res) => {
 
       console.log("UPDATED ORDER:", updatedOrder);
 
-      // if (updatedOrder.paymentStatus === "paid") {
-      //   console.log("🚀 About to trigger Fez for order:", updatedOrder.id);
-      //   await triggerFezDelivery(updatedOrder);
-      // }
+      if (updatedOrder.paymentStatus === "paid") {
+        console.log("🚀 About to trigger Fez for order:", updatedOrder.id);
+        await triggerFezDelivery(updatedOrder);
+      }
     }
 
     console.log("Event type:", event.event);
