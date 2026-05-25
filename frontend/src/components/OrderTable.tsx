@@ -184,7 +184,7 @@ const OrderTable = ({ orders }: { orders: OrderData[] }) => {
 
               <div className="h-px bg-[#f0f0f0]" />
 
-              <div>
+              {/* <div>
                 <p className="text-[11px] font-black uppercase tracking-[0.08em] text-[#1a1a1a] mb-3">
                   Payment Details
                 </p>
@@ -204,7 +204,7 @@ const OrderTable = ({ orders }: { orders: OrderData[] }) => {
                     value={selected.paystackCustomerCode}
                   />
                 </div>
-              </div>
+              </div> */}
 
               <div className="h-px bg-[#f0f0f0]" />
 
