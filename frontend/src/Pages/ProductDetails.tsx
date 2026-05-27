@@ -51,10 +51,15 @@ const ProductDetail = () => {
   const { isPending: isCreatingOrder, mutateAsync } = useCreateOrder();
   const { paymentData } = usePaymentStore();
 
+  window.fbq?.("track", "ViewContent", {
+    content_name: data?.product?.name,
+    value: data?.product?.price,
+    currency: "NGN",
+  });
+
   if (isPending) return <ProductDetailSkeleton />;
   if (isError) return <ErrorState />;
-  // console.log(error);
-  // console.log(data);
+
   const bundles = data ? generateBundles(data?.product.price) : [];
 
   console.log(selected);

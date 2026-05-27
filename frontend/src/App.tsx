@@ -16,35 +16,39 @@ import ProductDetail from "./Pages/ProductDetails";
 import CartBody from "./Pages/Cart";
 import Emails from "./Admin/Pages/Emails";
 import Discount from "./Admin/Pages/Discount";
+import MetaPixelTracker from "./components/MetaPixelTracker";
 
 const App = () => {
   return (
-    <Routes>
-      <Route element={<MainLayout />}>
-        <Route path="/" element={<HomeScreen />} />
-        <Route path="/product/:id" element={<ProductDetail />} />
-        <Route path="founder" element={<Founder />} />
-        <Route path="cart" element={<CartBody />} />
-        <Route path="/checkout/:id" element={<Checkout />} />
-        <Route path="/track-order" element={<TrackOrder />} />
-      </Route>
-      <Route element={<AdminLayout />}>
-        {/* Public route */}
-        <Route element={<AdminPublicRoute />}>
-          <Route path="/admin/login" element={<AdminLogin />} />
+    <>
+      <MetaPixelTracker />
+      <Routes>
+        <Route element={<MainLayout />}>
+          <Route path="/" element={<HomeScreen />} />
+          <Route path="/product/:id" element={<ProductDetail />} />
+          <Route path="founder" element={<Founder />} />
+          <Route path="cart" element={<CartBody />} />
+          <Route path="/checkout/:id" element={<Checkout />} />
+          <Route path="/track-order" element={<TrackOrder />} />
         </Route>
+        <Route element={<AdminLayout />}>
+          {/* Public route */}
+          <Route element={<AdminPublicRoute />}>
+            <Route path="/admin/login" element={<AdminLogin />} />
+          </Route>
 
-        {/* Protected routes */}
-        <Route element={<ProtectedAdminRoute />}>
-          <Route path="/admin/dashboard" element={<Dashboard />} />
-          <Route path="/admin/products" element={<Products />} />
-          <Route path="/admin/discount-codes" element={<Discount />} />
-          <Route path="/admin/orders" element={<Orders />} />
-          <Route path="/admin/settings" element={<Settings />} />
-          <Route path="/admin/emails" element={<Emails />} />
+          {/* Protected routes */}
+          <Route element={<ProtectedAdminRoute />}>
+            <Route path="/admin/dashboard" element={<Dashboard />} />
+            <Route path="/admin/products" element={<Products />} />
+            <Route path="/admin/discount-codes" element={<Discount />} />
+            <Route path="/admin/orders" element={<Orders />} />
+            <Route path="/admin/settings" element={<Settings />} />
+            <Route path="/admin/emails" element={<Emails />} />
+          </Route>
         </Route>
-      </Route>
-    </Routes>
+      </Routes>
+    </>
   );
 };
 

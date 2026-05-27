@@ -57,6 +57,10 @@ const Checkout = () => {
         data: form,
       });
       // console.log(response);
+      window.fbq?.("track", "InitiateCheckout", {
+        value: response.payment_info.total,
+        currency: "NGN",
+      });
       window.location.href = response.payment_info.authorization_url;
 
       console.log(response);
