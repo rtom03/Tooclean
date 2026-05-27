@@ -7,7 +7,7 @@ dotenv.config();
 
 const FEZ_BASE = "https://api.fezdelivery.co";
 
-// "https://apisandbox.fezdelivery.co/v1";
+// const FEZ_BASE = "https://apisandbox.fezdelivery.co/v1";
 
 let fezToken = null;
 let fezSecretKey = null;
