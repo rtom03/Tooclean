@@ -10,7 +10,7 @@ import { triggerFezDelivery } from "../services/fez.js";
 import { generateDiscountCode } from "../utils/utils.js";
 
 const DELIVERY_RATES = [
-  { state: "Lagos", price: 2700 },
+  { state: "Lagos", price: 50 },
   { state: "Ekiti", price: 4569 },
   { state: "Ondo", price: 4569 },
   { state: "Oyo", price: 4569 },
@@ -350,43 +350,27 @@ export const paystackWebhook = async (req, res) => {
       const { customer, amount, reference } = event.data;
 
       // find order by Paystack customer code
-      const order = await prisma.payment_Info.findFirst({
+      const order = await prisma.payment_Info.findUnique({
         where: {
-          paystackCustomerCode: customer.customer_code,
-          paymentStatus: {
-            in: ["unpaid", "underpaid"],
-          },
-        },
-        orderBy: {
-          createdAt: "desc",
+          paystackReference: reference,
         },
       });
 
       if (!order) {
         return res.status(404).json({ error: "Order not found" });
       }
-      const expectedAmount = Number(order.total);
-      // current incoming payment
-      const newPaidAmount = amount / 100;
-      // previously paid amount (important for underpaid retries)
-      const previousPaidAmount = Number(order.amountPaid || 0);
-      // cumulative total paid
-      const totalPaidAmount = previousPaidAmount + newPaidAmount;
-      // remaining balance
-      const remaining = expectedAmount - totalPaidAmount;
-      // final payment status
-      const isFullyPaid = totalPaidAmount >= expectedAmount;
-
       const updatedOrder = await prisma.payment_Info.update({
-        where: { id: order.id },
+        where: {
+          id: order.id,
+        },
+
         data: {
-          paymentStatus: isFullyPaid ? "paid" : "underpaid",
-          status: isFullyPaid ? "processing" : "pending",
-          amountPaid: totalPaidAmount,
-          balanceRemaining: Math.max(remaining, 0),
-          paystackReference: reference,
+          paymentStatus: "paid",
+          status: "processing",
         },
       });
+
+      await triggerFezDelivery(updatedOrder);
 
       console.log("UPDATED ORDER:", updatedOrder);
 
