@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useProducts } from "../api/productQuery";
 
 const reviews = [
   {
@@ -27,8 +28,6 @@ const reviews = [
   },
 ];
 
-const PRODUCT = { name: "Hairline Spray", price: "₦13000" };
-
 export const optimizeVideo = (url: string) => {
   return url.replace("/upload/", "/upload/q_auto:good,f_auto,w_480/");
 };
@@ -41,6 +40,7 @@ export const VideoCard = ({
   videoRefs,
 }: any) => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const { data } = useProducts();
 
   // store ref globally
   const setRef = (el: HTMLVideoElement | null) => {
@@ -103,10 +103,14 @@ export const VideoCard = ({
           </svg>
         </div>
         <div>
-          <p className="text-[11px] font-bold text-white leading-tight">
-            {PRODUCT.name}
-          </p>
-          <span className="text-[11px] text-white/70">{PRODUCT.price}</span>
+          {data?.products.map((product) => (
+            <div key={product.id}>
+              <p className="text-[11px] font-bold text-white leading-tight">
+                {product.name}
+              </p>
+              <span className="text-[11px] text-white/70">{product.price}</span>
+            </div>
+          ))}
         </div>
       </div>
     </div>
