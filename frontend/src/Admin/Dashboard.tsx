@@ -1,30 +1,50 @@
+import { useMemo } from "react";
 import { useOrders } from "../api/orderQuery";
+import { useGetAllOrders } from "../api/paymentQuery";
 import OrderTable from "../components/OrderTable";
 
-const stats = [
-  {
-    label: "Total Revenue",
-    value: "$4,280",
-    sub: "+12% this week",
-    subColor: "text-[#1a7a3c]",
-  },
-  {
-    label: "Total Orders",
-    value: "86",
-    sub: "+5 today",
-    subColor: "text-[#1a7a3c]",
-  },
-  { label: "Products", value: "4", sub: "2 variants", subColor: "text-[#888]" },
-  {
-    label: "Pending",
-    value: "12",
-    sub: "Needs attention",
-    subColor: "text-[#ba7517]",
-  },
-];
-
 const Dashboard = () => {
-  const { data, isPending, isError, error } = useOrders();
+  const { data: orders, isError, error } = useGetAllOrders();
+
+  const stats = useMemo(() => {
+    const totalRevenue =
+      orders
+        ?.filter((order) => order.paymentStatus === "paid")
+        .reduce((sum, order) => sum + order.total, 0) ?? 0;
+
+    const totalOrders = orders?.length ?? 0;
+
+    const totalPending =
+      orders?.filter((order) => order.paymentStatus === "unpaid").length ?? 0;
+
+    return [
+      {
+        label: "Total Revenue",
+        value: `₦${totalRevenue?.toLocaleString() || 0}`,
+        sub: "+12% this week",
+        subColor: "text-[#1a7a3c]",
+      },
+      {
+        label: "Total Orders",
+        value: totalOrders.toString() || 0,
+        sub: "+5 today",
+        subColor: "text-[#1a7a3c]",
+      },
+      {
+        label: "Products",
+        value: "2",
+        sub: "2 variants",
+        subColor: "text-[#888]",
+      },
+      {
+        label: "Pending",
+        value: totalPending.toString() || 0,
+        sub: "Needs attention",
+        subColor: "text-[#ba7517]",
+      },
+    ];
+  }, [orders]);
+  const { data, isPending } = useOrders();
   if (isPending) return <p>Loading orders...</p>;
 
   if (isError) return <p>{(error as Error).message}</p>;

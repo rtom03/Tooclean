@@ -88,7 +88,22 @@ export type OrderStatus =
   | "failed";
 
 export type PaymentStatus = "unpaid" | "paid";
-
+export type Prod = {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  images: string[];
+  qty: number;
+};
+interface OrderItem {
+  createdAt: string;
+  id: string;
+  status: string;
+  total: number;
+  updatedAt: string;
+  items: [{ productId: string; product: Prod }];
+}
 export interface OrderData {
   id: string;
   orderNumber: string;
@@ -97,7 +112,7 @@ export interface OrderData {
   phone: string;
   address: string;
   state: string;
-  orderDetails: any; // 👇 we’ll refine this next
+  orderDetails: OrderItem; // 👇 we’ll refine this next
   total: number;
   status: OrderStatus;
   paymentStatus: PaymentStatus;
@@ -107,9 +122,6 @@ export interface OrderData {
   // paystackReference?: string | null;
   createdAt: string; // ISO string from backend
   updatedAt: string;
-  // dedicatedAccountNo?: string | null;
-  // dedicatedBankName?: string | null;
-  // dedicatedAccountName?: string | null;
 }
 
 export type TrackedOrder = {

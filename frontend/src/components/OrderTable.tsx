@@ -25,6 +25,8 @@ const OrderTable = ({ orders }: { orders: OrderData[] }) => {
   const [selected, setSelected] = useState<OrderData | null>(null);
   const { mutate: updateStatus, isPending } = useUpdateOrderStatus();
 
+  // console.log(selected?.orderDetails?.items.map((item) => item.product.name));
+
   const handleStatusChange = (id: string, status: string) => {
     updateStatus({ id, status });
   };
@@ -179,6 +181,50 @@ const OrderTable = ({ orders }: { orders: OrderData[] }) => {
                   <Row label="Phone" value={selected.phone} />
                   <Row label="State" value={selected.state} />
                   <Row label="Address" value={selected.address} />
+                </div>
+                <div className="flex flex-col gap-7 mt-7">
+                  {selected?.orderDetails?.items?.map((item) => (
+                    <div
+                      key={item.productId}
+                      className="border border-[#ececec] rounded-2xl bg-[#fafafa] p-4 flex items-center gap-4"
+                    >
+                      {/* Product Image */}
+                      <div className="w-16 h-16 rounded-xl overflow-hidden bg-white border border-[#ececec] shrink-0">
+                        <img
+                          src={item.product.images?.[0]}
+                          alt={item.product.name}
+                          className="w-200 h-full object-cover"
+                        />
+                      </div>
+
+                      {/* Product Info */}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[14px] font-bold text-[#1a1a1a] truncate">
+                          {item.product.name}
+                        </p>
+
+                        <div className="flex items-center gap-2 mt-2">
+                          <span className="text-[11px] font-semibold text-[#666] bg-white border border-[#e5e5e5] px-2 py-1 rounded-md">
+                            Qty: {item.product.qty}
+                          </span>
+
+                          <span className="text-[11px] font-semibold text-[#666] bg-white border border-[#e5e5e5] px-2 py-1 rounded-md">
+                            ₦{item.product.price.toLocaleString("en-NG")}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Total */}
+                      <div className="text-right shrink-0">
+                        <p className="text-[15px] font-black text-[#1a1a1a]">
+                          ₦
+                          {(
+                            item.product.price * item.product.qty
+                          ).toLocaleString("en-NG")}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
 

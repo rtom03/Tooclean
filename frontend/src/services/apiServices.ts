@@ -227,7 +227,7 @@ const changePassword = async (data: Password) => {
 
 //admin orders view
 const getOrders = async () => {
-  const res = await fetch(`${BASE_URL}/order/all-orders`, {
+  const res = await fetch(`${BASE_URL}/order/orders`, {
     headers: {
       "Content-Type": "application/json",
     },
@@ -352,6 +352,22 @@ const getDiscountCodes = async () => {
   }
 };
 
+const getOrderAnalytics = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/order/analytics`);
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.orders;
+  } catch (error) {
+    console.error("Failed to fetch orders:", error);
+    throw error;
+  }
+};
+
 export {
   getProducts,
   getProduct,
@@ -367,4 +383,5 @@ export {
   updateOrderStatus,
   createDiscountCode,
   getDiscountCodes,
+  getOrderAnalytics,
 };

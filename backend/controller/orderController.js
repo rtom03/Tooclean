@@ -11,7 +11,7 @@ import { triggerFezDelivery } from "../services/fez.js";
 import { generateDiscountCode } from "../utils/utils.js";
 
 const DELIVERY_RATES = [
-  { state: "Lagos", price: 50 },
+  { state: "Lagos", price: 2700 },
   { state: "Ekiti", price: 4569 },
   { state: "Ondo", price: 4569 },
   { state: "Oyo", price: 4569 },
@@ -79,7 +79,7 @@ const DELIVERY_RATE_MAP = Object.fromEntries(
   DELIVERY_RATES.map((item) => [item.state, item.price]),
 );
 
-export const orderData = async (req, res) => {
+export const createOrder = async (req, res) => {
   const { items } = req.body;
 
   try {
@@ -196,6 +196,13 @@ export const initializeTransfer = async (req, res) => {
     // ---------------------------------------------------
     const order = await prisma.order.findUnique({
       where: { id: orderId },
+      include: {
+        items: {
+          include: {
+            product: true,
+          },
+        },
+      },
     });
 
     if (!order) {
@@ -456,6 +463,22 @@ export const getAllOrders = async (req, res) => {
   try {
     const orders = await prisma.payment_Info.findMany({
       orderBy: { createdAt: "desc" },
+    });
+    res.status(200).json({ orders });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const orderAnalysis = async (req, res) => {
+  try {
+    const orders = await prisma.payment_Info.findMany({
+      orderBy: { createdAt: "desc" },
+      select: {
+        paymentStatus: true,
+        total: true,
+        state: true,
+      },
     });
     res.status(200).json({ orders });
   } catch (error) {

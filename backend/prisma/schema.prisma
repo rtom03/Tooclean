@@ -40,7 +40,6 @@ model Product {
   qty         Int
   images      String[] // array of image URLs
   items     OrderItem[]
-
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
