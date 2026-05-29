@@ -358,7 +358,7 @@ export const paystackWebhook = async (req, res) => {
 
         data: {
           paymentStatus: "paid",
-          status: "processing",
+          deliveryStatus: "processing",
         },
       });
 
