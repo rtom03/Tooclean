@@ -45,6 +45,27 @@ model Product {
   updatedAt   DateTime @updatedAt
 }
 
+model OrderItem {
+  id        String   @id @default(uuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id])
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  qty       Int
+  price     Int
+  subtotal  Int
+}
+
+
+model Order {
+  id        String      @id @default(uuid())
+  total     Int
+  status    String      @default("pending")
+  createdAt DateTime    @default(now())
+  items     OrderItem[]
+  updatedAt DateTime @updatedAt
+}
+
 model Payment_Info {
   id                   String   @id @default(uuid())  
   orderNumber          String   @unique
@@ -56,15 +77,10 @@ model Payment_Info {
   deliveryPrice        Float?
   orderDetails         Json
   total                Float
-  amountPaid           Float   @default(0) // actual amount received
-  balanceRemaining     Float   @default(0)
   discountCode         String?
   status               String   @default("pending")  // pending | paid | processing | shipped | delivered | failed
   paymentStatus        String   @default("unpaid")   // unpaid | paid
   paystackCustomerCode String?
-  // dedicatedAccountNo   String?
-  // dedicatedBankName    String?
-  // dedicatedAccountName String?
   paystackReference    String?
   deliveryStatus       String @default("not_created")
   fezTrackingId        String?
@@ -72,34 +88,7 @@ model Payment_Info {
   updatedAt            DateTime @updatedAt
 }
 
-// model Order {
-//   id        String   @id @default(uuid())
-//   productId String
-//   qty       Int
-//   price     Int
-//   total     Int
-//   createdAt DateTime @default(now())
-// }
 
-model Order {
-  id        String      @id @default(uuid())
-  total     Int
-  status    String      @default("pending")
-  createdAt DateTime    @default(now())
-  items     OrderItem[]
-  updatedAt DateTime @updatedAt
-}
-
-model OrderItem {
-  id        String   @id @default(uuid())
-  orderId   String
-  order     Order    @relation(fields: [orderId], references: [id])
-  productId String
-  product   Product  @relation(fields: [productId], references: [id])
-  qty       Int
-  price     Int
-  subtotal  Int
-}
 
 model DiscountCode {
   id              String   @id @default(uuid())

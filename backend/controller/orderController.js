@@ -10,7 +10,7 @@ import { triggerFezDelivery } from "../services/fez.js";
 import { generateDiscountCode } from "../utils/utils.js";
 
 const DELIVERY_RATES = [
-  { state: "Lagos", price: 2700 },
+  { state: "Lagos", price: 50 },
   { state: "Ekiti", price: 4569 },
   { state: "Ondo", price: 4569 },
   { state: "Oyo", price: 4569 },
@@ -285,9 +285,6 @@ export const initializeTransfer = async (req, res) => {
         // paystack
         paystackCustomerCode: paystackCustomer.customer_code,
         paystackReference: transaction.reference,
-        // dedicatedAccountNo: dedicatedAccount.account_number,
-        // dedicatedBankName: dedicatedAccount.bank.name,
-        // dedicatedAccountName: dedicatedAccount.account_name,
       },
     });
 
@@ -309,17 +306,12 @@ export const initializeTransfer = async (req, res) => {
         deliveryPrice,
         discountAmount,
         total: finalTotal,
-        // bankName: orderDetails.dedicatedBankName,
-        // accountNumber: orderDetails.dedicatedAccountNo,
-        // accountName: orderDetails.dedicatedAccountName,
         authorization_url: transaction.authorization_url,
         paystackReference: transaction.reference,
         access_code: transaction.access_code,
         amount: finalTotal,
         note: `Transfer exactly ₦${finalTotal} ` + `to complete your order`,
         paymentStatus: orderDetails.paymentStatus,
-        amountPaid: orderDetails.amountPaid,
-        balanceRemaining: orderDetails.balanceRemaining,
       },
     });
   } catch (error) {
@@ -370,7 +362,7 @@ export const paystackWebhook = async (req, res) => {
         },
       });
 
-      await triggerFezDelivery(updatedOrder);
+      // await triggerFezDelivery(updatedOrder);
 
       console.log("UPDATED ORDER:", updatedOrder);
 

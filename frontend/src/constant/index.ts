@@ -1,7 +1,7 @@
 import type { InitializePaymentResponse } from "./index.type";
 
 export const DELIVERY_RATES = [
-  { state: "Lagos", price: 2700 },
+  { state: "Lagos", price: 50 },
 
   { state: "Ekiti", price: 4569 },
   { state: "Ondo", price: 4569 },
@@ -81,26 +81,15 @@ export const normalizePaymentData = (data: any): InitializePaymentResponse => {
       address: data.payment_info.address,
 
       state: data.payment_info.state,
-
       orderDetails: data.payment_info.orderDetails.id,
-
       orderNumber: data.payment_info.orderNumber,
       total: data.payment_info.total,
       authorization_url: data.payment_info.authorization_url,
       paystackReference: data.payment_info.reference,
       access_code: data.payment_info.access_code,
       amount: data.payment_info.total,
-
       paymentStatus: data.payment_info.paymentStatus,
-      amountPaid: data.payment_info.amountPaid,
-      balanceRemaining: data.payment_info.balanceRemaining,
-
       deliveryPrice: data.payment_info.deliveryPrice,
-      // bankName: data.payment_info.dedicatedBankName,
-
-      // accountNumber: data.payment_info.dedicatedAccountNo,
-
-      // accountName: data.payment_info.dedicatedAccountName,
     },
   };
 };

@@ -73,13 +73,8 @@ export type InitializePaymentResponse = {
     authorization_url: string;
     access_code: string;
     paystackReference: string;
-    // bankName: string;
-    // accountNumber: string;
-    // accountName: string;
     amount: number;
     paymentStatus: string;
-    amountPaid: number;
-    balanceRemaining: number;
     deliveryPrice: number;
   };
 };
