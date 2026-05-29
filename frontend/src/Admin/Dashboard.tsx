@@ -63,7 +63,7 @@ const Dashboard = () => {
               {s.label}
             </p>
             <p className="text-2xl font-black text-[#1a1a1a]">{s.value}</p>
-            <p className={`text-[11px] mt-1 ${s.subColor}`}>{s.sub}</p>
+            {/* <p className={`text-[11px] mt-1 ${s.subColor}`}>{s.sub}</p> */}
           </div>
         ))}
       </div>
