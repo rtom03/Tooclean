@@ -5,9 +5,9 @@ dotenv.config();
 
 // services/fezAuth.ts
 
-// const FEZ_BASE = "https://api.fezdelivery.co";
+const FEZ_BASE = "https://api.fezdelivery.co";
 
-const FEZ_BASE = "https://apisandbox.fezdelivery.co/v1";
+// const FEZ_BASE = "https://apisandbox.fezdelivery.co/v1";
 
 let fezToken = null;
 let fezSecretKey = null;
@@ -103,7 +103,7 @@ export const triggerFezDelivery = async (order) => {
   ];
 
   try {
-    console.log("📡 Sending Fez payload:", payload);
+    // console.log("📡 Sending Fez payload:", payload);
 
     const response = await axios.post(`${FEZ_BASE}/order`, payload, {
       headers: {
@@ -124,7 +124,7 @@ export const triggerFezDelivery = async (order) => {
       try {
         const { token, secretKey } = await getFezAuth(true);
 
-        console.log(`HERE IS YOR AUTH:${token}, SECRET:${secretKey}`);
+        // console.log(`HERE IS YOR AUTH:${token}, SECRET:${secretKey}`);
 
         const retryResponse = await axios.post(`${FEZ_BASE}/order`, payload, {
           headers: {

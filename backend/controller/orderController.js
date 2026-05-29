@@ -135,7 +135,7 @@ export const createOrder = async (req, res) => {
       },
     });
 
-    console.log(order);
+    // console.log(order);
 
     res.json({
       orderId: order.id,
