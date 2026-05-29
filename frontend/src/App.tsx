@@ -17,6 +17,7 @@ import CartBody from "./Pages/Cart";
 import Emails from "./Admin/Pages/Emails";
 import Discount from "./Admin/Pages/Discount";
 import MetaPixelTracker from "./components/MetaPixelTracker";
+import PaymentSuccess from "./Pages/PaymentSuccess";
 
 const App = () => {
   return (
@@ -30,6 +31,7 @@ const App = () => {
           <Route path="cart" element={<CartBody />} />
           <Route path="/checkout/:id" element={<Checkout />} />
           <Route path="/track-order" element={<TrackOrder />} />
+          <Route path="/payment/success" element={<PaymentSuccess />} />
         </Route>
         <Route element={<AdminLayout />}>
           {/* Public route */}

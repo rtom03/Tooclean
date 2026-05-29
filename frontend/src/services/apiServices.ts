@@ -164,6 +164,26 @@ const initializePayment = async (
   return await res.json();
 };
 
+// services/apiServices.ts
+
+const verifyPayment = async (reference: string) => {
+  try {
+    const res = await fetch(`${BASE_URL}/order/verify-payment/${reference}`, {
+      method: "GET",
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data?.message || "Failed to verify payment");
+    }
+
+    return data;
+  } catch (error: any) {
+    throw new Error(error?.message || "Something went wrong");
+  }
+};
+
 // Admin
 
 const adminLogin = async (data: Admin) => {
@@ -338,6 +358,7 @@ export {
   createOrderData,
   getOrderById,
   initializePayment,
+  verifyPayment,
   mergePaymentOrder,
   adminLogin,
   changePassword,

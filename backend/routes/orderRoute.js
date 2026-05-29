@@ -10,6 +10,7 @@ import {
   orderData,
   paystackWebhook,
   updateOrderStatus,
+  verifyTransaction,
 } from "../controller/orderController.js";
 
 const isOrderRoute = Router();
@@ -22,6 +23,7 @@ isOrderRoute.get("/payment-info", getPaymentInfo);
 isOrderRoute.get("/track/phone", getLatestOrderByPhone);
 isOrderRoute.get("/track/order-number", getOrderByOrderNumber);
 isOrderRoute.get("/order-data/:id", getOrderDataById);
+isOrderRoute.get("/verify-payment/:reference", verifyTransaction);
 isOrderRoute.post("/create-order", orderData);
 isOrderRoute.post("/initialize-transfer/:orderId", initializeTransfer);
 

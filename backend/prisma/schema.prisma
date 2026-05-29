@@ -78,10 +78,10 @@ model Payment_Info {
   orderDetails         Json
   total                Float
   discountCode         String?
-  status               String   @default("pending")  // pending | paid | processing | shipped | delivered | failed
+  status               String   @default("pending")  // pending | processing | shipped | delivered | failed
   paymentStatus        String   @default("unpaid")   // unpaid | paid
   paystackCustomerCode String?
-  paystackReference    String?
+  paystackReference    String? @unique
   deliveryStatus       String @default("not_created")
   fezTrackingId        String?
   createdAt            DateTime @default(now())

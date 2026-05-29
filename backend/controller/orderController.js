@@ -3,6 +3,7 @@ import {
   // createDedicatedAccount,
   verifyWebhookSignature,
   initializeTransaction,
+  paystack,
 } from "../services/paystack.js";
 import { z } from "zod";
 import { prisma } from "../utils/db.js";
@@ -323,6 +324,75 @@ export const initializeTransfer = async (req, res) => {
   }
 };
 
+export const verifyTransaction = async (req, res) => {
+  try {
+    const { reference } = req.params;
+
+    if (!reference) {
+      return res.status(400).json({
+        status: false,
+        message: "Transaction reference is required",
+      });
+    }
+
+    // ---------------------------------------------------
+    // VERIFY WITH PAYSTACK
+    // ---------------------------------------------------
+    const { data } = await paystack.get(`/transaction/verify/${reference}`);
+
+    const transaction = data?.data;
+
+    if (!transaction) {
+      return res.status(404).json({
+        status: false,
+        message: "Transaction not found",
+      });
+    }
+
+    // ---------------------------------------------------
+    // IMPORTANT DATA
+    // ---------------------------------------------------
+    const responseData = {
+      status: transaction.status, // success, failed, abandoned
+      reference: transaction.reference,
+      amount: transaction.amount / 100, // convert from kobo
+      currency: transaction.currency,
+      paidAt: transaction.paid_at,
+      channel: transaction.channel,
+      gatewayResponse: transaction.gateway_response,
+
+      customer: {
+        email: transaction.customer?.email,
+        customerCode: transaction.customer?.customer_code,
+        firstName: transaction.customer?.first_name,
+        lastName: transaction.customer?.last_name,
+        phone: transaction.customer?.phone,
+      },
+
+      authorization: {
+        bank: transaction.authorization?.bank,
+        brand: transaction.authorization?.brand,
+        cardType: transaction.authorization?.card_type,
+        last4: transaction.authorization?.last4,
+      },
+    };
+
+    return res.status(200).json({
+      status: true,
+      message: "Verification successful",
+      data: responseData,
+    });
+  } catch (error) {
+    console.error("❌ Verify transaction error:");
+    console.error(error.response?.data || error.message);
+    return res.status(500).json({
+      status: false,
+      message: "Failed to verify transaction",
+      error: error.response?.data || error.message,
+    });
+  }
+};
+
 export const paystackWebhook = async (req, res) => {
   console.log("🔥 Webhook hit!");
 
@@ -358,7 +428,7 @@ export const paystackWebhook = async (req, res) => {
 
         data: {
           paymentStatus: "paid",
-          deliveryStatus: "processing",
+          status: "processing",
         },
       });
 

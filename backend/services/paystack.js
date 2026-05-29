@@ -2,8 +2,9 @@ import axios from "axios";
 import crypto from "crypto";
 
 const PAYSTACK_SECRET = process.env.PAYSTACK_SECRET_KEY;
+const CALL_BACK_URL = process.env.CALL_BACK_URL;
 
-const paystack = axios.create({
+export const paystack = axios.create({
   baseURL: "https://api.paystack.co",
   headers: {
     Authorization: `Bearer ${PAYSTACK_SECRET}`,
@@ -53,7 +54,7 @@ export const initializeTransaction = async (email, amount) => {
 
       channels: ["bank_transfer"],
 
-      callback_url: `${process.env.FRONTEND_URL}/payment/success`,
+      callback_url: `${CALL_BACK_URL}/payment/success`,
     });
 
     return data.data;
