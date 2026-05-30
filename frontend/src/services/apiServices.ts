@@ -13,8 +13,37 @@ export type OrderItemPayload = {
 export type CreateOrderPayload = {
   items: OrderItemPayload[];
 };
+
+export type Discount = {
+  id: string;
+  code: string;
+  name: string;
+  discount_price: number;
+  isActive: boolean;
+  createdAt: string;
+};
+
 const BASE_URL =
   import.meta.env.MODE === "production" ? "/api" : import.meta.env.VITE_API_URL; // const BASE_URL = "/api";
+
+const getDiscountByCode = async (code: string): Promise<Discount> => {
+  try {
+    const response = await fetch(
+      `${BASE_URL}/discount/get-discount-by/${code}`,
+    );
+
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error ?? "Failed to fetch discount code");
+    }
+
+    const data: { discount: Discount } = await response.json();
+    return data.discount;
+  } catch (error) {
+    console.error("Failed to fetch discount:", error);
+    throw error;
+  }
+};
 
 const getProducts = async () => {
   const res = await fetch(`${BASE_URL}/products`, {
@@ -384,4 +413,5 @@ export {
   createDiscountCode,
   getDiscountCodes,
   getOrderAnalytics,
+  getDiscountByCode,
 };

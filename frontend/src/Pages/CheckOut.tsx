@@ -6,6 +6,7 @@ import Loader from "../components/Loader";
 import { DELIVERY_RATES } from "../constant";
 import { useGetOrderById } from "../api/orderQuery";
 import { useInitializePayment } from "../api/initPaymentMutation";
+import { useGetDiscountByCode } from "../api/discountQuery";
 
 const inputClass =
   "w-full border border-[#ddd] rounded-lg px-3.5 py-2.5 text-[14px] text-[#1a1a1a] placeholder:text-[#bbb] outline-none focus:border-[#1a1a1a] transition-colors bg-white";
@@ -21,8 +22,31 @@ const Checkout = () => {
 
   // const [step, setStep] = useState<"form" | "payment">("form");
   type FormErrors = Partial<Record<keyof OrderInfo, string>>;
+  const [form, setForm] = useState<OrderInfo>({
+    customerName: "",
+    email: "",
+    phone: "",
+    address: "",
+    state: "",
+    deliveryPrice: 0,
+    discountCode: "",
+  });
+
   const [errors, setErrors] = useState<FormErrors>({});
 
+  const [appliedCode, setAppliedCode] = useState("");
+
+  const {
+    data: discountData,
+    isLoading,
+    isError,
+    error,
+  } = useGetDiscountByCode(appliedCode);
+
+  // apply handler — just sets the code, query fires automatically
+  const handleApply = () => {
+    setAppliedCode(form.discountCode);
+  };
   // console.log(data);
   const {
     mutateAsync: initializeTransfer,
@@ -62,22 +86,13 @@ const Checkout = () => {
         currency: "NGN",
       });
       window.location.href = response.payment_info.authorization_url;
-
       console.log(response);
     } catch (error) {
       console.error(error);
     }
   };
 
-  const [form, setForm] = useState<OrderInfo>({
-    customerName: "",
-    email: "",
-    phone: "",
-    address: "",
-    state: "",
-    deliveryPrice: 0,
-    discountCode: "",
-  });
+  let totalAfterDiscount;
 
   const handleStateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const stateName = e.target.value;
@@ -188,19 +203,23 @@ const Checkout = () => {
                 value={form.address}
                 onChange={handleChange}
               />
-              <input
-                className={inputClass}
-                type="text"
-                name="discountCode"
-                placeholder="Enter your discount (Optional)"
-                value={form.discountCode}
-                onChange={handleChange}
-              />
-              {errors.address && (
-                <p className="text-red-500 text-[11px] mt-1">
-                  {errors.address}
-                </p>
-              )}
+              <div className="flex gap-5">
+                <input
+                  className={inputClass}
+                  type="text"
+                  name="discountCode"
+                  placeholder="Enter your discount (Optional)"
+                  value={form.discountCode}
+                  onChange={handleChange}
+                />
+                <button
+                  // disabled={!appliedCode}
+                  onClick={handleApply}
+                  className="w-32 bg-[#1a1a1a] text-white text-[14px] font-bold tracking-wide uppercase py-4 rounded-lg hover:opacity-85 transition-opacity active:scale-[0.98] flex items-center justify-center"
+                >
+                  Apply
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -282,10 +301,17 @@ const Checkout = () => {
           </span>
         </div>
         <div className="h-px bg-[#e8e8e8] my-3" />
-        {/* <div className="flex justify-between text-[17px] font-extrabold text-[#1a1a1a]">
+        <div className="flex justify-between text-[17px] font-extrabold text-[#1a1a1a]">
           <span>Total</span>
-          <span>₦{bundle?.total?.toLocaleString("en-NG")  ?? "—"}</span>
-        </div> */}
+          <span>
+            ₦
+            {(
+              (data?.total ?? 0) +
+              (form.deliveryPrice ?? 0) -
+              (discountData?.discount_price ?? 0)
+            ).toLocaleString("en-NG")}
+          </span>
+        </div>
       </div>
     </div>
   );

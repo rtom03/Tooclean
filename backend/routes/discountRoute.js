@@ -3,6 +3,7 @@ import {
   deleteDiscountCode,
   discountCode,
   getAllDiscountCodes,
+  getDiscountByCode,
   getDiscountCode,
   updateDiscountCode,
 } from "../controller/discountController.js";
@@ -14,3 +15,4 @@ isDiscountRoute.post("/update", updateDiscountCode);
 isDiscountRoute.delete("/remove", deleteDiscountCode);
 isDiscountRoute.get("/get-discounts", getAllDiscountCodes);
 isDiscountRoute.get("/get-discount/:id", getDiscountCode);
+isDiscountRoute.get("/get-discount-by/:code", getDiscountByCode);

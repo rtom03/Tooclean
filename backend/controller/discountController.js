@@ -125,10 +125,29 @@ export const getDiscountCode = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-
     res.status(500).json({
       success: false,
       message: "Failed to fetch discount code",
     });
+  }
+};
+
+export const getDiscountByCode = async (req, res) => {
+  try {
+    const { code } = req.params;
+    const discount = await prisma.discountCode.findUnique({
+      where: { code },
+    });
+    if (!discount) {
+      return res.status(404).json({ error: "Discount code not found" });
+    }
+
+    if (!discount.isActive) {
+      return res.status(400).json({ error: "Discount code is inactive" });
+    }
+
+    res.status(200).json({ discount });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
