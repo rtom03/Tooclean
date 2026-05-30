@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Lock } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { createOrderSchema, type OrderInfo } from "../constant/index.type";
@@ -7,6 +7,7 @@ import { DELIVERY_RATES } from "../constant";
 import { useGetOrderById } from "../api/orderQuery";
 import { useInitializePayment } from "../api/initPaymentMutation";
 import { useGetDiscountByCode } from "../api/discountQuery";
+import { toast, ToastContainer } from "react-toastify";
 
 const inputClass =
   "w-full border border-[#ddd] rounded-lg px-3.5 py-2.5 text-[14px] text-[#1a1a1a] placeholder:text-[#bbb] outline-none focus:border-[#1a1a1a] transition-colors bg-white";
@@ -36,13 +37,37 @@ const Checkout = () => {
 
   const [appliedCode, setAppliedCode] = useState("");
 
-  const { data: discountData, isLoading } = useGetDiscountByCode(appliedCode);
+  const {
+    data: discountData,
+    isLoading,
+    isError,
+    error,
+  } = useGetDiscountByCode(appliedCode);
+  // const notify = (text: string) => toast(text);
 
   // apply handler — just sets the code, query fires automatically
   const handleApply = () => {
+    if (!form.discountCode) return;
+
     setAppliedCode(form.discountCode);
   };
-  // console.log(data);
+
+  // watch discountData and isError with useEffect
+  useEffect(() => {
+    if (discountData?.isActive) {
+      toast.success("Discount code applied", {
+        style: { background: "#1a7a3c", color: "#fff" },
+      });
+    }
+  }, [discountData]);
+
+  useEffect(() => {
+    if (isError) {
+      toast.error(error?.message ?? "Invalid discount code", {
+        style: { background: "#ba1a1a", color: "#fff" },
+      });
+    }
+  }, [isError]);
   const {
     mutateAsync: initializeTransfer,
     isPending,
@@ -206,7 +231,7 @@ const Checkout = () => {
                   onChange={handleChange}
                 />
                 <button
-                  disabled={discountData !== undefined}
+                  disabled={discountData?.isActive}
                   onClick={handleApply}
                   className="w-32 bg-[#1a1a1a] text-white text-[14px] font-bold tracking-wide uppercase py-4 rounded-lg hover:opacity-85 transition-opacity active:scale-[0.98] flex items-center justify-center"
                 >
@@ -306,6 +331,7 @@ const Checkout = () => {
           </span>
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 };
