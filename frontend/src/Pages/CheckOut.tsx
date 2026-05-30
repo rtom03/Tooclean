@@ -36,12 +36,7 @@ const Checkout = () => {
 
   const [appliedCode, setAppliedCode] = useState("");
 
-  const {
-    data: discountData,
-    isLoading,
-    isError,
-    error,
-  } = useGetDiscountByCode(appliedCode);
+  const { data: discountData, isLoading } = useGetDiscountByCode(appliedCode);
 
   // apply handler — just sets the code, query fires automatically
   const handleApply = () => {
@@ -91,8 +86,6 @@ const Checkout = () => {
       console.error(error);
     }
   };
-
-  let totalAfterDiscount;
 
   const handleStateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const stateName = e.target.value;
@@ -213,11 +206,11 @@ const Checkout = () => {
                   onChange={handleChange}
                 />
                 <button
-                  // disabled={!appliedCode}
+                  disabled={discountData !== undefined}
                   onClick={handleApply}
                   className="w-32 bg-[#1a1a1a] text-white text-[14px] font-bold tracking-wide uppercase py-4 rounded-lg hover:opacity-85 transition-opacity active:scale-[0.98] flex items-center justify-center"
                 >
-                  Apply
+                  {isLoading ? <Loader /> : "Apply"}
                 </button>
               </div>
             </div>
