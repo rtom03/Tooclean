@@ -26,6 +26,58 @@ export type Discount = {
 const BASE_URL =
   import.meta.env.MODE === "production" ? "/api" : import.meta.env.VITE_API_URL; // const BASE_URL = "/api";
 
+//DISCOUNT SERVICES
+const createDiscountCode = async (data: {
+  name: string;
+  discount_price: number;
+}) => {
+  try {
+    const res = await fetch(`${BASE_URL}/discount/create`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify(data),
+    });
+
+    const responseData = await res.json();
+
+    if (!res.ok) {
+      throw new Error(
+        responseData?.message || "Failed to create discount code",
+      );
+    }
+
+    return responseData;
+  } catch (error: any) {
+    if (error instanceof TypeError) {
+      throw new Error("Unable to connect to server");
+    }
+
+    throw new Error(error?.message || "Something went wrong");
+  }
+};
+
+const getDiscountCodes = async () => {
+  try {
+    const res = await fetch(`${BASE_URL}/discount/get-discounts`);
+    const responseData = await res.json();
+    if (!res.ok) {
+      throw new Error(
+        responseData?.message || "Failed to create discount code",
+      );
+    }
+    return responseData;
+  } catch (error: any) {
+    if (error instanceof TypeError) {
+      throw new Error("Unable to connect to server");
+    }
+
+    throw new Error(error?.message || "Something went wrong");
+  }
+};
+
 const getDiscountByCode = async (code: string): Promise<Discount> => {
   try {
     const response = await fetch(
@@ -44,6 +96,8 @@ const getDiscountByCode = async (code: string): Promise<Discount> => {
     throw error;
   }
 };
+
+// PRODUCTS SERVICES
 
 const getProducts = async () => {
   const res = await fetch(`${BASE_URL}/products`, {
@@ -113,6 +167,8 @@ export const removeProductExtraImages = async (id: string) => {
   return res.json();
 };
 
+// ORDERS SERVICES
+
 const createOrderData = async (data: CreateOrderPayload) => {
   const res = await fetch(`${BASE_URL}/order/create-order`, {
     method: "POST",
@@ -138,8 +194,6 @@ const getOrderById = async (id: string) => {
   }
   return await res.json();
 };
-
-// services/order.ts
 
 export const getOrderByPhone = async (phone: string) => {
   const res = await fetch(`${BASE_URL}/order/track/phone?phone=${phone}`, {
@@ -173,6 +227,55 @@ export const getOrderByOrderNumber = async (orderNumber: string) => {
 
   return res.json();
 };
+
+const getOrders = async () => {
+  const res = await fetch(`${BASE_URL}/order/orders`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+    throw new Error(err?.message || "Login failed");
+  }
+
+  return res.json();
+};
+
+const updateOrderStatus = async (id: string, status: string) => {
+  const res = await fetch(`${BASE_URL}/order/update-status?id=${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status }),
+  });
+
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || "Failed to update status");
+  }
+
+  return res.json();
+};
+
+const getOrderAnalytics = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/order/analytics`);
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.orders;
+  } catch (error) {
+    console.error("Failed to fetch orders:", error);
+    throw error;
+  }
+};
+
+// PAYMENTS SERVICES
 
 const initializePayment = async (
   id: string,
@@ -213,6 +316,50 @@ const verifyPayment = async (reference: string) => {
   }
 };
 
+const getPaymentInfo = async (id: string) => {
+  const res = await fetch(`${BASE_URL}/order/payment-info?id=${id}`, {
+    credentials: "include",
+    cache: "no-store",
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+    throw new Error(err?.message || "Failed to fetch order");
+  }
+
+  return res.json();
+};
+
+const mergePaymentOrder = async ({
+  paymentId,
+  items,
+}: {
+  paymentId: string;
+  items: {
+    productId: string;
+    qty: number;
+  }[];
+}) => {
+  const res = await fetch(
+    `${BASE_URL}/order/merge-payment-order/${paymentId}`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        items,
+      }),
+    },
+  );
+
+  if (!res.ok) {
+    throw new Error("Failed to merge order");
+  }
+
+  return await res.json();
+};
+
 // Admin
 
 const adminLogin = async (data: Admin) => {
@@ -250,152 +397,10 @@ const changePassword = async (data: Password) => {
     const err = await res.json().catch(() => null);
     throw new Error(err?.message || "Login failed");
   }
-
   return res.json();
 };
 
 //admin orders view
-const getOrders = async () => {
-  const res = await fetch(`${BASE_URL}/order/orders`, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
-  });
-
-  if (!res.ok) {
-    const err = await res.json().catch(() => null);
-    throw new Error(err?.message || "Login failed");
-  }
-
-  return res.json();
-};
-
-const getPaymentInfo = async (id: string) => {
-  const res = await fetch(`${BASE_URL}/order/payment-info?id=${id}`, {
-    credentials: "include",
-    cache: "no-store",
-  });
-
-  if (!res.ok) {
-    const err = await res.json().catch(() => null);
-    throw new Error(err?.message || "Failed to fetch order");
-  }
-
-  return res.json();
-};
-
-const updateOrderStatus = async (id: string, status: string) => {
-  const res = await fetch(`${BASE_URL}/order/update-status?id=${id}`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ status }),
-  });
-
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.error || "Failed to update status");
-  }
-
-  return res.json();
-};
-
-const mergePaymentOrder = async ({
-  paymentId,
-  items,
-}: {
-  paymentId: string;
-  items: {
-    productId: string;
-    qty: number;
-  }[];
-}) => {
-  const res = await fetch(
-    `${BASE_URL}/order/merge-payment-order/${paymentId}`,
-    {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        items,
-      }),
-    },
-  );
-
-  if (!res.ok) {
-    throw new Error("Failed to merge order");
-  }
-
-  return await res.json();
-};
-
-const createDiscountCode = async (data: {
-  name: string;
-  discount_price: number;
-}) => {
-  try {
-    const res = await fetch(`${BASE_URL}/discount/create`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-
-      body: JSON.stringify(data),
-    });
-
-    const responseData = await res.json();
-
-    if (!res.ok) {
-      throw new Error(
-        responseData?.message || "Failed to create discount code",
-      );
-    }
-
-    return responseData;
-  } catch (error: any) {
-    if (error instanceof TypeError) {
-      throw new Error("Unable to connect to server");
-    }
-
-    throw new Error(error?.message || "Something went wrong");
-  }
-};
-
-const getDiscountCodes = async () => {
-  try {
-    const res = await fetch(`${BASE_URL}/discount/get-discounts`);
-    const responseData = await res.json();
-    if (!res.ok) {
-      throw new Error(
-        responseData?.message || "Failed to create discount code",
-      );
-    }
-    return responseData;
-  } catch (error: any) {
-    if (error instanceof TypeError) {
-      throw new Error("Unable to connect to server");
-    }
-
-    throw new Error(error?.message || "Something went wrong");
-  }
-};
-
-const getOrderAnalytics = async () => {
-  try {
-    const response = await fetch(`${BASE_URL}/order/analytics`);
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data.orders;
-  } catch (error) {
-    console.error("Failed to fetch orders:", error);
-    throw error;
-  }
-};
 
 export {
   getProducts,
