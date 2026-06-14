@@ -102,7 +102,7 @@ export const VideoCard = ({
             <rect x="3" y="14" width="7" height="7" />
           </svg>
         </div>
-        <div>
+        {/* <div>
           {data?.products.map((product) => (
             <div key={product.id}>
               <p className="text-[11px] font-bold text-white leading-tight">
@@ -111,7 +111,7 @@ export const VideoCard = ({
               <span className="text-[11px] text-white/70">{product.price}</span>
             </div>
           ))}
-        </div>
+        </div> */}
       </div>
     </div>
   );
