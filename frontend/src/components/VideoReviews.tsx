@@ -40,7 +40,7 @@ export const VideoCard = ({
   videoRefs,
 }: any) => {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const { data } = useProducts();
+  // const { data } = useProducts();
 
   // store ref globally
   const setRef = (el: HTMLVideoElement | null) => {
