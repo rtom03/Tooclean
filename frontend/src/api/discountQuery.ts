@@ -24,7 +24,10 @@ const useGetDiscountCodes = () => {
   });
 };
 
-export const useGetDiscountByCode = (code: string) => {
+export const useGetDiscountByCode = (
+  code: string,
+  options?: { enabled?: boolean },
+) => {
   return useQuery<Discount>({
     queryKey: ["discount", code],
     queryFn: () => getDiscountByCode(code),

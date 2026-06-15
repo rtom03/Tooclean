@@ -39,7 +39,7 @@ model Product {
   description String
   qty         Int
   images      String[] // array of image URLs
-  items     OrderItem[]
+  items       OrderItem[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

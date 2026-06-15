@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { OrderData } from "../constant/index.type";
 import { useUpdateOrderStatus } from "../api/orderQuery";
+import { useGetDiscountByCode } from "../api/discountQuery";
 
 const statusConfig: Record<string, { bg: string; color: string }> = {
   pending: { bg: "#f0f0f0", color: "#555" },
@@ -24,6 +25,10 @@ const Row = ({ label, value }: { label: string; value?: string | null }) => (
 const OrderTable = ({ orders }: { orders: OrderData[] }) => {
   const [selected, setSelected] = useState<OrderData | null>(null);
   const { mutate: updateStatus, isPending } = useUpdateOrderStatus();
+  const discountCode = selected && selected.discountCode;
+  const { data: discountData } = useGetDiscountByCode(discountCode!, {
+    enabled: !!discountCode,
+  });
 
   // console.log(selected?.orderDetails?.items.map((item) => item.product.name));
 
@@ -205,7 +210,7 @@ const OrderTable = ({ orders }: { orders: OrderData[] }) => {
 
                         <div className="flex items-center gap-2 mt-2">
                           <span className="text-[11px] font-semibold text-[#666] bg-white border border-[#e5e5e5] px-2 py-1 rounded-md">
-                            Qty: {item.product.qty}
+                            Qty: {item.qty}
                           </span>
 
                           <span className="text-[11px] font-semibold text-[#666] bg-white border border-[#e5e5e5] px-2 py-1 rounded-md">
@@ -230,28 +235,6 @@ const OrderTable = ({ orders }: { orders: OrderData[] }) => {
 
               <div className="h-px bg-[#f0f0f0]" />
 
-              {/* <div>
-                <p className="text-[11px] font-black uppercase tracking-[0.08em] text-[#1a1a1a] mb-3">
-                  Payment Details
-                </p>
-                <div className="grid grid-cols-2 gap-4">
-                  <Row label="Bank" value={selected.dedicatedBankName} />
-                  <Row
-                    label="Account Number"
-                    value={selected.dedicatedAccountNo}
-                  />
-                  <Row
-                    label="Account Name"
-                    value={selected.dedicatedAccountName}
-                  />
-                  <Row label="Reference" value={selected.paystackReference} />
-                  <Row
-                    label="Customer Code"
-                    value={selected.paystackCustomerCode}
-                  />
-                </div>
-              </div> */}
-
               <div className="h-px bg-[#f0f0f0]" />
 
               <div className="flex items-center justify-between bg-[#f7f7f5] rounded-xl px-4 py-3">
@@ -260,6 +243,16 @@ const OrderTable = ({ orders }: { orders: OrderData[] }) => {
                   ₦{selected.total.toLocaleString("en-NG")}
                 </p>
               </div>
+              {discountData && (
+                <div className="flex items-center justify-between bg-[#f7f7f5] rounded-xl px-4 py-3">
+                  <p className="text-[13px] font-bold text-[#1a1a1a]">
+                    Discount Price
+                  </p>
+                  <p className="text-[18px] font-black text-[#1a1a1a]">
+                    ₦{discountData.discount_price.toLocaleString("en-NG")}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>

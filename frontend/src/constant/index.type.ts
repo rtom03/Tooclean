@@ -102,7 +102,7 @@ interface OrderItem {
   status: string;
   total: number;
   updatedAt: string;
-  items: [{ productId: string; product: Prod }];
+  items: [{ productId: string; qty: number; product: Prod }];
 }
 export interface OrderData {
   id: string;
@@ -117,6 +117,7 @@ export interface OrderData {
   status: OrderStatus;
   paymentStatus: PaymentStatus;
   paystackCustomerCode?: string | null;
+  discountCode?: string | null;
   // authorization_url: string;
   // access_code: string;
   // paystackReference?: string | null;
