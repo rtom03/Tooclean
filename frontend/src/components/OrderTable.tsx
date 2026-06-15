@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { OrderData } from "../constant/index.type";
-import { useUpdateOrderStatus } from "../api/orderQuery";
+// import { useUpdateOrderStatus } from "../api/orderQuery";
 import { useGetDiscountByCode } from "../api/discountQuery";
 
 const statusConfig: Record<string, { bg: string; color: string }> = {
@@ -11,7 +11,7 @@ const statusConfig: Record<string, { bg: string; color: string }> = {
   failed: { bg: "#fcebeb", color: "#791f1f" },
 };
 
-const statuses = ["pending", "processing", "shipped", "delivered", "failed"];
+// const statuses = ["pending", "processing", "shipped", "delivered", "failed"];
 
 const Row = ({ label, value }: { label: string; value?: string | null }) => (
   <div className="flex flex-col gap-0.5">
@@ -24,7 +24,7 @@ const Row = ({ label, value }: { label: string; value?: string | null }) => (
 
 const OrderTable = ({ orders }: { orders: OrderData[] }) => {
   const [selected, setSelected] = useState<OrderData | null>(null);
-  const { mutate: updateStatus, isPending } = useUpdateOrderStatus();
+  // const { mutate: updateStatus, isPending } = useUpdateOrderStatus();
   const discountCode = selected && selected.discountCode;
   const { data: discountData } = useGetDiscountByCode(discountCode!, {
     enabled: !!discountCode,
@@ -32,9 +32,9 @@ const OrderTable = ({ orders }: { orders: OrderData[] }) => {
 
   // console.log(selected?.orderDetails?.items.map((item) => item.product.name));
 
-  const handleStatusChange = (id: string, status: string) => {
-    updateStatus({ id, status });
-  };
+  // const handleStatusChange = (id: string, status: string) => {
+  //   updateStatus({ id, status });
+  // };
 
   return (
     <>
@@ -55,7 +55,7 @@ const OrderTable = ({ orders }: { orders: OrderData[] }) => {
         </thead>
         <tbody>
           {orders.map((o) => {
-            const cfg = statusConfig[o.status] ?? statusConfig.pending;
+            // const cfg = statusConfig[o.status] ?? statusConfig.pending;
             return (
               <tr
                 key={o.id}
@@ -82,7 +82,10 @@ const OrderTable = ({ orders }: { orders: OrderData[] }) => {
                 </td>
                 <td className="px-5 py-3">
                   <div className="relative w-fit">
-                    <select
+                    <span className="appearance-none text-[11px] font-bold uppercase tracking-[0.05em] px-3 py-1.5 pr-7 rounded-md border-none outline-none cursor-pointer disabled:opacity-50">
+                      {o.deliveryStatus}
+                    </span>
+                    {/* <select
                       defaultValue={o.status}
                       disabled={isPending}
                       onChange={(e) => handleStatusChange(o.id, e.target.value)}
@@ -94,8 +97,8 @@ const OrderTable = ({ orders }: { orders: OrderData[] }) => {
                           {s.charAt(0).toUpperCase() + s.slice(1)}
                         </option>
                       ))}
-                    </select>
-                    <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none">
+                    </select> */}
+                    {/* <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none">
                       <svg
                         className="w-3 h-3 opacity-60"
                         viewBox="0 0 12 12"
@@ -106,7 +109,7 @@ const OrderTable = ({ orders }: { orders: OrderData[] }) => {
                       >
                         <polyline points="2,4 6,8 10,4" />
                       </svg>
-                    </div>
+                    </div> */}
                   </div>
                 </td>
                 <td className="px-5 py-3">

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   createOrder,
+  fezWebhook,
   getAllOrders,
   getLatestOrderByPhone,
   getOrderByOrderNumber,
@@ -28,6 +29,7 @@ isOrderRoute.get("/track/order-number", getOrderByOrderNumber);
 isOrderRoute.get("/order-data/:id", getOrderDataById);
 isOrderRoute.get("/verify-payment/:reference", verifyTransaction);
 isOrderRoute.post("/create-order", createOrder);
+isOrderRoute.post("/fez/webhook", fezWebhook);
 isOrderRoute.post("/initialize-transfer/:orderId", initializeTransfer);
 
 export default isOrderRoute;

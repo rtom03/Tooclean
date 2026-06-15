@@ -1,22 +1,31 @@
 import axios from "axios";
 import dotenv from "dotenv";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-dotenv.config();
+// dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
+dotenv.config({
+  path: path.resolve(__dirname, "../.env"),
+});
 // services/fezAuth.ts
 
-const FEZ_BASE = "https://api.fezdelivery.co/v1";
+export const FEZ_BASE = "https://api.fezdelivery.co/v1";
 
 // const FEZ_BASE = "https://apisandbox.fezdelivery.co/v1";
 
 let fezToken = null;
 let fezSecretKey = null;
 let tokenExpiry = 0;
+// const fezUserId = process.env.FEZ_USER_ID;
+// const fezPasswd = process.env.FEZ_PASSWORD;
 
 export const loginToFez = async () => {
   try {
     console.log("🔐 Starting Fez login...");
-
+    // console.log(fezUserId, fezPasswd);
     const payload = {
       user_id: process.env.FEZ_USER_ID,
       password: process.env.FEZ_PASSWORD,

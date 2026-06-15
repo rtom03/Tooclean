@@ -626,6 +626,21 @@ export const updateOrderStatus = async (req, res) => {
   }
 };
 
+export const fezWebhook = async (req, res) => {
+  console.log("🚚 Fez webhook:", req.body);
+
+  const { orderNumber, orderStatus } = req.body;
+
+  await prisma.payment_Info.update({
+    where: { orderNumber },
+    data: {
+      deliveryStatus: orderStatus,
+    },
+  });
+
+  res.sendStatus(200);
+};
+
 export const mergePaymentOrder = async (req, res) => {
   const { id } = req.params;
 

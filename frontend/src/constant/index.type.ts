@@ -118,6 +118,7 @@ export interface OrderData {
   paymentStatus: PaymentStatus;
   paystackCustomerCode?: string | null;
   discountCode?: string | null;
+  deliveryStatus: string;
   // authorization_url: string;
   // access_code: string;
   // paystackReference?: string | null;
