@@ -5,6 +5,8 @@ import OrderTable from "../components/OrderTable";
 
 const Dashboard = () => {
   const { data: orders, isError, error } = useGetAllOrders();
+  const paidOrders =
+    orders?.filter((order) => order.paymentStatus === "paid") ?? [];
 
   const stats = useMemo(() => {
     const totalRevenue =
@@ -12,8 +14,7 @@ const Dashboard = () => {
         ?.filter((order) => order.paymentStatus === "paid")
         .reduce((sum, order) => sum + order.total, 0) ?? 0;
 
-    const totalOrders = orders?.length ?? 0;
-
+    const totalOrders = paidOrders.length;
     const totalPending =
       orders?.filter((order) => order.paymentStatus === "unpaid").length ?? 0;
 
