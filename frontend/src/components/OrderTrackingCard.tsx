@@ -4,8 +4,49 @@ type Props = {
   order: TrackedOrder | undefined;
 };
 
+const getDisplayStatus = (status: string, description: string) => {
+  switch (status) {
+    case "Enroute To Last Mile Hub":
+      return "In Transit";
+
+    case "Accepted At Last Mile Hub": {
+      const match = description.match(/arrived at our (.*?) Hub/i);
+
+      return match?.[1] ? `Arrived At ${match[1]} Hub` : "Arrived At Hub";
+    }
+
+    default:
+      return status;
+  }
+};
+
 const OrderTrackingCard = ({ order }: Props) => {
   if (!order) return null;
+
+  // oldest -> newest
+  const sortedHistory = [...order.history].sort(
+    (a, b) =>
+      new Date(a.statusCreationDate).getTime() -
+      new Date(b.statusCreationDate).getTime(),
+  );
+
+  // normalize statuses
+  const normalizedHistory = sortedHistory.map((item) => ({
+    ...item,
+    orderStatus: getDisplayStatus(item.orderStatus, item.statusDescription),
+  }));
+
+  // keep latest occurrence of each status
+  const statusMap = new Map();
+
+  normalizedHistory.forEach((item) => {
+    statusMap.set(item.orderStatus, item);
+  });
+
+  // newest -> oldest
+  const timeline = Array.from(statusMap.values()).reverse();
+
+  const currentStatus = timeline[0]?.orderStatus ?? order.order.orderStatus;
 
   return (
     <div className="bg-white rounded-2xl border p-6">
@@ -23,9 +64,7 @@ const OrderTrackingCard = ({ order }: Props) => {
           <div>
             <p className="text-xs text-gray-500 uppercase">Current Status</p>
 
-            <p className="font-semibold text-green-600">
-              {order.order.orderStatus}
-            </p>
+            <p className="font-semibold text-green-600">{currentStatus}</p>
           </div>
         </div>
 
@@ -40,34 +79,31 @@ const OrderTrackingCard = ({ order }: Props) => {
       <div>
         <h3 className="font-semibold text-lg mb-6">Tracking Timeline</h3>
 
-        <div className="relative">
-          {/* Vertical line */}
-          <div className="absolute left-[11px] top-0 bottom-0 w-[2px] bg-green-500" />
+        <div className="space-y-5">
+          {timeline.map((item, index) => (
+            <div
+              key={`${item.orderStatus}-${item.statusCreationDate}`}
+              className="relative flex gap-4"
+            >
+              {index !== timeline.length - 1 && (
+                <div className="absolute left-[7px] top-4 h-full w-[2px] bg-green-500" />
+              )}
 
-          <div className="space-y-8">
-            {order.history.map((item, index) => (
-              <div
-                key={`${item.statusCreationDate}-${index}`}
-                className="relative flex gap-4"
-              >
-                {/* Dot */}
-                <div className="w-6 h-6 rounded-full bg-green-500 shrink-0 z-10" />
+              <div className="w-4 h-4 rounded-full bg-green-500 shrink-0 z-10" />
 
-                {/* Content */}
-                <div>
-                  <h4 className="font-semibold">{item.orderStatus}</h4>
+              <div>
+                <h4 className="font-semibold">{item.orderStatus}</h4>
 
-                  <p className="text-sm text-gray-600">
-                    {item.statusDescription}
-                  </p>
+                <p className="text-sm text-gray-600">
+                  {item.statusDescription}
+                </p>
 
-                  <p className="text-xs text-gray-400 mt-1">
-                    {item.statusCreationDate}
-                  </p>
-                </div>
+                <p className="text-xs text-gray-400 mt-1">
+                  {new Date(item.statusCreationDate).toLocaleString()}
+                </p>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
