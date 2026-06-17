@@ -3,9 +3,10 @@ import {
   getOrderByOrderNumber,
   getOrderByPhone,
 } from "../services/apiServices";
+import type { TrackOrderResponse } from "../constant/index.type";
 
 export const useTrackOrderByPhone = (phone?: string) => {
-  return useQuery({
+  return useQuery<TrackOrderResponse>({
     queryKey: ["track-order-phone", phone],
 
     queryFn: () => {

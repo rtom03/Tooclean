@@ -2,6 +2,7 @@ import axios from "axios";
 import dotenv from "dotenv";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { prisma } from "../utils/db.js";
 
 // dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
@@ -120,6 +121,15 @@ export const triggerFezDelivery = async (order) => {
         "secret-key": fezSecretKey,
       },
     });
+    const fezOrderNumber = response.data?.orderNos?.[order.id] ?? null;
+
+    await prisma.payment_Info.update({
+      where: { id: order.id },
+      data: {
+        deliveryStatus: "created",
+        fezOrderNumber,
+      },
+    });
 
     console.log("🚚 Fez delivery created:", response.data);
   } catch (error) {
@@ -142,6 +152,15 @@ export const triggerFezDelivery = async (order) => {
           },
         });
 
+        const fezOrderNumber = retryResponse.data?.orderNos?.[order.id] ?? null;
+        await prisma.payment_Info.update({
+          where: { id: order.id },
+          data: {
+            deliveryStatus: "created",
+            fezOrderNumber,
+          },
+        });
+
         console.log("🚚 Fez delivery created (retry):", retryResponse.data);
       } catch (retryError) {
         console.error(
@@ -150,5 +169,54 @@ export const triggerFezDelivery = async (order) => {
         );
       }
     }
+  }
+};
+
+export const fezOrder = async (orderId) => {
+  try {
+    const response = await axios.get(`${FEZ_BASE}/orders/${orderId}`, {
+      headers: {
+        Authorization: `Bearer ${fezToken}`,
+        "secret-key": fezSecretKey,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    if (error.response?.status === 401) {
+      console.log("🔄 Token expired, retrying...");
+
+      try {
+        const { token, secretKey } = await getFezAuth(true);
+
+        // console.log(`HERE IS YOR AUTH:${token}, SECRET:${secretKey}`);
+
+        const retryResponse = await axios.get(`${FEZ_BASE}/orders/${orderId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "secret-key": secretKey, // ✅ FIXED
+          },
+        });
+        return retryResponse.data;
+        console.log("🚚 Fez delivery created (retry):", retryResponse.data);
+      } catch (retryError) {
+        console.error(
+          "❌ Retry failed:",
+          retryError.response?.data || retryError.message,
+        );
+      }
+    }
+  }
+};
+export const fezTrackOrder = async (orderNumber) => {
+  try {
+    const response = await axios.get(`${FEZ_BASE}/order/track/${orderNumber}`, {
+      headers: {
+        Authorization: `Bearer ${fezToken}`,
+        "secret-key": fezSecretKey,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.log(error);
   }
 };

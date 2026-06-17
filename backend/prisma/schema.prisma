@@ -82,7 +82,7 @@ model Payment_Info {
   paystackCustomerCode String?
   paystackReference    String? @unique
   deliveryStatus       String @default("not_created")
-  fezTrackingId        String?
+  fezOrderNumber       String?
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 }

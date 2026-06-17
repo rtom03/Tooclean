@@ -7,7 +7,11 @@ import {
 } from "../services/paystack.js";
 import { z } from "zod";
 import { prisma } from "../utils/db.js";
-import { triggerFezDelivery } from "../services/fez.js";
+import {
+  fezOrder,
+  fezTrackOrder,
+  triggerFezDelivery,
+} from "../services/fez.js";
 import { generateDiscountCode } from "../utils/utils.js";
 
 const DELIVERY_RATES = [
@@ -520,29 +524,22 @@ export const getLatestOrderByPhone = async (req, res) => {
       },
 
       select: {
-        orderNumber: true,
-        customerName: true,
-        phone: true,
-
-        status: true,
-        paymentStatus: true,
-        deliveryStatus: true,
-
-        total: true,
-        deliveryPrice: true,
-
-        orderDetails: true,
-
-        createdAt: true,
-        updatedAt: true,
+        fezOrderNumber: true,
       },
     });
-
-    if (!order) {
+    const getOrderNo = await fezOrder(order.fezOrderNumber);
+    const orderNo = getOrderNo?.orderDetails.map((item) => {
+      return item.orderNo;
+    });
+    const trackedOrder = await fezTrackOrder(orderNo);
+    // console.log(trackedOrder);
+    // console.log(order.fezOrderNumber);
+    // console.log(trackedOrder);
+    if (!trackedOrder) {
       return res.status(404).json({ error: "No order found" });
     }
 
-    res.status(200).json({ order });
+    res.status(200).json({ trackedOrder });
   } catch (error) {
     console.error(error);
 
@@ -632,12 +629,11 @@ export const fezWebhook = async (req, res) => {
   const { orderNumber, orderStatus } = req.body;
 
   await prisma.payment_Info.update({
-    where: { orderNumber },
+    where: { fezOrderNumber: orderNumber },
     data: {
       deliveryStatus: orderStatus,
     },
   });
-
   res.sendStatus(200);
 };
 

@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import {
-  useTrackOrderByOrderNumber,
+  // useTrackOrderByOrderNumber,
   useTrackOrderByPhone,
-} from "../store/trackStore";
+} from "../api/trackQuery";
 import Loader from "../components/Loader";
 import OrderTrackingCard from "../components/OrderTrackingCard";
 
@@ -12,35 +12,23 @@ const inputClass =
 const TrackOrder = () => {
   const [phone, setPhone] = useState("");
   const [submittedPhone, setSubmittedPhone] = useState("");
-  const [trackingNumber, setTrackingNumber] = useState("");
-  const [submittedTrackingNumber, setSubmittedTrackingNumber] = useState("");
+  // const [trackingNumber, setTrackingNumber] = useState("");
+  // const [submittedTrackingNumber, setSubmittedTrackingNumber] = useState("");
   const { data, isLoading, refetch } = useTrackOrderByPhone(submittedPhone);
-  const {
-    data: order,
-    isLoading: orderLoading,
-    refetch: orderRefetch,
-  } = useTrackOrderByOrderNumber(submittedTrackingNumber);
-  const orderData = data?.order || order?.order;
-
-  const trackedOrder = orderData
-    ? {
-        orderNumber: orderData.orderNumber,
-        customerName: orderData.customerName,
-        status: orderData.status,
-        paymentStatus: orderData.paymentStatus,
-        deliveryStatus: orderData.deliveryStatus,
-        total: orderData.total,
-        createdAt: orderData.createdAt,
-      }
-    : null;
+  // const {
+  //   data: order,
+  //   isLoading: orderLoading,
+  //   refetch: orderRefetch,
+  // } = useTrackOrderByOrderNumber(submittedTrackingNumber);
+  const orderData = data?.trackedOrder;
 
   // console.log(order);
 
-  const handleTrackByOrder = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // const handleTrackByOrder = async (e: React.FormEvent) => {
+  //   e.preventDefault();
 
-    setSubmittedTrackingNumber(trackingNumber);
-  };
+  //   setSubmittedTrackingNumber(trackingNumber);
+  // };
 
   const handleTrackByPhone = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,11 +40,11 @@ const TrackOrder = () => {
       setPhone("");
     }
   }, [submittedPhone]);
-  useEffect(() => {
-    if (submittedTrackingNumber) {
-      orderRefetch();
-    }
-  }, [submittedTrackingNumber]);
+  // useEffect(() => {
+  //   if (submittedTrackingNumber) {
+  //     orderRefetch();
+  //   }
+  // }, [submittedTrackingNumber]);
   // if (data) {
   //   console.log(data);
   // }
@@ -68,7 +56,7 @@ const TrackOrder = () => {
       </h1>
 
       <div className="bg-white border border-[#e8e8e8] rounded-2xl p-8 md:p-10">
-        <div className="flex flex-col md:flex-row items-stretch gap-0">
+        <div className="flex justify-center md:flex-row items-stretch gap-0">
           {/* Left — Order Number + Phone */}
           <div>
             {!data ? (
@@ -98,19 +86,19 @@ const TrackOrder = () => {
               </form>
             ) : (
               <>
-                <OrderTrackingCard order={trackedOrder} />{" "}
+                <OrderTrackingCard order={orderData} />{" "}
               </>
             )}
           </div>
           {/* Or divider */}
-          <div className="flex md:flex-col items-center justify-center gap-2 py-4 md:py-0 md:px-8">
+          {/* <div className="flex md:flex-col items-center justify-center gap-2 py-4 md:py-0 md:px-8">
             <div className="flex-1 md:w-px md:flex-none md:h-full w-full h-px bg-[#e8e8e8]" />
             <span className="text-[13px] font-semibold text-[#a1a1a1]">Or</span>
             <div className="flex-1 md:w-px md:flex-none md:h-full w-full h-px bg-[#e8e8e8]" />
-          </div>
+          </div> */}
 
           {/* Right — Tracking Number */}
-          <div>
+          {/* <div>
             {!order ? (
               <form
                 className="flex-1 flex flex-col gap-4"
@@ -138,10 +126,10 @@ const TrackOrder = () => {
               </form>
             ) : (
               <>
-                <OrderTrackingCard order={trackedOrder} />{" "}
+                <OrderTrackingCard order={orderData} />{" "}
               </>
             )}
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

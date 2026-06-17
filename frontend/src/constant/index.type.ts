@@ -125,13 +125,29 @@ export interface OrderData {
   createdAt: string; // ISO string from backend
   updatedAt: string;
 }
+export type TrackingHistory = {
+  orderStatus: string;
+  statusCreationDate: string;
+  statusDescription: string;
+};
+
+export type OrderTrackingDetails = {
+  orderNo: string;
+  orderStatus: string;
+  recipientName: string;
+  recipientAddress: string;
+  recipientState: string;
+  createdAt: string;
+  proofOfDelivery: string | null;
+};
 
 export type TrackedOrder = {
-  orderNumber: string;
-  customerName: string;
   status: string;
-  paymentStatus: string;
-  deliveryStatus: string;
-  total: number;
-  createdAt: string;
+  description: string;
+  order: OrderTrackingDetails;
+  history: TrackingHistory[];
+};
+
+export type TrackOrderResponse = {
+  trackedOrder: TrackedOrder;
 };
