@@ -254,6 +254,9 @@ const OrderTable = ({ orders }: { orders: OrderData[] }) => {
                   <p className="text-[18px] font-black text-[#1a1a1a]">
                     ₦{discountData.discount_price.toLocaleString("en-NG")}
                   </p>
+                  <p className="text-[18px] font-black text-[#1a1a1a]">
+                    {discountData.name}
+                  </p>
                 </div>
               )}
             </div>
