@@ -3,9 +3,10 @@ import { z } from "zod";
 export const createOrderSchema = z.object({
   customerName: z
     .string()
-    .min(3, "Name must be at least 2 words")
+    .trim()
+    .min(3, "Name is required")
     .regex(
-      /^[A-Za-z]+(?:\s[A-Za-z]+)+$/,
+      /^[A-Za-z]+(?:\s+[A-Za-z]+)+$/,
       "Enter a valid full name (e.g. John Doe)",
     ),
   email: z.string().email("Enter a valid email address"),

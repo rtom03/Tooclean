@@ -31,6 +31,7 @@ export const useGetDiscountByCode = (
   return useQuery<Discount>({
     queryKey: ["discount", code],
     queryFn: () => getDiscountByCode(code),
+    enabled: !!code,
     ...options, // spread the options in
     retry: false, // don't retry on 404/400
   });
