@@ -1,10 +1,14 @@
 import { useMemo } from "react";
 import { useOrders } from "../api/orderQuery";
-import { useGetAllOrders } from "../api/paymentQuery";
+// import { useGetAllOrders } from "../api/paymentQuery";
 import OrderTable from "../components/OrderTable";
+// import type { OrderData } from "../constant/index.type";
 
 const Dashboard = () => {
-  const { data: orders, isError, error } = useGetAllOrders();
+  // const { data: orders, isError, error } = useGetAllOrders();
+  const { data: orders, isPending, isError, error } = useOrders();
+  // console.log(orders?.map());
+  console.log(orders);
   const paidOrders =
     orders?.filter((order) => order.paymentStatus === "paid") ?? [];
 
@@ -12,7 +16,7 @@ const Dashboard = () => {
     const totalRevenue =
       orders
         ?.filter((order) => order.paymentStatus === "paid")
-        .reduce((sum, order) => sum + order.total, 0) ?? 0;
+        .reduce((sum, order) => sum + order.orderDetails.total, 0) ?? 0;
 
     const totalOrders = paidOrders.length;
     const totalPending =
@@ -45,7 +49,6 @@ const Dashboard = () => {
       },
     ];
   }, [orders]);
-  const { data, isPending } = useOrders();
   if (isPending) return <p>Loading orders...</p>;
 
   if (isError) return <p>{(error as Error).message}</p>;
@@ -68,7 +71,7 @@ const Dashboard = () => {
           </div>
         ))}
       </div>
-      <OrderTable orders={data.orders} />
+      <OrderTable orders={orders} />
       <div className="bg-white border border-[#e8e8e8] rounded-xl overflow-hidden">
         <div className="px-5 py-3.5 border-b border-[#e8e8e8] flex items-center justify-between">
           <p className="text-[13px] font-bold">Recent orders</p>

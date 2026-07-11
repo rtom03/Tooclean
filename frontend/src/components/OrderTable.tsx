@@ -29,7 +29,8 @@ const OrderTable = ({ orders }: { orders: OrderData[] }) => {
   const { data: discountData } = useGetDiscountByCode(discountCode!, {
     enabled: !!discountCode,
   });
-  console.log(selected);
+  console.log(orders);
+  // console.log(selected);
   // console.log(selected?.orderDetails?.items.map((item) => item.product.name));
 
   // const handleStatusChange = (id: string, status: string) => {

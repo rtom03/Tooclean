@@ -7,6 +7,7 @@ import {
   updateOrderStatus,
 } from "../services/apiServices";
 import type { OrderByIdResponse } from "../types/order";
+import { type OrderData } from "../constant/index.type";
 
 export const useGetOrderById = (id: string) => {
   return useQuery<OrderByIdResponse>({
@@ -23,10 +24,19 @@ export const useCreateOrder = () => {
 };
 
 // ADMIN
+// export const useOrders = () => {
+//   return useQuery<OrderData[]>({
+//     queryKey: ["orders"],
+//     queryFn: getOrders,
+//   });
+// };
 export const useOrders = () => {
-  return useQuery({
+  return useQuery<OrderData[]>({
     queryKey: ["orders"],
-    queryFn: getOrders,
+    queryFn: async () => {
+      const res = await getOrders(); // res is { orders: OrderData[] }
+      return res.orders;
+    },
   });
 };
 

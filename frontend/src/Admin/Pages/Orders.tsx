@@ -13,7 +13,7 @@ const Orders = () => {
   return (
     <div>
       {/* <h1>Orders</h1> */}
-      <OrderTable orders={data.orders} />
+      <OrderTable orders={data} />
     </div>
   );
 };
