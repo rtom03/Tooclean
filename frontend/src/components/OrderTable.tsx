@@ -29,7 +29,7 @@ const OrderTable = ({ orders }: { orders: OrderData[] }) => {
   const { data: discountData } = useGetDiscountByCode(discountCode!, {
     enabled: !!discountCode,
   });
-
+  console.log(selected);
   // console.log(selected?.orderDetails?.items.map((item) => item.product.name));
 
   // const handleStatusChange = (id: string, status: string) => {
@@ -237,28 +237,70 @@ const OrderTable = ({ orders }: { orders: OrderData[] }) => {
               </div>
 
               <div className="h-px bg-[#f0f0f0]" />
+              {(() => {
+                const productCost = selected.orderDetails.total;
+                const discountAmount = discountData?.discount_price ?? 0;
+                const discountedProductCost = Math.max(
+                  productCost - discountAmount,
+                  0,
+                );
+                const finalTotal =
+                  discountedProductCost + selected.deliveryPrice;
 
-              <div className="h-px bg-[#f0f0f0]" />
+                return (
+                  <div className="bg-[#f7f7f5] rounded-xl px-4 py-1 divide-y divide-[#e5e5e2]">
+                    <div className="flex items-center justify-between py-2.5">
+                      <p className="text-[13px] font-semibold text-[#6b6b6b]">
+                        Product Cost
+                      </p>
+                      <div className="flex items-center gap-2">
+                        {discountData && (
+                          <p className="text-[12px] font-semibold text-[#a3a3a3] line-through">
+                            ₦{productCost.toLocaleString("en-NG")}
+                          </p>
+                        )}
+                        <p className="text-[14px] font-bold text-[#1a1a1a]">
+                          ₦{discountedProductCost.toLocaleString("en-NG")}
+                        </p>
+                      </div>
+                    </div>
 
-              <div className="flex items-center justify-between bg-[#f7f7f5] rounded-xl px-4 py-3">
-                <p className="text-[13px] font-bold text-[#1a1a1a]">Total</p>
-                <p className="text-[18px] font-black text-[#1a1a1a]">
-                  ₦{selected.total.toLocaleString("en-NG")}
-                </p>
-              </div>
-              {discountData && (
-                <div className="flex items-center justify-between bg-[#f7f7f5] rounded-xl px-4 py-3">
-                  <p className="text-[13px] font-bold text-[#1a1a1a]">
-                    Discount Price
-                  </p>
-                  <p className="text-[18px] font-black text-[#1a1a1a]">
-                    ₦{discountData.discount_price.toLocaleString("en-NG")}
-                  </p>
-                  <p className="text-[18px] font-black text-[#1a1a1a]">
-                    {discountData.name}
-                  </p>
-                </div>
-              )}
+                    <div className="flex items-center justify-between py-2.5">
+                      <p className="text-[13px] font-semibold text-[#6b6b6b]">
+                        Delivery Cost
+                      </p>
+                      <p className="text-[14px] font-bold text-[#1a1a1a]">
+                        ₦{selected.deliveryPrice.toLocaleString("en-NG")}
+                      </p>
+                    </div>
+
+                    {discountData && (
+                      <div className="flex items-center justify-between py-2.5">
+                        <div className="flex items-center gap-1.5">
+                          <p className="text-[13px] font-semibold text-[#6b6b6b]">
+                            Discount
+                          </p>
+                          <span className="text-[10px] font-bold text-[#16a34a] bg-[#16a34a]/10 px-1.5 py-0.5 rounded-md">
+                            {discountData.name}
+                          </span>
+                        </div>
+                        <p className="text-[14px] font-bold text-[#16a34a]">
+                          -₦{discountAmount.toLocaleString("en-NG")}
+                        </p>
+                      </div>
+                    )}
+
+                    <div className="flex items-center justify-between py-2.5">
+                      <p className="text-[13px] font-bold text-[#1a1a1a]">
+                        Total
+                      </p>
+                      <p className="text-[18px] font-black text-[#1a1a1a]">
+                        ₦{finalTotal.toLocaleString("en-NG")}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           </div>
         </div>

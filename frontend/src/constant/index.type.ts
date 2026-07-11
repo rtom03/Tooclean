@@ -120,6 +120,7 @@ export interface OrderData {
   paystackCustomerCode?: string | null;
   discountCode?: string | null;
   deliveryStatus: string;
+  deliveryPrice: number;
   // authorization_url: string;
   // access_code: string;
   // paystackReference?: string | null;
