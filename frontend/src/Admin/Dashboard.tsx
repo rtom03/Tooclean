@@ -8,7 +8,7 @@ const Dashboard = () => {
   // const { data: orders, isError, error } = useGetAllOrders();
   const { data: orders, isPending, isError, error } = useOrders();
   // console.log(orders?.map());
-  console.log(orders);
+  // console.log(orders);
   const paidOrders =
     orders?.filter((order) => order.paymentStatus === "paid") ?? [];
 
