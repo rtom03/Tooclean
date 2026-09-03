@@ -1,7 +1,13 @@
-import { Loader2, Trash2 } from "lucide-react";
+import {
+  // Loader2,
+  Trash2,
+} from "lucide-react";
 import { useCartStore } from "../store/cartStore";
-import { useCreateOrder } from "../api/orderQuery";
-import { useNavigate } from "react-router-dom";
+// import { useCreateOrder } from "../api/orderQuery";
+import {
+  Link,
+  // useNavigate
+} from "react-router-dom";
 import { calculateSubtotal } from "../constant";
 import { useMergePaymentOrder, usePaymentStore } from "../store/paymentStore";
 import { useEffect } from "react";
@@ -16,12 +22,12 @@ export default function CartBody() {
   const { paymentData } = usePaymentStore();
   const clearPaymentData = usePaymentStore((state) => state.clearPaymentData);
 
-  const { isPending: isCreatingOrder, mutateAsync } = useCreateOrder();
+  // const { isPending: isCreatingOrder, mutateAsync } = useCreateOrder();
   // const { mutateAsync: mergePaymentOrderMutation, isPending: isMergingOrder } =
   useMergePaymentOrder();
 
   const formatPrice = (amount: number) => `₦${amount.toLocaleString("en-NG")}`;
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   useEffect(() => {
     const isCartEmpty = items.length === 0;
@@ -37,25 +43,25 @@ export default function CartBody() {
   // const estimatePrice = items.map((est) => {
   //   (est.price, est.qty);
   // });
-  const handleBuyNow = async () => {
-    try {
-      if (paymentData) {
-        navigate(`/checkout/${paymentData.payment_info.orderDetails}`);
-      }
-      const orderItems = items.map((item) => ({
-        productId: item.id,
-        qty: item.qty,
-      }));
+  // const handleBuyNow = async () => {
+  //   try {
+  //     if (paymentData) {
+  //       navigate(`/checkout/${paymentData.payment_info.orderDetails}`);
+  //     }
+  //     const orderItems = items.map((item) => ({
+  //       productId: item.id,
+  //       qty: item.qty,
+  //     }));
 
-      const res = await mutateAsync({
-        items: orderItems,
-      });
+  //     const res = await mutateAsync({
+  //       items: orderItems,
+  //     });
 
-      navigate(`/checkout/${res.orderId}`);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  //     navigate(`/checkout/${res.orderId}`);
+  //   } catch (err) {
+  //     console.error(err);
+  //   }
+  // };
 
   // const handleMergeOrder = async () => {
   //   if (!paymentData) return;
@@ -165,7 +171,15 @@ export default function CartBody() {
           <span className="underline cursor-pointer">shipping</span> calculated
           at checkout.
         </p>
-        <button
+        <Link to={"/out-of-stock"}>
+          <button
+            // onClick={handleBuyNow}
+            className="w-full bg-[#453224] text-white text-[14px] font-extrabold tracking-[0.05em] uppercase py-4 rounded-lg hover:opacity-85 transition-opacity active:scale-[0.98] flex items-center justify-center"
+          >
+            {"Buy Now"}
+          </button>
+        </Link>
+        {/* <button
           onClick={handleBuyNow}
           className="w-full bg-[#453224] text-white text-[14px] font-extrabold tracking-[0.05em] uppercase py-4 rounded-lg hover:opacity-85 transition-opacity active:scale-[0.98] flex items-center justify-center"
         >
@@ -174,7 +188,7 @@ export default function CartBody() {
           ) : (
             "Buy Now"
           )}
-        </button>
+        </button> */}
       </div>
     </div>
   );

@@ -189,26 +189,3 @@ export const VideoReviews = () => {
     </section>
   );
 };
-
-//  <div className="absolute bottom-3 left-3 right-3 flex items-center gap-2 bg-white/15 backdrop-blur-md rounded-xl px-2.5 py-2">
-//       <div className="w-7 h-7 rounded-lg bg-white flex-shrink-0 flex items-center justify-center">
-//         <svg className="w-4 h-4 fill-[#1a1a1a]" viewBox="0 0 24 24">
-//           <rect x="3" y="3" width="7" height="7" />
-//           <rect x="14" y="3" width="7" height="7" />
-//           <rect x="3" y="14" width="7" height="7" />
-//         </svg>
-//       </div>
-//       <div>
-//         <span>Tooclean</span>
-//       </div>
-//       {/* <div>
-//         {data?.products.map((product) => (
-//           <div key={product.id}>
-//             <p className="text-[11px] font-bold text-white leading-tight">
-//               {product.name}
-//             </p>
-//             <span className="text-[11px] text-white/70">{product.price}</span>
-//           </div>
-//         ))}
-//       </div> */}
-//     </div>
