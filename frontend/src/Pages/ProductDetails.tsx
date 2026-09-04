@@ -1,17 +1,15 @@
+// Productdetail.tsx
+
 import { useState } from "react";
 import ProductImageGallery from "../components/ProductImageGallery";
-import {
-  Link,
-  //  useNavigate,
-  useParams,
-} from "react-router-dom";
-// import { Loader2 } from "lucide-react";
+import { useNavigate, useParams } from "react-router-dom";
+import { Loader2 } from "lucide-react";
 import { useProduct } from "../api/productQuery";
 import ProductDetailSkeleton from "../components/skeleton/ProductDetailsSkeleton";
 import ErrorState from "../components/IsErrorState";
-// import { useCreateOrder } from "../api/orderQuery";
-// import { useCartStore } from "../store/cartStore";
-// import { usePaymentStore } from "../store/paymentStore";
+import { useCreateOrder } from "../api/orderQuery";
+import { useCartStore } from "../store/cartStore";
+import { usePaymentStore } from "../store/paymentStore";
 // import { useCartStore } from "../store/cartStore";
 
 const generateBundles = (basePrice: number) => [
@@ -48,12 +46,12 @@ const ProductDetail = () => {
   const [selected, setSelected] = useState<number>(1); // default select 1 bottle
   const { id } = useParams<{ id: string }>();
 
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const { data, isPending, isError } = useProduct(id!);
-  // const { addToCart } = useCartStore();
+  const { addToCart } = useCartStore();
   // const { addToCart, items } = useCartStore();
-  // const { isPending: isCreatingOrder, mutateAsync } = useCreateOrder();
-  // const { paymentData } = usePaymentStore();
+  const { isPending: isCreatingOrder, mutateAsync } = useCreateOrder();
+  const { paymentData } = usePaymentStore();
 
   window.fbq?.("track", "ViewContent", {
     content_name: data?.product?.name,
@@ -67,30 +65,30 @@ const ProductDetail = () => {
   const bundles = data ? generateBundles(data?.product.price) : [];
 
   console.log(selected);
-  // const handleBuyNow = async () => {
-  //   const selectedBundle = bundles.find((b) => b.qty === selected);
+  const handleBuyNow = async () => {
+    const selectedBundle = bundles.find((b) => b.qty === selected);
 
-  //   if (!selectedBundle) return;
-  //   try {
-  //     if (paymentData) {
-  //       navigate(`/checkout/${paymentData.payment_info.orderDetails}`);
-  //     } else {
-  //       const res = await mutateAsync({
-  //         items: [
-  //           {
-  //             productId: data.product.id,
-  //             qty: selectedBundle.qty,
-  //           },
-  //         ],
-  //       });
+    if (!selectedBundle) return;
+    try {
+      if (paymentData) {
+        navigate(`/checkout/${paymentData.payment_info.orderDetails}`);
+      } else {
+        const res = await mutateAsync({
+          items: [
+            {
+              productId: data.product.id,
+              qty: selectedBundle.qty,
+            },
+          ],
+        });
 
-  //       addToCart(data.product, selectedBundle.qty);
-  //       navigate(`/checkout/${res.orderId}`);
-  //     }
-  //   } catch (err) {
-  //     console.error(err);
-  //   }
-  // };
+        addToCart(data.product, selectedBundle.qty);
+        navigate(`/checkout/${res.orderId}`);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <div className="max-w-5xl bg-[#F0E9DF] mx-auto px-7 py-12 grid grid-cols-1 md:grid-cols-2 gap-14">
@@ -217,15 +215,7 @@ const ProductDetail = () => {
           )}
         </div> */}
         <br />
-        <Link to={"/out-of-stock"}>
-          <button
-            // onClick={handleBuyNow}
-            className="w-full bg-[#453224] text-white text-[14px] font-extrabold tracking-[0.05em] uppercase py-4 rounded-lg hover:opacity-85 transition-opacity active:scale-[0.98] flex items-center justify-center"
-          >
-            {"Buy Now"}
-          </button>
-        </Link>
-        {/* <button
+        <button
           onClick={handleBuyNow}
           className="w-full bg-[#453224] text-white text-[14px] font-extrabold tracking-[0.05em] uppercase py-4 rounded-lg hover:opacity-85 transition-opacity active:scale-[0.98] flex items-center justify-center"
         >
@@ -234,7 +224,7 @@ const ProductDetail = () => {
           ) : (
             "Buy Now"
           )}
-        </button> */}
+        </button>
         {/* </Link> */}
       </div>
     </div>
