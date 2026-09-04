@@ -9,9 +9,9 @@ generator client {
 }
 
 datasource db {
-    provider  = "postgresql"
-    url       = env("DATABASE_URL")
-    directUrl = env("DIRECT_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Admin {
@@ -26,35 +26,35 @@ model Admin {
 model VideoReview {
   id        String   @id @default(uuid())
   name      String
-  file      String   // could be a URL or file path
+  file      String // could be a URL or file path
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Product {
-  id          String   @id @default(uuid())
+  id          String      @id @default(uuid())
   name        String
   price       Float
-  color      String
+  color       String
   description String
   qty         Int
+  isActive    Boolean?
   images      String[] // array of image URLs
   items       OrderItem[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 }
 
 model OrderItem {
-  id        String   @id @default(uuid())
+  id        String  @id @default(uuid())
   orderId   String
-  order     Order    @relation(fields: [orderId], references: [id])
+  order     Order   @relation(fields: [orderId], references: [id])
   productId String
-  product   Product  @relation(fields: [productId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
   qty       Int
   price     Int
   subtotal  Int
 }
-
 
 model Order {
   id        String      @id @default(uuid())
@@ -62,11 +62,11 @@ model Order {
   status    String      @default("pending")
   createdAt DateTime    @default(now())
   items     OrderItem[]
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime    @updatedAt
 }
 
 model Payment_Info {
-  id                   String   @id @default(uuid())  
+  id                   String   @id @default(uuid())
   orderNumber          String   @unique
   customerName         String
   email                String
@@ -77,23 +77,21 @@ model Payment_Info {
   orderDetails         Json
   total                Float
   discountCode         String?
-  status               String   @default("pending")  // pending | processing | shipped | delivered | failed
-  paymentStatus        String   @default("unpaid")   // unpaid | paid
+  status               String   @default("pending") // pending | processing | shipped | delivered | failed
+  paymentStatus        String   @default("unpaid") // unpaid | paid
   paystackCustomerCode String?
-  paystackReference    String? @unique
-  deliveryStatus       String @default("not_created")
+  paystackReference    String?  @unique
+  deliveryStatus       String   @default("not_created")
   fezOrderNumber       String?
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 }
 
-
-
 model DiscountCode {
-  id              String   @id @default(uuid())
-  code            String   @unique
-  name            String
-  discount_price  Float    @default(0)
-  isActive        Boolean @default(true)
-  createdAt       DateTime @default(now())
+  id             String   @id @default(uuid())
+  code           String   @unique
+  name           String
+  discount_price Float    @default(0)
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
 }

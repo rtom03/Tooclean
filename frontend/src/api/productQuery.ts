@@ -13,6 +13,7 @@ type Product = {
     description: string;
     price: number;
     images: string[];
+    isActive: boolean;
     qty: number;
   };
 };
@@ -25,6 +26,7 @@ type Products = {
     color: string;
     price: number;
     images: string;
+    isActive: boolean;
   }[];
 };
 
