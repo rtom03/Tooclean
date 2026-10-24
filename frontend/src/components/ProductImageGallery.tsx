@@ -18,7 +18,7 @@ const ProductImageGallery = ({ product }: Product) => {
           key={current}
           src={product?.images[current]}
           alt={`Product image ${current + 1}`}
-          // className="w-full h-full object-cover p-8 transition-opacity duration-300"
+          className="w-full h-full object-cover p-8 transition-opacity duration-300"
         />
 
         {/* Left arrow */}

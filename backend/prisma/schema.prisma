@@ -39,6 +39,7 @@ model Product {
   description String
   qty         Int
   isActive    Boolean?
+  released    Boolean?    @default(true)
   images      String[] // array of image URLs
   items       OrderItem[]
   createdAt   DateTime    @default(now())

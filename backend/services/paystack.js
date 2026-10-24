@@ -6,7 +6,7 @@ const CALL_BACK_URL = process.env.CALL_BACK_URL;
 
 export const paystack = axios.create({
   baseURL: "https://api.paystack.co",
-  headers: {
+  headers: {  
     Authorization: `Bearer ${PAYSTACK_SECRET}`,
     "Content-Type": "application/json",
   },

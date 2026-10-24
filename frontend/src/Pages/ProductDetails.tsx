@@ -48,6 +48,7 @@ const ProductDetail = () => {
 
   const navigate = useNavigate();
   const { data, isPending, isError } = useProduct(id!);
+  console.log(data);
   const { addToCart } = useCartStore();
   // const { addToCart, items } = useCartStore();
   const { isPending: isCreatingOrder, mutateAsync } = useCreateOrder();
@@ -218,11 +219,12 @@ const ProductDetail = () => {
         <button
           onClick={handleBuyNow}
           className="w-full bg-[#453224] text-white text-[14px] font-extrabold tracking-[0.05em] uppercase py-4 rounded-lg hover:opacity-85 transition-opacity active:scale-[0.98] flex items-center justify-center"
+          disabled={!data.product.released}
         >
           {isCreatingOrder ? (
             <Loader2 className="animate-spin w-5 h-5" />
           ) : (
-            "Buy Now"
+            <>{!data.product.released ? "Unrealesed" : "Buy Now"}</>
           )}
         </button>
         {/* </Link> */}

@@ -19,6 +19,10 @@ const TopSellers = () => {
       <div className="grid grid-cols-2 gap-4 w-full max-w-2xl text-[#FBF6F0]">
         {data.products
           .filter((prod) => prod.isActive)
+          .sort(
+            (a, b) =>
+              new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+          )
           .map((p) => (
             <Link to={`/product/${p.id}`} key={p.id}>
               <div className="bg-[#453224] rounded-2xl overflow-hidden aspect-3/4">

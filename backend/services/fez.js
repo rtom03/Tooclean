@@ -39,7 +39,7 @@ export const loginToFez = async () => {
     });
 
     console.log("✅ Full Fez response:");
-    console.log(JSON.stringify(res.data, null, 2));
+    console.log(JSON.stringify(res.data.status, null, 2));
 
     const token = res.data?.authDetails?.authToken;
 
@@ -196,8 +196,8 @@ export const fezOrder = async (orderId) => {
             "secret-key": secretKey, // ✅ FIXED
           },
         });
-        return retryResponse.data;
         console.log("🚚 Fez delivery created (retry):", retryResponse.data);
+        return retryResponse.data;
       } catch (retryError) {
         console.error(
           "❌ Retry failed:",

@@ -14,6 +14,7 @@ type Product = {
     price: number;
     images: string[];
     isActive: boolean;
+    released: boolean;
     qty: number;
   };
 };
@@ -27,6 +28,7 @@ type Products = {
     price: number;
     images: string;
     isActive: boolean;
+    createdAt: string;
   }[];
 };
 
