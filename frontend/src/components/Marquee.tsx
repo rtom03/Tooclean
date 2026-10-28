@@ -38,7 +38,7 @@ const Marquee = () => {
         {content.map((item, i) => (
           <span
             key={i}
-            className="flex items-center text-[11px] font-bold tracking-[0.12em] uppercase"
+            className="flex items-center text-[15px] font-bold tracking-[0.12em] uppercase"
           >
             {item}
             <span className="mx-6 opacity-40">𓈒𓈒</span>

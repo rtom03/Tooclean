@@ -12,13 +12,13 @@ const ProductImageGallery = ({ product }: Product) => {
 
   return (
     <div className="flex flex-col gap-3.5">
-      <div className="relative bg-[#F5EFE6] rounded-xl overflow-hidden aspect-square flex items-center justify-center group">
+      <div className="relative rounded-xl overflow-hidden aspect-square flex items-center justify-center group">
         {/* Image */}
         <img
           key={current}
           src={product?.images[current]}
           alt={`Product image ${current + 1}`}
-          className="w-full h-full object-cover p-8 transition-opacity duration-300"
+          className="w-full h-full object-cover  transition-opacity duration-300"
         />
 
         {/* Left arrow */}

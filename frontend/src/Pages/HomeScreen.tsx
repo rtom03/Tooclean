@@ -1,6 +1,5 @@
 import Hero from "../components/Hero";
 import TopSellers from "../components/TopSellers";
-import BeforeAfter from "../components/BeforeAfter";
 import { VideoReviews } from "../components/VideoReviews";
 import HowTo from "../components/HowTo";
 import { Helmet } from "react-helmet-async";
@@ -20,7 +19,7 @@ const HomeScreen = () => {
       </Helmet>
       <main>
         <Hero />
-        <BeforeAfter />
+        {/* <BeforeAfter /> */}
         <TopSellers />
         {/* <HowTo /> */}
         <VideoReviews />

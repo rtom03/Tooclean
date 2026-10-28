@@ -6,10 +6,11 @@ import {
   updateProduct,
 } from "../services/apiServices";
 
-type Product = {
+export type Product = {
   product: {
     id: string;
     name: string;
+    index: number;
     description: string;
     price: number;
     images: string[];
@@ -22,6 +23,7 @@ type Product = {
 type Products = {
   products: {
     id: string;
+    index: number;
     name: string;
     description: string;
     color: string;

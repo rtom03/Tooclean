@@ -92,9 +92,9 @@ const ProductDetail = () => {
   };
 
   return (
-    <div className="max-w-5xl bg-[#F0E9DF] mx-auto px-7 py-12 grid grid-cols-1 md:grid-cols-2 gap-14">
+    <div className="max-w-5xl bg-[#F0E9DF] mx-auto px-3 py-3 grid grid-cols-1 md:grid-cols-2 gap-14">
       {/* LEFT — Image */}
-      <ProductImageGallery product={data?.product} />
+      <ProductImageGallery product={data?.product ?? []} />
 
       {/* RIGHT — Info */}
       <div className="flex flex-col pt-2">
@@ -224,7 +224,7 @@ const ProductDetail = () => {
           {isCreatingOrder ? (
             <Loader2 className="animate-spin w-5 h-5" />
           ) : (
-            <>{!data.product.released ? "Unrealesed" : "Buy Now"}</>
+            <>{!data.product.released ? "Unreleased" : "Buy Now"}</>
           )}
         </button>
         {/* </Link> */}
