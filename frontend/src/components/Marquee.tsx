@@ -33,7 +33,7 @@ const Marquee = () => {
   const content = [...ITEMS, ...ITEMS]; // duplicate for seamless loop
 
   return (
-    <div className="overflow-hidden bg-[#fbf6f0] text-black font-extrabold py-2.5 select-none">
+    <div className="overflow-hidden bg-[#453224] text-[#fbf6f0] font-extrabold py-2.5 select-none">
       <div ref={ref} className="flex whitespace-nowrap will-change-transform">
         {content.map((item, i) => (
           <span

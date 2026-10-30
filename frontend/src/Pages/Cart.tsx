@@ -4,8 +4,20 @@ import { useCartStore } from "../store/cartStore";
 import { useCreateOrder } from "../api/orderQuery";
 import { useNavigate } from "react-router-dom";
 import { calculateSubtotal } from "../constant";
-import { useMergePaymentOrder, usePaymentStore } from "../store/paymentStore";
-import { useEffect } from "react";
+import { usePaymentStore } from "../store/paymentStore";
+import { useEffect, useMemo } from "react";
+import { useProducts } from "../api/productQuery";
+
+type Availability = "ok" | "removed" | "inactive";
+const getAvailability = (
+  item: { id: string | number },
+  products?: { id: string | number; isActive: boolean }[],
+): { status: Availability } => {
+  const product = products?.find((p) => p.id === item.id);
+  if (!product) return { status: "removed" }; // not in catalog anymore
+  if (!product.isActive) return { status: "inactive" }; // sold out / disabled
+  return { status: "ok" };
+};
 
 export default function CartBody() {
   const {
@@ -18,12 +30,32 @@ export default function CartBody() {
   const clearPaymentData = usePaymentStore((state) => state.clearPaymentData);
 
   const { isPending: isCreatingOrder, mutateAsync } = useCreateOrder();
-  // const { mutateAsync: mergePaymentOrderMutation, isPending: isMergingOrder } =
-  useMergePaymentOrder();
+  const { data: existingProducts, refetch } = useProducts();
 
   const formatPrice = (amount: number) => `₦${amount.toLocaleString("en-NG")}`;
   const navigate = useNavigate();
+  const itemStatuses = useMemo(
+    () =>
+      items.map((item) => ({
+        item,
+        ...getAvailability(item, existingProducts?.products),
+      })),
+    [items, existingProducts],
+  );
 
+  const problemItems = itemStatuses.filter((i) => i.status !== "ok");
+  const hasProblems = problemItems.length > 0;
+
+  const handleRemoveUnavailable = () => {
+    problemItems.forEach(({ item, status }) => {
+      if (status !== "ok") {
+        // setQty(item.id, available);  // clamp to what's left
+        removeFromCart(item.id); // or just remove if you have no setQty
+      } else {
+        removeFromCart(item.id);
+      }
+    });
+  };
   useEffect(() => {
     const isCartEmpty = items.length === 0;
 
@@ -35,13 +67,21 @@ export default function CartBody() {
     }
   }, [items, paymentData, clearPaymentData]);
 
-  // const estimatePrice = items.map((est) => {
-  //   (est.price, est.qty);
-  // });
   const handleBuyNow = async () => {
     try {
+      const { data: freshProducts } = await refetch();
+      const list = freshProducts?.products;
+
+      if (list) {
+        const stillBad = items.some(
+          (item) => getAvailability(item, list).status !== "ok",
+        );
+        if (stillBad) return; // banner will show
+      }
+
       if (paymentData) {
         navigate(`/checkout/${paymentData.payment_info.orderDetails}`);
+        return; // <-- was missing
       }
       const orderItems = items.map((item) => ({
         productId: item.id,
@@ -58,30 +98,18 @@ export default function CartBody() {
     }
   };
 
-  // const handleMergeOrder = async () => {
-  //   if (!paymentData) return;
-  //   console.log(paymentData);
-  //   try {
-  //     const cartItems = items.map((item) => ({
-  //       productId: item.id,
-  //       qty: item.qty,
-  //     }));
-
-  //     const response = await mergePaymentOrderMutation({
-  //       paymentId: paymentData.payment_info.id!,
-
-  //       items: cartItems,
-  //     });
-
-  //     const normalized = normalizePaymentData(response);
-
-  //     setPaymentData(normalized);
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // };
   return (
     <div className="px-4 py-5 font-sans">
+      {hasProblems && (
+        <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          <p className="font-semibold">
+            Some items in your cart are no longer available.
+          </p>
+          <button onClick={handleRemoveUnavailable} className="mt-2 underline">
+            Remove unavailable items
+          </button>
+        </div>
+      )}
       {/* Cart heading */}
       <div className="flex items-center justify-between mt-6 mb-5">
         <h1 className="text-3xl font-bold">Your cart</h1>
