@@ -105,7 +105,7 @@ export const createOrder = async (req, res) => {
         where: { id: productId },
       });
 
-      if (!product) {
+      if (!product || !product.isActive) {
         return res.status(404).json({
           message: `Product not found: ${productId}`,
         });
