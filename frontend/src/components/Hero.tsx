@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const INTERVAL = 3000; // ms each view stays visible
+const INTERVAL = 2000; // ms each view stays visible
 
 const images: { label: string; src: string }[] = [
   { label: "before", src: "/before.jpg" },
