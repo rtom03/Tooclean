@@ -9,6 +9,7 @@ import { z } from "zod";
 import { prisma } from "../utils/db.js";
 import {
   fezOrder,
+  fezOrderCost,
   fezTrackOrder,
   triggerFezDelivery,
 } from "../services/fez.js";
@@ -80,7 +81,7 @@ const calculateSubtotal = (price, qty) => {
 };
 
 const DELIVERY_RATE_MAP = Object.fromEntries(
-  DELIVERY_RATES.map((item) => [item.state, item.price]),
+  DELIVERY_RATES.map((item) => [item.state, Math.ceil(item.price * 1.1112)]),
 );
 
 export const createOrder = async (req, res) => {

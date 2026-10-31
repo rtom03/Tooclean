@@ -194,7 +194,11 @@ const Checkout = () => {
               {form.state && (
                 <div className="flex justify-between items-center px-0.5 mt-2 text-sm text-gray-600">
                   <span>{form.state}</span>
-                  <span>₦{form.deliveryPrice.toLocaleString()}</span>
+                  <span>
+                    <span>
+                      ₦{Math.ceil(form.deliveryPrice * 1.1112).toLocaleString()}
+                    </span>
+                  </span>
                 </div>
               )}
               {errors.state && (
@@ -314,8 +318,9 @@ const Checkout = () => {
         <div className="flex justify-between text-[14px] text-[#555] mb-2.5">
           <span>Shipping</span>
           <span className="text-[#1a7a3c] font-semibold">
-            {" "}
-            ₦{form.deliveryPrice.toLocaleString("en-NG")}
+            <span>
+              ₦{Math.ceil(form.deliveryPrice * 1.1112).toLocaleString()}
+            </span>
           </span>
         </div>
         <div className="h-px bg-[#e8e8e8] my-3" />
@@ -325,7 +330,7 @@ const Checkout = () => {
             ₦
             {(
               (data?.total ?? 0) +
-              (form.deliveryPrice ?? 0) -
+              (Math.ceil(form.deliveryPrice * 1.1112) ?? 0) -
               (discountData?.discount_price ?? 0)
             ).toLocaleString("en-NG")}
           </span>

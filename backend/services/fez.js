@@ -220,3 +220,42 @@ export const fezTrackOrder = async (orderNumber) => {
     console.log(error);
   }
 };
+
+export const fezOrderCost = async () => {
+  try {
+    console.log(fezSecretKey);
+    const response = await axios.post(`${FEZ_BASE}/order/cost`, {
+      headers: {
+        Authorization: `Bearer ${fezToken}`,
+        "secret-key": fezSecretKey,
+      },
+    });
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    // console.log(error);
+    if (error.response?.status === 401) {
+      console.log("🔄 Token expired, retrying...");
+
+      try {
+        const { token, secretKey } = await getFezAuth(true);
+
+        console.log(`HERE IS YOR AUTH:${token}, SECRET:${secretKey}`);
+
+        const retryResponse = await axios.post(`${FEZ_BASE}/order/cost`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "secret-key": secretKey, // ✅ FIXED
+          },
+        });
+
+        console.log("🚚 Fez delivery cost (retry):", retryResponse.data);
+      } catch (retryError) {
+        console.error(
+          "❌ Retry failed:",
+          retryError.response?.data || retryError.message,
+        );
+      }
+    }
+  }
+};
