@@ -1,18 +1,46 @@
 import { useState } from "react";
+import type { TouchEvent } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Product } from "../constant/index.type";
 
+const SWIPE_THRESHOLD = 50; // minimum px distance to count as a swipe
+
 const ProductImageGallery = ({ product }: Product) => {
   const [current, setCurrent] = useState(0);
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
+  const [touchEndX, setTouchEndX] = useState<number | null>(null);
 
   const prev = () =>
     setCurrent((i) => (i === 0 ? product?.images.length - 1 : i - 1));
   const next = () =>
     setCurrent((i) => (i === product?.images.length - 1 ? 0 : i + 1));
 
+  const handleTouchStart = (e: TouchEvent<HTMLDivElement>) => {
+    setTouchEndX(null); // reset so a plain tap isn't treated as a swipe
+    setTouchStartX(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: TouchEvent<HTMLDivElement>) => {
+    setTouchEndX(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStartX === null || touchEndX === null) return;
+
+    const distance = touchStartX - touchEndX;
+
+    if (distance > SWIPE_THRESHOLD) next(); // swiped left -> next image
+    if (distance < -SWIPE_THRESHOLD) prev(); // swiped right -> previous image
+  };
+
   return (
     <div className="flex flex-col gap-3.5">
-      <div className="relative rounded-xl overflow-hidden aspect-square flex items-center justify-center group">
+      <div
+        className="relative rounded-xl overflow-hidden aspect-square flex items-center justify-center group"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
         {/* Image */}
         <img
           key={current}
